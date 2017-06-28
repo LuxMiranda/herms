@@ -26,18 +26,34 @@ data Recipe = Recipe { recipeName :: String
 
 getRecipe :: String -> [Recipe] -> Maybe Recipe
 getRecipe _ [] = Nothing
-getRecipe target (r:book) = if recipeName r == target then Just r else getRecipe target book
+getRecipe target (r:book) = if recipeName r == target 
+                              then Just r 
+                            else 
+                              getRecipe target book
 
 -- TODO
 add :: [String] -> IO ()
 add _ = print $ "I am adding!"
+
+showIngredient :: Ingredient -> String
+showIngredient i
+  | quantity i == 0 && attribute i == "" = ingredientName i
+  | quantity i == 0 = ingredientName i ++ ", " ++ attribute i
+  | attribute i == "" = (show $ quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i
+  | otherwise = (show $ quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i ++ ", " ++ attribute i
+
+showRecipe :: Recipe -> String
+showRecipe r =  (map toUpper $ recipeName r) ++ "\n"
+                ++ unlines (map showIngredient $ ingredients r)
+--             ++ showDirections (directions r)
 
 view :: [String] -> IO ()
 view [target] = do
   contents <- readFile fileName
   let recipesStr = lines contents
       recipeBook = map (read::String->Recipe) recipesStr
-  putStr $ show $ getRecipe target recipeBook
+      (Just recp)= getRecipe target recipeBook
+  putStr $ showRecipe recp
 
 list :: [String] -> IO ()
 list _  = do
@@ -69,6 +85,10 @@ dispatch = [ ("add", add)
            ]
 
 main = do
-  (command:args) <- getArgs
-  let (Just action) = lookup command dispatch
-  action args
+  testCmd <- getArgs
+  if testCmd == [] 
+    then help [""]
+  else do
+    (command:args) <- getArgs
+    let (Just action) = lookup command dispatch
+    action args
