@@ -45,7 +45,7 @@ showIngredient i
 showRecipe :: Recipe -> String
 showRecipe r =  (map toUpper $ recipeName r) ++ "\n"
                 ++ unlines (map showIngredient $ ingredients r)
---             ++ showDirections (directions r)
+                ++ unlines (directions r)
 
 view :: [String] -> IO ()
 view [target] = do
