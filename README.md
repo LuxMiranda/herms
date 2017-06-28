@@ -1,3 +1,3 @@
-#Herm's
+# Herm's
 
-A Haskell-based recipe manager (yes, food recipes) for the command line with big dreams of one day having a GUI.
+HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line with big dreams of one day having a GUI.
