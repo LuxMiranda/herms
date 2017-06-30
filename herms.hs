@@ -3,11 +3,7 @@ import System.Directory
 import System.IO
 import Control.Monad
 import Data.Char
-
---TODOS:
--- Make printing recipes pretty
--- Create a function that handles file-reading so we can stay DRY
--- Implemet the other stuff
+import Data.List
 
 -- Global constant
 fileName = "recipes"
@@ -50,7 +46,6 @@ add _ = do
     if not (null am)
       then return Ingredient { quantity = (read::String->Double) (head am), unit = unwords (tail am), ingredientName = ingrName, attribute = attr }
     else return Ingredient { quantity = 0, unit = "", ingredientName = ingrName, attribute = attr })
---  print $ ingrs
   putStrLn "\nNumber of steps:"
   numSteps <- getLine
   let s = (read::String->Int) numSteps
@@ -70,7 +65,7 @@ showIngredient i
   | quantity i == 0 && attribute i == "" = ingredientName i
   | quantity i == 0 = ingredientName i ++ ", " ++ attribute i
   | attribute i == "" = show (quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i
-  | otherwise = (show $ quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i ++ ", " ++ attribute i
+  | otherwise = show (quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i ++ ", " ++ attribute i
 
 showRecipe :: Recipe -> String
 showRecipe r =  map toUpper (recipeName r) ++ "\n"
@@ -80,9 +75,9 @@ showRecipe r =  map toUpper (recipeName r) ++ "\n"
 view :: [String] -> IO ()
 view [target] = do
   contents <- readFile fileName
-  let recipesStr = lines contents
-      recipeBook = map (read::String->Recipe) recipesStr
-      (Just recp)= getRecipe target recipeBook
+  let recipesStr  = lines contents
+      recipeBook  = map (read::String->Recipe) recipesStr
+      (Just recp) = getRecipe target recipeBook
   putStr $ showRecipe recp
 
 list :: [String] -> IO ()
@@ -93,9 +88,24 @@ list _  = do
       recipeList = map recipeName recipes
   putStr $ unlines recipeList
 
--- TODO
 remove :: [String] -> IO ()
-remove _ = print "I am removing!"
+remove [target] = do
+  handle <- openFile fileName ReadMode
+  (tempName, tempHandle) <- openTempFile "." "herms_temp"
+  contents <- hGetContents handle
+  let recipesStr  = lines contents
+      recipeBook  = map (read::String->Recipe) recipesStr
+      (Just recp) = getRecipe target recipeBook
+      (Just recipeNum) = recp `elemIndex` recipeBook
+      newRecpBook = delete (recipesStr !! recipeNum) recipesStr
+  putStrLn $ "Removing recipe: " ++ recipeName recp ++ "..."
+  hPutStr tempHandle $ unlines newRecpBook
+  hClose handle
+  hClose tempHandle
+  removeFile fileName
+  renameFile tempName fileName
+  putStrLn "Recipe deleted."
+
 
 help :: [String] -> IO ()
 help _ = putStr $ unlines [ "Usage:"
