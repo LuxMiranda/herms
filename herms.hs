@@ -1,6 +1,7 @@
 import System.Environment
 import System.Directory
 import System.IO
+import Control.Monad
 import Data.Char
 
 --TODOS:
@@ -31,9 +32,39 @@ getRecipe target (r:book) = if recipeName r == target
                             else 
                               getRecipe target book
 
--- TODO
 add :: [String] -> IO ()
-add _ = print $ "I am adding!"
+add _ = do
+  putStrLn $ "Recipe name:"
+  recpName <- getLine
+  putStrLn $ "\nNumber of ingredients:"
+  numIngrs <- getLine
+  let n = (read::String->Int) numIngrs
+  ingrs <- forM [1..n] (\a -> do
+    putStrLn $ "\nEnter amount for ingredient " ++ show a ++ " (e.g., 8 grams).\nPress enter if no specific amount desired:"
+    amount <- getLine
+    putStrLn $ "\nEnter name for ingredient " ++ show a ++ " (e.g., onion):"
+    ingrName <- getLine
+    putStrLn $ "\nEnter attribute for ingredient " ++ show a ++ " (e.g., chopped).\nPress enter if no attribute desired:"
+    attr <- getLine
+    let am = words amount
+    if length am > 0 
+      then return Ingredient { quantity = (read::String->Double) (head am), unit = unwords (tail am), ingredientName = ingrName, attribute = attr }
+    else return Ingredient { quantity = 0, unit = "", ingredientName = ingrName, attribute = attr })
+--  print $ ingrs
+  putStrLn $ "\nNumber of steps:"
+  numSteps <- getLine
+  let s = (read::String->Int) numSteps
+  steps <- forM [1..s] (\a -> do
+  putStrLn $ "\nEnter step " ++ show a ++ ":"
+  step <- getLine
+  return step)
+  putStrLn $ "\nEnter recipe tags separated by spaces (e.g., pasta Italian savory)"
+  t <- getLine
+  let newRecipe = Recipe { recipeName = recpName, ingredients = ingrs, directions = steps, tags = words t }
+  appendFile fileName (show newRecipe ++ "\n")
+  putStrLn $ ""
+  putStrLn $ showRecipe newRecipe
+  putStrLn $ "Added recipe!"
 
 showIngredient :: Ingredient -> String
 showIngredient i
