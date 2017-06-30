@@ -34,9 +34,9 @@ getRecipe target (r:book) = if recipeName r == target
 
 add :: [String] -> IO ()
 add _ = do
-  putStrLn $ "Recipe name:"
+  putStrLn "Recipe name:"
   recpName <- getLine
-  putStrLn $ "\nNumber of ingredients:"
+  putStrLn "\nNumber of ingredients:"
   numIngrs <- getLine
   let n = (read::String->Int) numIngrs
   ingrs <- forM [1..n] (\a -> do
@@ -47,34 +47,33 @@ add _ = do
     putStrLn $ "\nEnter attribute for ingredient " ++ show a ++ " (e.g., chopped).\nPress enter if no attribute desired:"
     attr <- getLine
     let am = words amount
-    if length am > 0 
+    if not (null am)
       then return Ingredient { quantity = (read::String->Double) (head am), unit = unwords (tail am), ingredientName = ingrName, attribute = attr }
     else return Ingredient { quantity = 0, unit = "", ingredientName = ingrName, attribute = attr })
 --  print $ ingrs
-  putStrLn $ "\nNumber of steps:"
+  putStrLn "\nNumber of steps:"
   numSteps <- getLine
   let s = (read::String->Int) numSteps
   steps <- forM [1..s] (\a -> do
   putStrLn $ "\nEnter step " ++ show a ++ ":"
-  step <- getLine
-  return step)
-  putStrLn $ "\nEnter recipe tags separated by spaces (e.g., pasta Italian savory)"
+  getLine)
+  putStrLn "\nEnter recipe tags separated by spaces (e.g., pasta Italian savory)"
   t <- getLine
   let newRecipe = Recipe { recipeName = recpName, ingredients = ingrs, directions = steps, tags = words t }
   appendFile fileName (show newRecipe ++ "\n")
-  putStrLn $ ""
+  putStrLn ""
   putStrLn $ showRecipe newRecipe
-  putStrLn $ "Added recipe!"
+  putStrLn "Added recipe!"
 
 showIngredient :: Ingredient -> String
 showIngredient i
   | quantity i == 0 && attribute i == "" = ingredientName i
   | quantity i == 0 = ingredientName i ++ ", " ++ attribute i
-  | attribute i == "" = (show $ quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i
+  | attribute i == "" = show (quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i
   | otherwise = (show $ quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i ++ ", " ++ attribute i
 
 showRecipe :: Recipe -> String
-showRecipe r =  (map toUpper $ recipeName r) ++ "\n"
+showRecipe r =  map toUpper (recipeName r) ++ "\n"
                 ++ unlines (map showIngredient $ ingredients r)
                 ++ unlines (directions r)
 
@@ -96,7 +95,7 @@ list _  = do
 
 -- TODO
 remove :: [String] -> IO ()
-remove _ = print $ "I am removing!"
+remove _ = print "I am removing!"
 
 help :: [String] -> IO ()
 help _ = putStr $ unlines [ "Usage:"
@@ -117,7 +116,7 @@ dispatch = [ ("add", add)
 
 main = do
   testCmd <- getArgs
-  if testCmd == [] 
+  if null testCmd
     then help [""]
   else do
     (command:args) <- getArgs
