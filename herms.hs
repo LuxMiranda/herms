@@ -5,6 +5,9 @@ import Control.Monad
 import Data.Char
 import Data.List
 import Data.Maybe
+import Control.Applicative
+import Text.Read
+import Utils
 
 -- Global constant
 fileName = "recipes"
@@ -85,7 +88,9 @@ view :: [String] -> IO ()
 view targets = do
   recipeBook <- getRecipeBook
   forM_ targets $ \ target -> do
-    putStr $ case getRecipe target recipeBook of
+    let index = (safeLookup recipeBook . pred =<< readMaybe target)
+                <|> getRecipe target recipeBook
+    putStr $ case index of
       Nothing   -> target ++ " does not exist\n"
       Just recp -> showRecipe recp
 
@@ -93,7 +98,9 @@ list :: [String] -> IO ()
 list _  = do
   recipes <- getRecipeBook
   let recipeList = map recipeName recipes
-  putStr $ unlines recipeList
+      size       = length $ show $ length recipeList
+      indices    = map (padLeft size . show) [1..]
+  putStr $ unlines $ zipWith (\ i -> ((i ++ ". ") ++)) indices recipeList
 
 remove :: [String] -> IO ()
 remove targets = forM_ targets $ \ target -> do
@@ -110,13 +117,16 @@ remove targets = forM_ targets $ \ target -> do
 
 
 help :: [String] -> IO ()
-help _ = putStr $ unlines [ "Usage:"
-                         , "./herms list                  - list recipes"
-                         , "./herms view \"Recipe Name\"    - view a particular recipe"
-                         , "./herms add                   - add a new recipe (interactive)"
-                         , "./herms remove \"Recipe Name\"  - remove a particular recipe"
-                         , "./herms help                  - display this help"
-                         ]
+help _ = putStr $ unlines $ "Usage:" : usage where
+
+  usage = map (\ (c, d) -> concat [ padRight size c, " - ", d ]) desc
+  size  = maximum $ map (length . fst) desc
+  desc  = [ ("./herms list", "list recipes")
+          , ("./herms view (\"Recipe Name\"|Index)", "view a particular recipe")
+          , ("./herms add", "add a new recipe (interactive)")
+          , ("./herms remove \"Recipe Name\"", " remove a particular recipe")
+          , ("./herms help", "display this help")
+          ]
 
 dispatch :: [(String, [String] -> IO ())]
 dispatch = [ ("add", add)
