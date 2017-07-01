@@ -4,6 +4,7 @@ import System.IO
 import Control.Monad
 import Data.Char
 import Data.List
+import Data.Maybe
 
 -- Global constant
 fileName = "recipes"
@@ -23,11 +24,7 @@ data Recipe = Recipe { recipeName :: String
 
 
 getRecipe :: String -> [Recipe] -> Maybe Recipe
-getRecipe _ [] = Nothing
-getRecipe target (r:book) = if recipeName r == target 
-                              then Just r 
-                            else 
-                              getRecipe target book
+getRecipe target = listToMaybe . filter ((target ==) . recipeName)
 
 add :: [String] -> IO ()
 add _ = do
