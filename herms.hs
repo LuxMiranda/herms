@@ -4,6 +4,7 @@ import System.IO
 import Control.Monad
 import Data.Char
 import Data.List
+import Data.Maybe
 
 -- Global constant
 fileName = "recipes"
@@ -22,12 +23,13 @@ data Recipe = Recipe { recipeName :: String
                      } deriving (Eq, Show, Read)
 
 
+getRecipeBook :: IO ([Recipe])
+getRecipeBook = do
+  contents <- readFile fileName
+  return $ map read $ lines contents
+
 getRecipe :: String -> [Recipe] -> Maybe Recipe
-getRecipe _ [] = Nothing
-getRecipe target (r:book) = if recipeName r == target 
-                              then Just r 
-                            else 
-                              getRecipe target book
+getRecipe target = listToMaybe . filter ((target ==) . recipeName)
 
 add :: [String] -> IO ()
 add _ = do
@@ -81,34 +83,27 @@ showRecipe r =  "+--" ++ filler ++ "+\n"
                 where filler = take ((length $ recipeName r) + 2) $ repeat '-'
 
 view :: [String] -> IO ()
-view [target] = do
-  contents <- readFile fileName
-  let recipesStr  = lines contents
-      recipeBook  = map (read::String->Recipe) recipesStr
-      (Just recp) = getRecipe target recipeBook
-  putStr $ showRecipe recp
+view targets = do
+  recipeBook <- getRecipeBook
+  forM_ targets $ \ target -> do
+    putStr $ case getRecipe target recipeBook of
+      Nothing   -> target ++ " does not exist\n"
+      Just recp -> showRecipe recp
 
 list :: [String] -> IO ()
 list _  = do
-  contents <- readFile fileName
-  let recipesStr = lines contents
-      recipes    = map (read::String->Recipe) recipesStr
-      recipeList = map recipeName recipes
+  recipes <- getRecipeBook
+  let recipeList = map recipeName recipes
   putStr $ unlines recipeList
 
 remove :: [String] -> IO ()
-remove [target] = do
-  handle <- openFile fileName ReadMode
+remove targets = forM_ targets $ \ target -> do
+  recipeBook <- getRecipeBook
   (tempName, tempHandle) <- openTempFile "." "herms_temp"
-  contents <- hGetContents handle
-  let recipesStr  = lines contents
-      recipeBook  = map (read::String->Recipe) recipesStr
-      (Just recp) = getRecipe target recipeBook
-      (Just recipeNum) = recp `elemIndex` recipeBook
-      newRecpBook = delete (recipesStr !! recipeNum) recipesStr
+  let (Just recp) = getRecipe target recipeBook
+      newRecpBook = delete recp recipeBook
   putStrLn $ "Removing recipe: " ++ recipeName recp ++ "..."
-  hPutStr tempHandle $ unlines newRecpBook
-  hClose handle
+  hPutStr tempHandle $ unlines $ show <$> newRecpBook
   hClose tempHandle
   removeFile fileName
   renameFile tempName fileName
@@ -132,11 +127,16 @@ dispatch = [ ("add", add)
            , ("help", help)
            ]
 
+herms :: [String]      -- command line arguments
+      -> Maybe (IO ()) -- failure or resulting IO action
+herms args = do
+  guard (not $ null args)
+  action <- lookup (head args) dispatch
+  return $ action (tail args)
+
+main :: IO ()
 main = do
   testCmd <- getArgs
-  if null testCmd
-    then help [""]
-  else do
-    (command:args) <- getArgs
-    let (Just action) = lookup command dispatch
-    action args
+  case herms testCmd of
+    Nothing -> help [""]
+    Just io -> io
