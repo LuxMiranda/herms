@@ -83,11 +83,12 @@ showRecipe r =  "+--" ++ filler ++ "+\n"
                 where filler = take ((length $ recipeName r) + 2) $ repeat '-'
 
 view :: [String] -> IO ()
-view [target] = do
+view targets = do
   recipeBook <- getRecipeBook
-  putStr $ case getRecipe target recipeBook of
-    Nothing   -> target ++ " does not exist\n"
-    Just recp -> showRecipe recp
+  forM_ targets $ \ target -> do
+    putStr $ case getRecipe target recipeBook of
+      Nothing   -> target ++ " does not exist\n"
+      Just recp -> showRecipe recp
 
 list :: [String] -> IO ()
 list _  = do
@@ -96,7 +97,7 @@ list _  = do
   putStr $ unlines recipeList
 
 remove :: [String] -> IO ()
-remove [target] =
+remove targets = forM_ targets $ \ target -> do
   recipeBook <- getRecipeBook
   (tempName, tempHandle) <- openTempFile "." "herms_temp"
   let (Just recp) = getRecipe target recipeBook
