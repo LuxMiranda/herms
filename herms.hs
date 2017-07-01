@@ -66,11 +66,10 @@ add _ = do
   putStrLn "Added recipe!"
 
 showIngredient :: Ingredient -> String
-showIngredient i
-  | quantity i == 0 && attribute i == "" = ingredientName i
-  | quantity i == 0 = ingredientName i ++ ", " ++ attribute i
-  | attribute i == "" = show (quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i
-  | otherwise = show (quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i ++ ", " ++ attribute i
+showIngredient i = qty ++ u ++ (ingredientName i) ++ att
+  where qty = if quantity i == 0 then "" else show (quantity i) ++ " "
+        u   = if null (unit i) then "" else (unit i) ++ " "
+        att = if null (attribute i) then "" else ", " ++ (attribute i)
 
 showRecipe :: Recipe -> String
 showRecipe r =  "+--" ++ filler ++ "+\n"

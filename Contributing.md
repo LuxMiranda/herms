@@ -8,7 +8,6 @@
 A lot of these are quite indepedent from each other. If one looks pretty fun to you, you could probably jump right in!
 
 ### Easy squeezy
-- Make a single function to handle file reading
 - Import recipe file
 - Get rid of the requirement for every recipe to have a unit (for things like whole fruit and tortillas)
 - Add categories for recipes (I'm thinking of categories as simply lists of recipes... That way, recipes can be part of multiple categories and deleting a category doesn't break your recipes) 
