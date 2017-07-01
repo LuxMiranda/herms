@@ -23,6 +23,11 @@ data Recipe = Recipe { recipeName :: String
                      } deriving (Eq, Show, Read)
 
 
+getRecipeBook :: IO ([Recipe])
+getRecipeBook = do
+  contents <- readFile fileName
+  return $ map read $ lines contents
+
 getRecipe :: String -> [Recipe] -> Maybe Recipe
 getRecipe target = listToMaybe . filter ((target ==) . recipeName)
 
@@ -79,33 +84,25 @@ showRecipe r =  "+--" ++ filler ++ "+\n"
 
 view :: [String] -> IO ()
 view [target] = do
-  contents <- readFile fileName
-  let recipesStr  = lines contents
-      recipeBook  = map (read::String->Recipe) recipesStr
-      (Just recp) = getRecipe target recipeBook
-  putStr $ showRecipe recp
+  recipeBook <- getRecipeBook
+  putStr $ case getRecipe target recipeBook of
+    Nothing   -> target ++ " does not exist\n"
+    Just recp -> showRecipe recp
 
 list :: [String] -> IO ()
 list _  = do
-  contents <- readFile fileName
-  let recipesStr = lines contents
-      recipes    = map (read::String->Recipe) recipesStr
-      recipeList = map recipeName recipes
+  recipes <- getRecipeBook
+  let recipeList = map recipeName recipes
   putStr $ unlines recipeList
 
 remove :: [String] -> IO ()
-remove [target] = do
-  handle <- openFile fileName ReadMode
+remove [target] =
+  recipeBook <- getRecipeBook
   (tempName, tempHandle) <- openTempFile "." "herms_temp"
-  contents <- hGetContents handle
-  let recipesStr  = lines contents
-      recipeBook  = map (read::String->Recipe) recipesStr
-      (Just recp) = getRecipe target recipeBook
-      (Just recipeNum) = recp `elemIndex` recipeBook
-      newRecpBook = delete (recipesStr !! recipeNum) recipesStr
+  let (Just recp) = getRecipe target recipeBook
+      newRecpBook = delete recp recipeBook
   putStrLn $ "Removing recipe: " ++ recipeName recp ++ "..."
-  hPutStr tempHandle $ unlines newRecpBook
-  hClose handle
+  hPutStr tempHandle $ unlines $ show <$> newRecpBook
   hClose tempHandle
   removeFile fileName
   renameFile tempName fileName
