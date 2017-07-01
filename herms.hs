@@ -3,13 +3,15 @@ import System.Directory
 import System.IO
 import Control.Monad
 import Data.Char
+import Data.Ratio
 import Data.List
+import Data.List.Split
 import Data.Maybe
 
 -- Global constant
 fileName = "recipes"
 
-data Ingredient = Ingredient { quantity :: Double
+data Ingredient = Ingredient { quantity :: Ratio Int
                              , unit :: String
                              , ingredientName :: String
                              , attribute :: String
@@ -22,6 +24,20 @@ data Recipe = Recipe { recipeName :: String
                      , tags :: [String]
                      } deriving (Eq, Show, Read)
 
+showFrac :: Ratio Int -> String
+showFrac x
+  | numerator x == denominator x = show (numerator x)
+  | denominator x == 1 = show (numerator x)
+  | whole > 0 = show whole ++ " " ++  showFrac (x - (fromIntegral whole))
+  | otherwise = show (numerator x) ++ "/" ++ show (denominator x)
+  where whole = floor $ fromIntegral (numerator x) / fromIntegral (denominator x)
+
+readFrac :: String -> Ratio Int
+readFrac x
+  | ' ' `elem` x = let xs = splitOn " " x in ((read' (head xs)) % 1) + (readFrac (last xs))
+  | '/' `elem` x = let xs = splitOn "/" x in (read' (head xs)) % (read' (last xs))
+  | otherwise = (read x :: Int) % 1
+  where read' = read :: String -> Int
 
 getRecipeBook :: IO ([Recipe])
 getRecipeBook = do
@@ -49,8 +65,8 @@ add _ = do
     attr <- getLine
     let am = words amount
     if not (null am)
-      then return Ingredient { quantity = (read::String->Double) (head am), unit = unwords (tail am), ingredientName = ingrName, attribute = attr }
-    else return Ingredient { quantity = 0, unit = "", ingredientName = ingrName, attribute = attr })
+      then return Ingredient { quantity = readFrac (head am), unit = unwords (tail am), ingredientName = ingrName, attribute = attr }
+    else return Ingredient { quantity = 0 % 1, unit = "", ingredientName = ingrName, attribute = attr })
   putStrLn "\nNumber of steps:"
   numSteps <- getLine
   let s = (read::String->Int) numSteps
@@ -67,7 +83,7 @@ add _ = do
 
 showIngredient :: Ingredient -> String
 showIngredient i = qty ++ u ++ (ingredientName i) ++ att
-  where qty = if quantity i == 0 then "" else show (quantity i) ++ " "
+  where qty = if quantity i == 0 then "" else showFrac (quantity i) ++ " "
         u   = if null (unit i) then "" else (unit i) ++ " "
         att = if null (attribute i) then "" else ", " ++ (attribute i)
 

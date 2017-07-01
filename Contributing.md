@@ -9,7 +9,6 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 
 ### Easy squeezy
 - Import recipe file
-- Get rid of the requirement for every recipe to have a unit (for things like whole fruit and tortillas)
 - Add categories for recipes (I'm thinking of categories as simply lists of recipes... That way, recipes can be part of multiple categories and deleting a category doesn't break your recipes) 
 - Make the output... prettier 
 - Add better erroneous input handling
@@ -21,7 +20,6 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 - Edit recipes
 - Unit conversions
 - Serving size adjustment
-- Fractions!
 - Translation into languages other than English
 - "One step at a time" mode
 
