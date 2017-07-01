@@ -129,11 +129,16 @@ dispatch = [ ("add", add)
            , ("help", help)
            ]
 
+herms :: [String]      -- command line arguments
+      -> Maybe (IO ()) -- failure or resulting IO action
+herms args = do
+  guard (not $ null args)
+  action <- lookup (head args) dispatch
+  return $ action (tail args)
+
+main :: IO ()
 main = do
   testCmd <- getArgs
-  if null testCmd
-    then help [""]
-  else do
-    (command:args) <- getArgs
-    let (Just action) = lookup command dispatch
-    action args
+  case herms testCmd of
+    Nothing -> help [""]
+    Just io -> io
