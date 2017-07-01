@@ -15,6 +15,7 @@ data Ingredient = Ingredient { quantity :: Double
                              } deriving (Eq, Show, Read)
 
 data Recipe = Recipe { recipeName :: String
+                     , description :: String
                      , ingredients :: [Ingredient]
                      , directions :: [String]
                      , tags :: [String]
@@ -32,6 +33,8 @@ add :: [String] -> IO ()
 add _ = do
   putStrLn "Recipe name:"
   recpName <- getLine
+  putStrLn "\nDescription:"
+  recpDesc <- getLine
   putStrLn "\nNumber of ingredients:"
   numIngrs <- getLine
   let n = (read::String->Int) numIngrs
@@ -54,7 +57,7 @@ add _ = do
   getLine)
   putStrLn "\nEnter recipe tags separated by spaces (e.g., pasta Italian savory)"
   t <- getLine
-  let newRecipe = Recipe { recipeName = recpName, ingredients = ingrs, directions = steps, tags = words t }
+  let newRecipe = Recipe { recipeName = recpName, description = recpDesc, ingredients = ingrs, directions = steps, tags = words t }
   appendFile fileName (show newRecipe ++ "\n")
   putStrLn ""
   putStrLn $ showRecipe newRecipe
@@ -68,9 +71,14 @@ showIngredient i
   | otherwise = show (quantity i) ++ " " ++ unit i ++ " " ++ ingredientName i ++ ", " ++ attribute i
 
 showRecipe :: Recipe -> String
-showRecipe r =  map toUpper (recipeName r) ++ "\n"
-                ++ unlines (map showIngredient $ ingredients r)
-                ++ unlines (directions r)
+showRecipe r =  "+--" ++ filler ++ "+\n"
+                ++ "|  " ++ recipeName r ++ "  |\n"
+                ++ "+--" ++ filler ++ "+\n"
+                ++ "\n" ++ description r ++ "\n"
+                ++ "\nIngredients:\n"
+                ++ unlines (zipWith (\a b -> a ++ b) (repeat "* ") $ map showIngredient $ ingredients r)
+                ++ "\n" ++ unlines (zipWith (\i d -> "(" ++ show i ++ ") " ++ d) [1..] (directions r))
+                where filler = take ((length $ recipeName r) + 2) $ repeat '-'
 
 view :: [String] -> IO ()
 view [target] = do

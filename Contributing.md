@@ -8,7 +8,6 @@
 A lot of these are quite indepedent from each other. If one looks pretty fun to you, you could probably jump right in!
 
 ### Easy squeezy
-- Add descriptions to recipes
 - Make a single function to handle file reading
 - Import recipe file
 - Add categories for recipes
