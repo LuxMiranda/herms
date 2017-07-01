@@ -29,7 +29,6 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 - A pretty GUI!
 
 ## Ideas :: Maybe Features
-- Give the recipes numbers so you can just do `./herms view 42`
 
 ## Other notes
 - Rewriting out the entire recipe file minus a single recipe is fine for now, but will quickly become impractical when storing large numbers of recipes. We ought to find a better way of doing it! Unless I'm just crazy because even the most dedicated chefs might store only a few hundred recipes...
