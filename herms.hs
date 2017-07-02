@@ -11,7 +11,7 @@ import Data.Maybe
 import Control.Applicative
 import Text.Read
 import Herms.Utils
---import Herms.AddCLI
+import Herms.AddCLI
 import Herms.Types
 
 -- Global constant
@@ -27,7 +27,17 @@ getRecipe target = listToMaybe . filter ((target ==) . recipeName)
 
 add :: [String] -> IO ()
 add _ = do
-  putStrLn "Recipe name:"
+  input <- getAddInput 
+  let newRecipe = readRecipe input
+  putStrLn $ showRecipe newRecipe
+  putStrLn "Save recipe? (Y)es  (N)o"
+  response <- getLine
+  if response == "y" || response == "Y" 
+    then do 
+    appendFile fileName (show newRecipe ++ "\n")
+    putStrLn "Recipe saved!"
+  else
+    putStrLn "Recipe discarded."
 
 view :: [String] -> IO ()
 view targets = do

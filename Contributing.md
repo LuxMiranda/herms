@@ -9,6 +9,7 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 
 ### Easy squeezy
 - Import recipe file
+- Optional caloric / nutritional information
 - Add categories for recipes (I'm thinking of categories as simply lists of recipes... That way, recipes can be part of multiple categories and deleting a category doesn't break your recipes) 
 - Make the output... prettier 
 - Add better erroneous input handling
