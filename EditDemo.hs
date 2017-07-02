@@ -3,6 +3,7 @@
 {-# LANGUAGE RankNTypes #-}
 module Main where
 
+import Control.Monad
 import Lens.Micro
 import Lens.Micro.TH
 import qualified Graphics.Vty as V
@@ -24,7 +25,10 @@ import Brick.Util (on)
 
 data Name = RecipeName
           | Description
-          | Ingredients
+          | IngrAmount
+          | IngrUnit
+          | IngrName
+          | IngrAttr
           | Directions
           | Tags
           deriving (Ord, Show, Eq)
@@ -36,6 +40,9 @@ data St =
        , _edit3 :: E.Editor String Name
        , _edit4 :: E.Editor String Name
        , _edit5 :: E.Editor String Name
+       , _edit6 :: E.Editor String Name
+       , _edit7 :: E.Editor String Name
+       , _edit8 :: E.Editor String Name
        }
 
 makeLenses ''St
@@ -48,6 +55,9 @@ drawUI st = [ui]
         e3 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit3)
         e4 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit4)
         e5 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit5)
+        e6 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit6)
+        e7 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit7)
+        e8 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit8)
 
         ui = C.center $
             str "                              Herm's - Add a recipe" <=>
@@ -56,11 +66,17 @@ drawUI st = [ui]
             str " " <=>
             (str "   Description: " <+> (hLimit 50 $ vLimit 5 e2)) <=>
             str " " <=>
-            (str "  Ingredients: \n(one per line)  " <+> (hLimit 50 $ vLimit 5 e3)) <=>
+            str "                qty.   unit           name            attribute   " <=>
+            (str "  Ingredients: \n(one per line)  " 
+              <+> (hLimit 5 $ vLimit 5 e3) 
+              <+> (hLimit 8 $ vLimit 5 e4) 
+              <+> (hLimit 22 $ vLimit 5 e5) 
+              <+> (hLimit 15 $ vLimit 5 e6)) 
+              <=> 
             str " " <=>
-            (str "   Directions: \n(one per line)  " <+> (hLimit 50 $ vLimit 5 e4)) <=>
+            (str "   Directions: \n(one per line)  " <+> (hLimit 50 $ vLimit 5 e7)) <=>
             str " " <=>
-            (str "          Tags: " <+> (hLimit 50  $ vLimit 1 e5)) <=>
+            (str "          Tags: " <+> (hLimit 50  $ vLimit 1 e8)) <=>
             str " " <=>
             str "            Press Tab to switch between fields, Esc to save or cancel"
 
@@ -70,22 +86,34 @@ appEvent st (T.VtyEvent ev) =
         V.EvKey V.KEsc [] -> M.halt st
         V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
         V.EvKey V.KBackTab [] -> M.continue $ st & focusRing %~ F.focusPrev
+        V.EvKey V.KDown [] -> M.continue $ st & focusRing %~ (F.focusNext . F.focusNext)
+                -- TODO context-specific mapping to down key such that when it is in
+                --      any cell but an Ingredient cell, it simply goes down once,
+                --      but if it is in an ingredient cell it ought to move to directions.
+                --      Mirror for the up key, allow left-right keys for moving betweeen 
+                --      ingredient cells, and repeat for h-j-k-l
 
         _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
                Just RecipeName -> T.handleEventLensed st edit1 E.handleEditorEvent ev
                Just Description -> T.handleEventLensed st edit2 E.handleEditorEvent ev
-               Just Ingredients -> T.handleEventLensed st edit3 E.handleEditorEvent ev
-               Just Directions -> T.handleEventLensed st edit4 E.handleEditorEvent ev
-               Just Tags -> T.handleEventLensed st edit5 E.handleEditorEvent ev
+               Just IngrAmount -> T.handleEventLensed st edit3 E.handleEditorEvent ev
+               Just IngrUnit -> T.handleEventLensed st edit4 E.handleEditorEvent ev
+               Just IngrName -> T.handleEventLensed st edit5 E.handleEditorEvent ev
+               Just IngrAttr -> T.handleEventLensed st edit6 E.handleEditorEvent ev
+               Just Directions -> T.handleEventLensed st edit7 E.handleEditorEvent ev
+               Just Tags -> T.handleEventLensed st edit8 E.handleEditorEvent ev
                Nothing -> return st
 appEvent st _ = M.continue st
 
 initialState :: St
 initialState =
-    St (F.focusRing [RecipeName, Description, Ingredients, Directions, Tags])
+    St (F.focusRing [RecipeName, Description, IngrAmount, IngrUnit, IngrName, IngrAttr, Directions, Tags])
        (E.editor RecipeName (Just 1) "")
        (E.editor Description Nothing "")
-       (E.editor Ingredients Nothing "")
+       (E.editor IngrAmount Nothing "")
+       (E.editor IngrUnit Nothing "")
+       (E.editor IngrName Nothing "")
+       (E.editor IngrAttr Nothing "")
        (E.editor Directions Nothing "")
        (E.editor Tags (Just 1) "")
 
@@ -120,3 +148,9 @@ main = do
     putStrLn $ unlines $ E.getEditContents $ st^.edit4
     putStrLn "In input 5 you entered:\n"
     putStrLn $ unlines $ E.getEditContents $ st^.edit5
+    putStrLn "In input 6 you entered:\n"
+    putStrLn $ unlines $ E.getEditContents $ st^.edit6
+    putStrLn "In input 7 you entered:\n"
+    putStrLn $ unlines $ E.getEditContents $ st^.edit7
+    putStrLn "In input 8 you entered:\n"
+    putStrLn $ unlines $ E.getEditContents $ st^.edit8
