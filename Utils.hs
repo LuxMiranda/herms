@@ -1,4 +1,4 @@
-module Utils where
+module Herms.Utils where
 
 safeLookup :: [a] -> Int -> Maybe a
 safeLookup []       _ = Nothing
