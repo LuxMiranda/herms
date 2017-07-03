@@ -16,7 +16,6 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 - Make yummy recipes and eat them
 
 ### May require elbow grease
-- Use Brick (or a similar library) to make a more usable CLI
 - Sort by tag
 - Edit recipes
 - Unit conversions
