@@ -17,7 +17,7 @@ import Herms.Types
 -- Global constant
 fileName = "recipes"
 
-getRecipeBook :: IO ([Recipe])
+getRecipeBook :: IO [Recipe]
 getRecipeBook = do
   contents <- readFile fileName
   return $ map read $ lines contents
@@ -39,13 +39,19 @@ add _ = do
   else
     putStrLn "Recipe discarded."
 
+-- | `readRecipeRef target book` interprets the string `target`
+--   as either an index or a recipe's name and looks up the
+--   corresponding recipe in the `book`
+readRecipeRef :: String -> [Recipe] -> Maybe Recipe
+readRecipeRef target recipeBook =
+  (safeLookup recipeBook . pred =<< readMaybe target)
+  <|> getRecipe target recipeBook
+
 view :: [String] -> IO ()
 view targets = do
   recipeBook <- getRecipeBook
   forM_ targets $ \ target -> do
-    let index = (safeLookup recipeBook . pred =<< readMaybe target)
-                <|> getRecipe target recipeBook
-    putStr $ case index of
+    putStr $ case readRecipeRef target recipeBook of
       Nothing   -> target ++ " does not exist\n"
       Just recp -> showRecipe recp
 
@@ -61,15 +67,16 @@ remove :: [String] -> IO ()
 remove targets = forM_ targets $ \ target -> do
   recipeBook <- getRecipeBook
   (tempName, tempHandle) <- openTempFile "." "herms_temp"
-  let (Just recp) = getRecipe target recipeBook
-      newRecpBook = delete recp recipeBook
-  putStrLn $ "Removing recipe: " ++ recipeName recp ++ "..."
-  hPutStr tempHandle $ unlines $ show <$> newRecpBook
+  case readRecipeRef target recipeBook of
+    Nothing   -> putStrLn $ target ++ " does not exist\n"
+    Just recp -> do
+      let newRecpBook = delete recp recipeBook
+      putStrLn $ "Removing recipe: " ++ recipeName recp ++ "..."
+      hPutStr tempHandle $ unlines $ show <$> newRecpBook
+      putStrLn "Recipe deleted."
   hClose tempHandle
   removeFile fileName
   renameFile tempName fileName
-  putStrLn "Recipe deleted."
-
 
 help :: [String] -> IO ()
 help _ = putStr $ unlines $ "Usage:" : usage where
@@ -79,7 +86,7 @@ help _ = putStr $ unlines $ "Usage:" : usage where
   desc  = [ ("./herms list", "list recipes")
           , ("./herms view (\"Recipe Name\"|Index)", "view a particular recipe")
           , ("./herms add", "add a new recipe (interactive)")
-          , ("./herms remove \"Recipe Name\"", " remove a particular recipe")
+          , ("./herms remove (\"Recipe Name\"|Index)", "remove a particular recipe")
           , ("./herms help", "display this help")
           ]
 
