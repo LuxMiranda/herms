@@ -22,6 +22,8 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 - Serving size adjustment
 - Translation into languages other than English
 - "One step at a time" mode
+- Modify things so that herms uses a specific hidden directy for the recipe file such that when cabal installs it
+recipes can be accessed from any directory
 
 ### Are you crazy?!
 - Parse and store a recipe given a URL to allrecipes.com, food.com, etc.

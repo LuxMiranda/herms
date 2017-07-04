@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RankNTypes #-}
-module Herms.AddCLI where
+module AddCLI where
 
 import Control.Monad
 import Lens.Micro

@@ -10,9 +10,9 @@ import Data.List
 import Data.Maybe
 import Control.Applicative
 import Text.Read
-import Herms.Utils
-import Herms.AddCLI
-import Herms.Types
+import Utils
+import AddCLI
+import Types
 
 -- Global constant
 fileName = "recipes"
@@ -50,7 +50,7 @@ readRecipeRef target recipeBook =
 view :: [String] -> IO ()
 view targets = do
   recipeBook <- getRecipeBook
-  forM_ targets $ \ target -> do
+  forM_ targets $ \ target ->
     putStr $ case readRecipeRef target recipeBook of
       Nothing   -> target ++ " does not exist\n"
       Just recp -> showRecipe recp
@@ -108,6 +108,4 @@ herms args = do
 main :: IO ()
 main = do
   testCmd <- getArgs
-  case herms testCmd of
-    Nothing -> help [""]
-    Just io -> io
+  fromMaybe (help [""]) (herms testCmd)
