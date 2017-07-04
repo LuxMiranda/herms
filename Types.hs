@@ -22,22 +22,22 @@ showFrac :: Ratio Int -> String
 showFrac x
   | numerator x == denominator x = show (numerator x)
   | denominator x == 1 = show (numerator x)
-  | whole > 0 = show whole ++ " " ++  showFrac (x - (fromIntegral whole))
+  | whole > 0 = show whole ++ " " ++  showFrac (x - fromIntegral whole)
   | otherwise = show (numerator x) ++ "/" ++ show (denominator x)
   where whole = floor $ fromIntegral (numerator x) / fromIntegral (denominator x)
 
 readFrac :: String -> Ratio Int
 readFrac x
-  | ' ' `elem` x = let xs = splitOn " " x in ((read' (head xs)) % 1) + (readFrac (last xs))
-  | '/' `elem` x = let xs = splitOn "/" x in (read' (head xs)) % (read' (last xs))
+  | ' ' `elem` x = let xs = splitOn " " x in (read' (head xs) % 1) + readFrac (last xs)
+  | '/' `elem` x = let xs = splitOn "/" x in read' (head xs) % read' (last xs)
   | otherwise = (read x :: Int) % 1
   where read' = read :: String -> Int
 
 showIngredient :: Ingredient -> String
-showIngredient i = qty ++ u ++ (ingredientName i) ++ att
+showIngredient i = qty ++ u ++ ingredientName i ++ att
   where qty = if quantity i == 0 then "" else showFrac (quantity i) ++ " "
-        u   = if null (unit i) then "" else (unit i) ++ " "
-        att = if null (attribute i) then "" else ", " ++ (attribute i)
+        u   = if null (unit i) then "" else unit i ++ " "
+        att = if null (attribute i) then "" else ", " ++ attribute i
 
 makeIngredients :: [[String]] -> [Ingredient]
 makeIngredients [] = []
@@ -46,7 +46,7 @@ makeIngredients (i:is) = Ingredient { quantity = q
                                     , ingredientName = i !! 2
                                     , attribute = i !! 3
                                     } : makeIngredients is
-                                    where q = if null (head i) then (0 % 1) else readFrac (head i)
+                                    where q = if null (head i) then 0 % 1 else readFrac (head i)
 
 
 readIngredients :: [[String]] -> [Ingredient]
@@ -58,9 +58,9 @@ showRecipe r =  "+--" ++ filler ++ "+\n"
                 ++ "+--" ++ filler ++ "+\n"
                 ++ "\n" ++ description r ++ "\n"
                 ++ "\nIngredients:\n"
-                ++ unlines (zipWith (\a b -> a ++ b) (repeat "* ") $ map showIngredient $ ingredients r)
+                ++ unlines (map ((++) "* " . showIngredient) (ingredients r))
                 ++ "\n" ++ unlines (zipWith (\i d -> "(" ++ show i ++ ") " ++ d) [1..] (directions r))
-                where filler = take ((length $ recipeName r) + 2) $ repeat '-'
+                where filler = replicate (length (recipeName r) + 2) '-'
 
 readRecipe :: [[String]] -> Recipe
 readRecipe r = Recipe { recipeName = n, description = des, ingredients = i, directions = dir, tags = t }
