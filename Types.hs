@@ -1,4 +1,4 @@
-module Herms.Types where
+module Types where
 
 import Data.List
 import Data.List.Split

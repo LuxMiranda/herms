@@ -10,9 +10,9 @@ import Data.List
 import Data.Maybe
 import Control.Applicative
 import Text.Read
-import Herms.Utils
-import Herms.AddCLI
-import Herms.Types
+import Utils
+import AddCLI
+import Types
 
 -- Global constant
 fileName = "recipes"
