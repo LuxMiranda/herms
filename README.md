@@ -6,11 +6,29 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line 
 
 In honor of Logan's greatest Breakfast & Brunch
 
+### Features
+- Add recipes!
+- Look at recipes!
+- Remove recipes!
+- Coming soon: serving size calculation!
+
+### Installation
+
+At the moment Herm's can only be compiled from source. You'll need GHC and cabal.
+
+Run the following commands:
+```
+git clone https://github.com/JackKiefer/herms
+cd herms
+cabal update
+cabal install
+```
+
 ### Usage
 ```
-./herms list                  - list recipes
-./herms view "Recipe Name"    - view a particular recipe
-./herms add                   - add a new recipe (interactive)
-./herms remove "Recipe Name"  - remove a particular recipe
-./herms help                  - display this help
+herms list                  - list recipes
+herms view "Recipe Name"    - view a particular recipe
+herms add                   - add a new recipe (interactive)
+herms remove "Recipe Name"  - remove a particular recipe
+herms help                  - display this help
 ```
