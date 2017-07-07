@@ -107,12 +107,10 @@ checkFileExists :: IO ()
 checkFileExists = do
   fileName <- getDataFileName recipesFileName
   fileExists <- doesFileExist fileName
-  if not fileExists
-    then do 
+  unless fileExists (do
     dirName <- getDataDir
     createDirectoryIfMissing True dirName
-    writeFile fileName ""
-  else return ()
+    writeFile fileName "")
 
 herms :: [String]      -- command line arguments
       -> Maybe (IO ()) -- failure or resulting IO action
