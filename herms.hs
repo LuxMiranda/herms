@@ -13,12 +13,14 @@ import Text.Read
 import Utils
 import AddCLI
 import Types
+import Paths_herms
 
 -- Global constant
-fileName = "recipes"
+recipesFileName = "recipes.herms"
 
 getRecipeBook :: IO [Recipe]
 getRecipeBook = do
+  fileName <- getDataFileName recipesFileName
   contents <- readFile fileName
   return $ map read $ lines contents
 
@@ -34,6 +36,7 @@ add _ = do
   response <- getLine
   if response == "y" || response == "Y" 
     then do 
+    fileName <- getDataFileName recipesFileName
     appendFile fileName (show newRecipe ++ "\n")
     putStrLn "Recipe saved!"
   else
@@ -75,6 +78,7 @@ remove targets = forM_ targets $ \ target -> do
       hPutStr tempHandle $ unlines $ show <$> newRecpBook
       putStrLn "Recipe deleted."
   hClose tempHandle
+  fileName <- getDataFileName recipesFileName
   removeFile fileName
   renameFile tempName fileName
 
@@ -83,11 +87,11 @@ help _ = putStr $ unlines $ "Usage:" : usage where
 
   usage = map (\ (c, d) -> concat [ padRight size c, " - ", d ]) desc
   size  = maximum $ map (length . fst) desc
-  desc  = [ ("./herms list", "list recipes")
-          , ("./herms view (\"Recipe Name\"|Index)", "view a particular recipe")
-          , ("./herms add", "add a new recipe (interactive)")
-          , ("./herms remove (\"Recipe Name\"|Index)", "remove a particular recipe")
-          , ("./herms help", "display this help")
+  desc  = [ ("herms list", "list recipes")
+          , ("herms view (index or \"Recipe Name\")", "view a particular recipe")
+          , ("herms add", "add a new recipe (interactive)")
+          , ("herms remove (index or \"Recipe Name\")", "remove a particular recipe")
+          , ("herms help", "display this help")
           ]
 
 dispatch :: [(String, [String] -> IO ())]
@@ -98,6 +102,18 @@ dispatch = [ ("add", add)
            , ("help", help)
            ]
 
+-- Writes an empty recipes file if it doesn't exist
+checkFileExists :: IO ()
+checkFileExists = do
+  fileName <- getDataFileName recipesFileName
+  fileExists <- doesFileExist fileName
+  if not fileExists
+    then do 
+    dirName <- getDataDir
+    createDirectoryIfMissing True dirName
+    writeFile fileName ""
+  else return ()
+
 herms :: [String]      -- command line arguments
       -> Maybe (IO ()) -- failure or resulting IO action
 herms args = do
@@ -107,5 +123,6 @@ herms args = do
 
 main :: IO ()
 main = do
+  checkFileExists
   testCmd <- getArgs
   fromMaybe (help [""]) (herms testCmd)
