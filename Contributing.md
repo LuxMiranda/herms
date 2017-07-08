@@ -3,6 +3,9 @@
  - Be courteous of folks' dietary decisions
  - Be loving for someone today and have fun!
 
+## Development
+We use stack around here to develop. Uhh, refer to [stack documentation.](https://docs.haskellstack.org/en/stable/GUIDE/)
+
 ## Definite feature plans
 
 A lot of these are quite indepedent from each other. If one looks pretty fun to you, you could probably jump right in!
@@ -11,7 +14,6 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 - Import recipe file
 - Optional caloric / nutritional information
 - Add categories for recipes (I'm thinking of categories as simply lists of recipes... That way, recipes can be part of multiple categories and deleting a category doesn't break your recipes) 
-- Make the output... prettier 
 - Add better erroneous input handling
 - Make yummy recipes and eat them
 

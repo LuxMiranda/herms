@@ -14,7 +14,7 @@ In honor of Logan's greatest Breakfast & Brunch
 
 ### Installation
 
-At the moment Herm's can only be cloned compiled manually. (But this shall change... _soon_)
+At the moment Herm's can only be cloned and compiled manually. (But this shall change... _soon_)
 
 You'll need GHC and cabal.
 
