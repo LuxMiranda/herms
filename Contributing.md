@@ -17,7 +17,7 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 
 ### May require elbow grease
 - Sort by tag
-- Edit recipes
+- Edit recipes (including an option to go back and edit on the save/cancel prompt when adding a recipe)
 - Unit conversions
 - Translation into languages other than English
 - "One step at a time" mode
