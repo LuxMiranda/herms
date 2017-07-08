@@ -10,10 +10,10 @@ description:         HeRM's: a Haskell-based Recipe Manager for delicious kitche
 -- The package version.  See the Haskell package versioning policy (PVP) 
 -- for standards guiding when and how versions should be incremented.
 -- http://www.haskell.org/haskellwiki/Package_versioning_policy
--- PVP summary:      +-+------- breaking API changes
---                   | | +----- non-breaking API additions
---                   | | | +--- code changes with no API change
-version:             1.2.0.0
+-- PVP summary:      +-+------- New features or improvements with significant API change
+--                   | | +----- Bugfixes and improvements with minor change to API
+--                   | | | +--- Bugfixes and improvements with no change to API
+version:             1.2.1.0
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes

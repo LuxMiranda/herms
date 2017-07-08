@@ -27,24 +27,31 @@ getRecipeBook = do
 getRecipe :: String -> [Recipe] -> Maybe Recipe
 getRecipe target = listToMaybe . filter ((target ==) . recipeName)
 
-saveOrDiscard :: [[String]] -> Maybe Recipe -> IO ()
+saveOrDiscard :: [[String]]   -- input for the new recipe
+              -> Maybe Recipe -- maybe an original recipe prior to any editing
+              -> IO ()
 saveOrDiscard input oldRecp = do
   let newRecipe = readRecipe input
   putStrLn $ showRecipe newRecipe Nothing
-  putStrLn "Save recipe? (Y)es  (N)o"
+  putStrLn "Save recipe? (Y)es  (N)o  (E)dit"
   response <- getLine
   if response == "y" || response == "Y" 
     then do 
-    unless (isNothing oldRecp) $ removeSilent [recipeName (fromJust oldRecp)]
+    recipeBook <- getRecipeBook
+    let recpName = recipeName (fromJust oldRecp)
+    unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
     fileName <- getDataFileName recipesFileName
     appendFile fileName (show newRecipe ++ "\n")
     putStrLn "Recipe saved!"
   else if response == "n" || response == "N"
     then do
     putStrLn "Recipe discarded."
+  else if response == "e" || response == "E"
+    then do
+    doEdit newRecipe oldRecp
   else
     do
-    putStrLn "\nPlease enter ONLY a 'y' or 'n'\n"
+    putStrLn "\nPlease enter ONLY 'y', 'n' or 'e'\n"
     saveOrDiscard input oldRecp
 
 add :: [String] -> IO ()
@@ -52,10 +59,10 @@ add _ = do
   input <- getAddInput 
   saveOrDiscard input Nothing
 
-doEdit :: Recipe -> IO ()
-doEdit recp = do
+doEdit :: Recipe -> Maybe Recipe -> IO ()
+doEdit recp origRecp = do
   input <- getEdit (recipeName recp) (description recp) amounts units ingrs attrs dirs tag
-  saveOrDiscard input (Just recp)
+  saveOrDiscard input origRecp
   where ingrList = ingredients recp
         toStr    = (\ f -> unlines (map f ingrList))
         amounts  = toStr (showFrac . quantity)
@@ -70,7 +77,7 @@ edit targets = do
   recipeBook <- getRecipeBook
   case readRecipeRef target recipeBook of
     Nothing   -> putStrLn $ target ++ " does not exist\n"
-    Just recp -> doEdit recp
+    Just recp -> doEdit recp (Just recp)
   where target = head targets -- Only supports editing one recipe per command
 
 -- | `readRecipeRef target book` interprets the string `target`
