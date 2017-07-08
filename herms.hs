@@ -31,7 +31,7 @@ add :: [String] -> IO ()
 add _ = do
   input <- getAddInput 
   let newRecipe = readRecipe input
-  putStrLn $ showRecipe newRecipe
+  putStrLn $ showRecipe newRecipe Nothing
   putStrLn "Save recipe? (Y)es  (N)o"
   response <- getLine
   if response == "y" || response == "Y" 
@@ -50,13 +50,22 @@ readRecipeRef target recipeBook =
   (safeLookup recipeBook . pred =<< readMaybe target)
   <|> getRecipe target recipeBook
 
+sepFlags :: [String] -> [String]
+sepFlags args = takeWhile (\x -> head x == '-') (sort args)
+
 view :: [String] -> IO ()
-view targets = do
+view args = do
   recipeBook <- getRecipeBook
+  let flags   = sepFlags args
+  let cFlags  = concat flags
+  let targets = args \\ flags
+  let servings = case elemIndex 's' cFlags of
+                   Nothing -> Nothing
+                   Just i  -> Just (digitToInt (cFlags !! 2))
   forM_ targets $ \ target ->
     putStr $ case readRecipeRef target recipeBook of
       Nothing   -> target ++ " does not exist\n"
-      Just recp -> showRecipe recp
+      Just recp -> showRecipe recp servings
 
 list :: [String] -> IO ()
 list _  = do
@@ -85,13 +94,16 @@ remove targets = forM_ targets $ \ target -> do
 help :: [String] -> IO ()
 help _ = putStr $ unlines $ "Usage:" : usage where
 
-  usage = map (\ (c, d) -> concat [ padRight size c, " - ", d ]) desc
+  usage = map (\ (c, d) -> concat [ padRight size c, "   ", d ]) desc
   size  = maximum $ map (length . fst) desc
-  desc  = [ ("herms list", "list recipes")
-          , ("herms view (index or \"Recipe Name\")", "view a particular recipe")
-          , ("herms add", "add a new recipe (interactive)")
-          , ("herms remove (index or \"Recipe Name\")", "remove a particular recipe")
-          , ("herms help", "display this help")
+  desc  = [ ("\therms list", "list recipes")
+          , ("\therms view {index or \"Recipe Name\"}", "view a particular recipe")
+          , ("\therms add", "add a new recipe (interactive)")
+          , ("\therms remove {index or \"Recipe Name\"}", "remove a particular recipe")
+          , ("\therms help", "display this help")
+          , ("OPTIONS","")
+          , ("\t-s{num}", "specify serving size when viewing.")
+          , ("\t","E.g., 'herms view -s2 {recipe}' for two servings")
           ]
 
 dispatch :: [(String, [String] -> IO ())]

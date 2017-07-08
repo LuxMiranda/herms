@@ -13,7 +13,7 @@ description:         HeRM's: a Haskell-based Recipe Manager for delicious kitche
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             1.0.0.0
+version:             1.1.0.0
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes
@@ -51,13 +51,19 @@ extra-source-files:  README.md
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
 
+-- Files available to the program at runtime
+data-files:          recipes.herms
+
+-- The directory name for the aboce files
+data-dir:            data
+
 
 executable herms
   -- .hs or .lhs file containing the Main module.
   main-is:             herms.hs
   
   -- Modules included in this executable, other than Main.
-  other-modules:       Utils, AddCLI, Types
+  other-modules:       Utils, AddCLI, Types, Paths_herms
   
   -- LANGUAGE extensions used by modules in this package.
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes

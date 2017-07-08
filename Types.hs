@@ -33,9 +33,13 @@ readFrac x
   | otherwise = (read x :: Int) % 1
   where read' = read :: String -> Int
 
-showIngredient :: Ingredient -> String
-showIngredient i = qty ++ u ++ ingredientName i ++ att
-  where qty = if quantity i == 0 then "" else showFrac (quantity i) ++ " "
+showIngredient :: Maybe Int -> Ingredient -> String
+showIngredient servings i = qty ++ u ++ ingredientName i ++ att
+  where qty = if quantity i == 0 
+                then "" 
+                else (case servings of 
+                       Nothing -> showFrac (quantity i)
+                       Just s  -> showFrac (quantity i * (s % 1))) ++ " "
         u   = if null (unit i) then "" else unit i ++ " "
         att = if null (attribute i) then "" else ", " ++ attribute i
 
@@ -52,15 +56,19 @@ makeIngredients (i:is) = Ingredient { quantity = q
 readIngredients :: [[String]] -> [Ingredient]
 readIngredients is = makeIngredients $ transpose $ fillVoid is (length (maximumBy (comparing length) is))
 
-showRecipe :: Recipe -> String
-showRecipe r =  "+--" ++ filler ++ "+\n"
+showRecipe :: Recipe -> Maybe Int -> String
+showRecipe r servings =  "+--" ++ filler ++ "+\n"
                 ++ "|  " ++ recipeName r ++ "  |\n"
                 ++ "+--" ++ filler ++ "+\n"
                 ++ "\n" ++ description r ++ "\n"
+                ++ "\nServings: " ++ servingStr ++ "\n"
                 ++ "\nIngredients:\n"
-                ++ unlines (map ((++) "* " . showIngredient) (ingredients r))
+                ++ unlines (map ((++) "* " . showIngredient servings) (ingredients r))
                 ++ "\n" ++ unlines (zipWith (\i d -> "(" ++ show i ++ ") " ++ d) [1..] (directions r))
                 where filler = replicate (length (recipeName r) + 2) '-'
+                      servingStr = case servings of
+                        Nothing -> "1"
+                        Just s  -> show s
 
 readRecipe :: [[String]] -> Recipe
 readRecipe r = Recipe { recipeName = n, description = des, ingredients = i, directions = dir, tags = t }

@@ -19,18 +19,16 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 - Sort by tag
 - Edit recipes
 - Unit conversions
-- Serving size adjustment
 - Translation into languages other than English
 - "One step at a time" mode
-- Modify things so that herms uses a specific hidden directy for the recipe file such that when cabal installs it
-recipes can be accessed from any directory
 
 ### Are you crazy?!
 - Parse and store a recipe given a URL to allrecipes.com, food.com, etc.
 - Show available recipes given a list of ingredients
 - A pretty GUI!
 
-## Ideas :: Maybe Features
+## Known bugs
+- Passing multiple recipes into a single `herms remove` command doesn't quite behave as you'd expect it to! See discussion in [#4](https://github.com/JackKiefer/herms/pull/4)
 
 ## Other notes
 - Rewriting out the entire recipe file minus a single recipe is fine for now, but will quickly become impractical when storing large numbers of recipes. We ought to find a better way of doing it! Unless I'm just crazy because even the most dedicated chefs might store only a few hundred recipes...
