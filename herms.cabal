@@ -13,7 +13,7 @@ description:         HeRM's: a Haskell-based Recipe Manager for delicious kitche
 -- PVP summary:      +-+------- breaking API changes
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
-version:             1.1.0.0
+version:             1.2.0.0
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes

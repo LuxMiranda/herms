@@ -142,11 +142,17 @@ help _ = putStr $ unlines $ "Usage:" : usage where
   usage = map (\ (c, d) -> concat [ padRight size c, "   ", d ]) desc
   size  = maximum $ map (length . fst) desc
   desc  = [ ("\therms list", "list recipes")
+          , ("","")
           , ("\therms view {index or \"Recipe Name\"}", "view a particular recipe")
+          , ("","")
           , ("\therms add", "add a new recipe (interactive)")
+          , ("","")
           , ("\therms edit {index pr \"Recipe Name\"}", "edit a recipe")
+          , ("","")
           , ("\therms remove {index or \"Recipe Name\"}", "remove a particular recipe")
+          , ("","")
           , ("\therms help", "display this help")
+          , ("","")
           , ("OPTIONS","")
           , ("\t-s{num}", "specify serving size when viewing.")
           , ("\t","E.g., 'herms view -s2 {recipe}' for two servings")
