@@ -142,17 +142,17 @@ appEvent st (T.VtyEvent ev) =
                Nothing -> return st
 appEvent st _ = M.continue st
 
-initialState :: St
-initialState =
+initialState :: String -> String -> String -> String -> String -> String -> String -> String -> St
+initialState name desc amounts units ingrs attrs dirs tags =
     St (F.focusRing [RecipeName, Description, IngrAmount, IngrUnit, IngrName, IngrAttr, Directions, Tags])
-       (E.editor RecipeName (Just 1) "")
-       (E.editor Description Nothing "")
-       (E.editor IngrAmount Nothing "")
-       (E.editor IngrUnit Nothing "")
-       (E.editor IngrName Nothing "")
-       (E.editor IngrAttr Nothing "")
-       (E.editor Directions Nothing "")
-       (E.editor Tags (Just 1) "")
+       (E.editor RecipeName (Just 1) name)
+       (E.editor Description Nothing desc)
+       (E.editor IngrAmount Nothing amounts)
+       (E.editor IngrUnit Nothing units)
+       (E.editor IngrName Nothing ingrs)
+       (E.editor IngrAttr Nothing attrs)
+       (E.editor Directions Nothing dirs)
+       (E.editor Tags (Just 1) tags)
 
 theMap :: A.AttrMap
 theMap = A.attrMap V.defAttr
@@ -172,9 +172,22 @@ theApp =
           , M.appAttrMap = const theMap
           }
 
+getEdit :: String -> String -> String -> String -> String -> String -> String -> String -> IO ([[String]])
+getEdit name desc amounts units ingrs attrs dirs tags = do
+  st <- M.defaultMain theApp (initialState name desc amounts units ingrs attrs dirs tags)
+  return $ [ E.getEditContents $ st^.edit1
+             , E.getEditContents $ st^.edit2
+             , E.getEditContents $ st^.edit3
+             , E.getEditContents $ st^.edit4
+             , E.getEditContents $ st^.edit5
+             , E.getEditContents $ st^.edit6
+             , E.getEditContents $ st^.edit7
+             , E.getEditContents $ st^.edit8 
+             ] 
+
 getAddInput :: IO ([[String]])
 getAddInput = do 
-  st <- M.defaultMain theApp initialState     
+  st <- M.defaultMain theApp (initialState "" "" "" "" "" "" "" "")
   return $ [ E.getEditContents $ st^.edit1
              , E.getEditContents $ st^.edit2
              , E.getEditContents $ st^.edit3

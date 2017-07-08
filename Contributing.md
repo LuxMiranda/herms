@@ -10,17 +10,19 @@ We use stack around here to develop. Uhh, refer to [stack documentation.](https:
 
 A lot of these are quite indepedent from each other. If one looks pretty fun to you, you could probably jump right in!
 
+Once all of the **bolded** features are implemented, we're going to begin the proccess of uploading to Hackage!
+
 ### Easy squeezy
 - Import recipe file
 - Optional caloric / nutritional information
-- Add categories for recipes (I'm thinking of categories as simply lists of recipes... That way, recipes can be part of multiple categories and deleting a category doesn't break your recipes) 
+- **Add categories for recipes** (I'm thinking of categories as simply lists of recipes... That way, recipes can be part of multiple categories and deleting a category doesn't break your recipes) 
 - Add better erroneous input handling
 - Make yummy recipes and eat them
 
 ### May require elbow grease
-- Sort by tag
-- Edit recipes (including an option to go back and edit on the save/cancel prompt when adding a recipe)
-- Unit conversions
+- **Sort by tag**
+- **Edit recipes** (including an option to go back and edit on the save/cancel prompt when adding a recipe)
+- **Unit conversions**
 - Translation into languages other than English
 - "One step at a time" mode
 

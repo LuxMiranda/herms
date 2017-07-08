@@ -27,9 +27,8 @@ getRecipeBook = do
 getRecipe :: String -> [Recipe] -> Maybe Recipe
 getRecipe target = listToMaybe . filter ((target ==) . recipeName)
 
-add :: [String] -> IO ()
-add _ = do
-  input <- getAddInput 
+saveOrDiscard :: [[String]] -> IO ()
+saveOrDiscard input = do
   let newRecipe = readRecipe input
   putStrLn $ showRecipe newRecipe Nothing
   putStrLn "Save recipe? (Y)es  (N)o"
@@ -39,8 +38,39 @@ add _ = do
     fileName <- getDataFileName recipesFileName
     appendFile fileName (show newRecipe ++ "\n")
     putStrLn "Recipe saved!"
-  else
+  else if response == "n" || response == "N"
+    then do
     putStrLn "Recipe discarded."
+  else
+    do
+    putStrLn "\nPlease enter ONLY a 'y' or 'n'\n"
+    saveOrDiscard input
+
+add :: [String] -> IO ()
+add _ = do
+  input <- getAddInput 
+  saveOrDiscard input
+
+doEdit :: Recipe -> IO ()
+doEdit recp = do
+  input <- getEdit (recipeName recp) (description recp) amounts units ingrs attrs dirs tag
+  saveOrDiscard input
+  where ingrList = ingredients recp
+        toStr    = (\ f -> unlines (map f ingrList))
+        amounts  = toStr (showFrac . quantity)
+        units    = toStr unit
+        ingrs    = toStr ingredientName
+        dirs     = unlines (directions recp)
+        attrs    = toStr attribute
+        tag      = unlines (tags recp)
+ 
+edit :: [String] -> IO ()
+edit targets = do
+  recipeBook <- getRecipeBook
+  case readRecipeRef target recipeBook of
+    Nothing   -> putStrLn $ target ++ " does not exist\n"
+    Just recp -> doEdit recp
+  where target = head targets -- Only supports editing one recipe per command
 
 -- | `readRecipeRef target book` interprets the string `target`
 --   as either an index or a recipe's name and looks up the
@@ -112,6 +142,7 @@ dispatch = [ ("add", add)
            , ("remove", remove)
            , ("list", list)
            , ("help", help)
+           , ("edit", edit)
            ]
 
 -- Writes an empty recipes file if it doesn't exist

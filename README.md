@@ -14,7 +14,7 @@ In honor of Logan's greatest Breakfast & Brunch
 
 ### Installation
 
-At the moment Herm's can only be cloned and compiled manually. (But this shall change... _soon_)
+At the moment Herm's can only be cloned and built locally. (But this shall change... _soon_)
 
 You'll need GHC and cabal.
 
@@ -23,17 +23,25 @@ Run the following commands:
 git clone https://github.com/JackKiefer/herms
 cd herms
 cabal update
-cabal install
+cabal sandbox init
+cabal install -j
 ```
+To access Herm's from any directory, add the following directory to your PATH:
+`/path/to/herms/.cabal-sandbox/bin`
 
 ### Usage
 ```
 Usage:
         herms list                              list recipes
+
         herms view {index or "Recipe Name"}     view a particular recipe
+
         herms add                               add a new recipe (interactive)
+
         herms remove {index or "Recipe Name"}   remove a particular recipe
+
         herms help                              display this help
+
 OPTIONS
         -s{num}                                 specify serving size when viewing.
                                                 E.g., 'herms view -s2 {recipe}' for two servings
