@@ -27,14 +27,15 @@ getRecipeBook = do
 getRecipe :: String -> [Recipe] -> Maybe Recipe
 getRecipe target = listToMaybe . filter ((target ==) . recipeName)
 
-saveOrDiscard :: [[String]] -> IO ()
-saveOrDiscard input = do
+saveOrDiscard :: [[String]] -> Maybe Recipe -> IO ()
+saveOrDiscard input oldRecp = do
   let newRecipe = readRecipe input
   putStrLn $ showRecipe newRecipe Nothing
   putStrLn "Save recipe? (Y)es  (N)o"
   response <- getLine
   if response == "y" || response == "Y" 
     then do 
+    unless (isNothing oldRecp) $ removeSilent [recipeName (fromJust oldRecp)]
     fileName <- getDataFileName recipesFileName
     appendFile fileName (show newRecipe ++ "\n")
     putStrLn "Recipe saved!"
@@ -44,17 +45,17 @@ saveOrDiscard input = do
   else
     do
     putStrLn "\nPlease enter ONLY a 'y' or 'n'\n"
-    saveOrDiscard input
+    saveOrDiscard input oldRecp
 
 add :: [String] -> IO ()
 add _ = do
   input <- getAddInput 
-  saveOrDiscard input
+  saveOrDiscard input Nothing
 
 doEdit :: Recipe -> IO ()
 doEdit recp = do
   input <- getEdit (recipeName recp) (description recp) amounts units ingrs attrs dirs tag
-  saveOrDiscard input
+  saveOrDiscard input (Just recp)
   where ingrList = ingredients recp
         toStr    = (\ f -> unlines (map f ingrList))
         amounts  = toStr (showFrac . quantity)
@@ -105,6 +106,20 @@ list _  = do
       indices    = map (padLeft size . show) [1..]
   putStr $ unlines $ zipWith (\ i -> ((i ++ ". ") ++)) indices recipeList
 
+removeSilent :: [String] -> IO ()
+removeSilent targets = forM_ targets $ \ target -> do
+  recipeBook <- getRecipeBook
+  (tempName, tempHandle) <- openTempFile "." "herms_temp"
+  case readRecipeRef target recipeBook of
+    Nothing   -> putStrLn $ target ++ " does not exist\n"
+    Just recp -> do
+      let newRecpBook = delete recp recipeBook
+      hPutStr tempHandle $ unlines $ show <$> newRecpBook
+  hClose tempHandle
+  fileName <- getDataFileName recipesFileName
+  removeFile fileName
+  renameFile tempName fileName
+
 remove :: [String] -> IO ()
 remove targets = forM_ targets $ \ target -> do
   recipeBook <- getRecipeBook
@@ -129,6 +144,7 @@ help _ = putStr $ unlines $ "Usage:" : usage where
   desc  = [ ("\therms list", "list recipes")
           , ("\therms view {index or \"Recipe Name\"}", "view a particular recipe")
           , ("\therms add", "add a new recipe (interactive)")
+          , ("\therms edit {index pr \"Recipe Name\"}", "edit a recipe")
           , ("\therms remove {index or \"Recipe Name\"}", "remove a particular recipe")
           , ("\therms help", "display this help")
           , ("OPTIONS","")
