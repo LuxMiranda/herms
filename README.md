@@ -9,6 +9,7 @@ In honor of Logan's greatest Breakfast & Brunch
 ### Features
 - Add recipes! :)
 - Look at recipes! :D
+- Edit recipes! :DD
 - Serving size adjustment! :DDD
 - Remove recipes :(
 
@@ -37,6 +38,8 @@ Usage:
         herms view {index or "Recipe Name"}     view a particular recipe
 
         herms add                               add a new recipe (interactive)
+
+        herms edit {index or "Recipe Name"}     edit a recipe
 
         herms remove {index or "Recipe Name"}   remove a particular recipe
 

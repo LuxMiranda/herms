@@ -147,7 +147,7 @@ help _ = putStr $ unlines $ "Usage:" : usage where
           , ("","")
           , ("\therms add", "add a new recipe (interactive)")
           , ("","")
-          , ("\therms edit {index pr \"Recipe Name\"}", "edit a recipe")
+          , ("\therms edit {index or \"Recipe Name\"}", "edit a recipe")
           , ("","")
           , ("\therms remove {index or \"Recipe Name\"}", "remove a particular recipe")
           , ("","")
