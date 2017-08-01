@@ -108,11 +108,26 @@ view args = do
 list :: [String] -> IO ()
 list _  = do
   recipes <- getRecipeBook
-  let recipeList = map recipeName recipes
+  let recipeList = map showRecipeInfo recipes
       size       = length $ show $ length recipeList
       indices    = map (padLeft size . show) [1..]
   putStr $ unlines $ zipWith (\ i -> ((i ++ ". ") ++)) indices recipeList
 
+
+showRecipeInfo :: Recipe -> String
+showRecipeInfo recipe = name ++ "\n\t" ++ desc  ++ "\n\t[Tags: " ++ showTags ++ "]"
+  where name     = recipeName recipe
+        desc     = (takeFullWords . description) recipe
+        showTags = (intercalate ", " . tags) recipe
+
+takeFullWords :: String -> String
+takeFullWords = (unwords . takeFullWords' 0 . words)
+  where takeFullWords' n (x:[]) | (length x + n) > 40 = []
+                                | otherwise           = [x]
+        takeFullWords' n (x:xs) | (length x + n) > 40 = [x ++ "..."]
+                                | otherwise           =
+                                  [x] ++ takeFullWords' ((length x) + n) xs
+                                
 removeSilent :: [String] -> IO ()
 removeSilent targets = forM_ targets $ \ target -> do
   recipeBook <- getRecipeBook
