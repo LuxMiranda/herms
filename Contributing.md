@@ -38,7 +38,6 @@ Once all of the **bolded** features are implemented, we're going to begin the pr
 - A pretty GUI!
 
 ## Known bugs
-- Passing multiple recipes into a single `herms remove` command doesn't quite behave as you'd expect it to! See discussion in [#4](https://github.com/JackKiefer/herms/pull/4)
 
 ## Other notes on design improvements
 - Rewriting out the entire recipe file minus a single recipe every time you remove a recipe is fine for now, but will quickly become impractical when storing large numbers of recipes. We ought to find a better way of doing it! Unless I'm just crazy because even the most dedicated chefs might store only a few hundred recipes...
