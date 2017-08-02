@@ -127,36 +127,47 @@ takeFullWords = (unwords . takeFullWords' 0 . words)
         takeFullWords' n (x:xs) | (length x + n) > 40 = [x ++ "..."]
                                 | otherwise           =
                                   [x] ++ takeFullWords' ((length x) + n) xs
-                                
-removeSilent :: [String] -> IO ()
-removeSilent targets = forM_ targets $ \ target -> do
-  recipeBook <- getRecipeBook
+
+-- | @replaceDataFile fp str@ replaces the target data file @fp@ with
+--   the new content @str@ in a safe manner: it opens a temporary file
+--   first, writes to it, closes the handle, removes the target,
+--   and finally moves the temporary file over to the target @fp@.
+
+replaceDataFile :: FilePath -> String -> IO ()
+replaceDataFile fp str = do
   (tempName, tempHandle) <- openTempFile "." "herms_temp"
-  case readRecipeRef target recipeBook of
-    Nothing   -> putStrLn $ target ++ " does not exist\n"
-    Just recp -> do
-      let newRecpBook = delete recp recipeBook
-      hPutStr tempHandle $ unlines $ show <$> newRecpBook
+  hPutStr tempHandle str
   hClose tempHandle
-  fileName <- getDataFileName recipesFileName
+  fileName <- getDataFileName fp
   removeFile fileName
   renameFile tempName fileName
 
-remove :: [String] -> IO ()
-remove targets = forM_ targets $ \ target -> do
+-- | @removeWithVerbosity v recipes@ deletes the @recipes@ from the
+--   book, listing its work only if @v@ is set to @True@.
+--   This subsumes both @remove@ and @removeSilent@.
+
+removeWithVerbosity :: Bool -> [String] -> IO ()
+removeWithVerbosity v targets = do
   recipeBook <- getRecipeBook
-  (tempName, tempHandle) <- openTempFile "." "herms_temp"
-  case readRecipeRef target recipeBook of
-    Nothing   -> putStrLn $ target ++ " does not exist\n"
-    Just recp -> do
-      let newRecpBook = delete recp recipeBook
-      putStrLn $ "Removing recipe: " ++ recipeName recp ++ "..."
-      hPutStr tempHandle $ unlines $ show <$> newRecpBook
-      putStrLn "Recipe deleted."
-  hClose tempHandle
-  fileName <- getDataFileName recipesFileName
-  removeFile fileName
-  renameFile tempName fileName
+  mrecipes   <- forM targets $ \ target -> do
+    -- Resolve the recipes all at once; this way if we remove multiple
+    -- recipes based on their respective index, all of the index are
+    -- resolved based on the state the book was in before we started to
+    -- remove anything
+    let mrecp = readRecipeRef target recipeBook
+    () <- putStr $ case mrecp of
+       Nothing -> target ++ " does not exist.\n"
+       Just r  -> guard v *> "Removing recipe: " ++ recipeName r ++ "...\n"
+    return mrecp
+  -- Remove all the resolved recipes at once
+  let newRecipeBook = recipeBook \\ catMaybes mrecipes
+  replaceDataFile recipesFileName $ unlines $ show <$> newRecipeBook
+
+remove :: [String] -> IO ()
+remove = removeWithVerbosity True
+
+removeSilent :: [String] -> IO ()
+removeSilent = removeWithVerbosity False
 
 help :: [String] -> IO ()
 help _ = putStr $ unlines $ "Usage:" : usage where
