@@ -9,7 +9,21 @@ data Ingredient = Ingredient { quantity :: Ratio Int
                              , unit :: String
                              , ingredientName :: String
                              , attribute :: String
-                             } deriving (Eq, Show, Read)
+                             } deriving (Show, Read)
+
+instance Eq Ingredient where
+  ingr1 == ingr2 =  ingredientName ingr1 == ingredientName ingr2
+                 && unit ingr1 == unit ingr2
+
+instance Ord Ingredient where
+  ingr1 `compare` ingr2 =
+    case ingredientName ingr1 `compare` ingredientName ingr2 of
+      EQ -> case unit ingr1 `compare` unit ingr2 of
+              EQ -> case attribute ingr1 `compare` attribute ingr2 of
+                      EQ -> quantity ingr1 `compare` quantity ingr2
+                      x  -> x
+              x  -> x
+      x  -> x
 
 data Recipe = Recipe { recipeName :: String
                      , description :: String
@@ -35,9 +49,9 @@ readFrac x
 
 showIngredient :: Maybe Int -> Ingredient -> String
 showIngredient servings i = qty ++ u ++ ingredientName i ++ att
-  where qty = if quantity i == 0 
-                then "" 
-                else (case servings of 
+  where qty = if quantity i == 0
+                then ""
+                else (case servings of
                        Nothing -> showFrac (quantity i)
                        Just s  -> showFrac (quantity i * (s % 1))) ++ " "
         u   = if null (unit i) then "" else unit i ++ " "
@@ -85,4 +99,3 @@ fillVoidTo xs n = if l < n then xs ++ replicate (n - l) "" else xs
 fillVoid :: [[String]] -> Int -> [[String]]
 fillVoid [] _ = []
 fillVoid (x:xs) n = fillVoidTo x n : fillVoid xs n
-
