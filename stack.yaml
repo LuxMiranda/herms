@@ -11,16 +11,21 @@ packages:
 extra-deps:
 - QuickCheck-2.9.2
 - StateVar-1.1.0.4
+- ansi-terminal-0.7.1.1
+- ansi-wl-pprint-0.6.8.1
 - blaze-builder-0.4.0.2
 - brick-0.19
+- colour-2.3.3
 - contravariant-1.4
 - data-clist-0.1.1.0
 - dlist-0.8.0.3
+- fail-4.9.0.0
 - hashable-1.2.6.1
 - microlens-0.4.8.0
 - microlens-mtl-0.1.11.0
 - microlens-th-0.4.1.1
 - mtl-2.2.1
+- optparse-applicative-0.14.0.0
 - parallel-3.2.1.1
 - parsec-3.1.11
 - primitive-0.6.2.0

@@ -1,14 +1,13 @@
 module Main where
 
-import System.Environment
 import System.Directory
 import System.IO
 import Control.Monad
-import Data.Char
-import Data.Ratio
 import Data.List
 import Data.Maybe
+import Data.Semigroup ((<>))
 import Control.Applicative
+import Options.Applicative hiding (str)
 import Text.Read
 import Utils
 import AddCLI
@@ -16,6 +15,7 @@ import Types
 import Paths_herms
 
 -- Global constant
+recipesFileName :: String
 recipesFileName = "recipes.herms"
 
 getRecipeBook :: IO [Recipe]
@@ -35,8 +35,8 @@ saveOrDiscard input oldRecp = do
   putStrLn $ showRecipe newRecipe Nothing
   putStrLn "Save recipe? (Y)es  (N)o  (E)dit"
   response <- getLine
-  if response == "y" || response == "Y" 
-    then do 
+  if response == "y" || response == "Y"
+    then do
     recipeBook <- getRecipeBook
     let recpName = recipeName (fromJust oldRecp)
     unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
@@ -54,9 +54,9 @@ saveOrDiscard input oldRecp = do
     putStrLn "\nPlease enter ONLY 'y', 'n' or 'e'\n"
     saveOrDiscard input oldRecp
 
-add :: [String] -> IO ()
-add _ = do
-  input <- getAddInput 
+add :: IO ()
+add = do
+  input <- getAddInput
   saveOrDiscard input Nothing
 
 doEdit :: Recipe -> Maybe Recipe -> IO ()
@@ -71,14 +71,14 @@ doEdit recp origRecp = do
         dirs     = unlines (directions recp)
         attrs    = toStr attribute
         tag      = unlines (tags recp)
- 
-edit :: [String] -> IO ()
-edit targets = do
+
+edit :: String -> IO ()
+edit target = do
   recipeBook <- getRecipeBook
   case readRecipeRef target recipeBook of
     Nothing   -> putStrLn $ target ++ " does not exist\n"
     Just recp -> doEdit recp (Just recp)
-  where target = head targets -- Only supports editing one recipe per command
+  -- Only supports editing one recipe per command
 
 -- | `readRecipeRef target book` interprets the string `target`
 --   as either an index or a recipe's name and looks up the
@@ -88,25 +88,19 @@ readRecipeRef target recipeBook =
   (safeLookup recipeBook . pred =<< readMaybe target)
   <|> getRecipe target recipeBook
 
-sepFlags :: [String] -> [String]
-sepFlags args = takeWhile (\x -> head x == '-') (sort args)
-
-view :: [String] -> IO ()
-view args = do
+view :: [String] -> Int -> IO ()
+view targets serv = do
   recipeBook <- getRecipeBook
-  let flags   = sepFlags args
-  let cFlags  = concat flags
-  let targets = args \\ flags
-  let servings = case elemIndex 's' cFlags of
-                   Nothing -> Nothing
-                   Just i  -> Just (digitToInt (cFlags !! 2))
+  let servings = case serv of
+                   0 -> Nothing
+                   i -> Just i
   forM_ targets $ \ target ->
     putStr $ case readRecipeRef target recipeBook of
       Nothing   -> target ++ " does not exist\n"
       Just recp -> showRecipe recp servings
 
-list :: [String] -> IO ()
-list _  = do
+list :: IO ()
+list = do
   recipes <- getRecipeBook
   let recipeList = map showRecipeInfo recipes
       size       = length $ show $ length recipeList
@@ -169,37 +163,6 @@ remove = removeWithVerbosity True
 removeSilent :: [String] -> IO ()
 removeSilent = removeWithVerbosity False
 
-help :: [String] -> IO ()
-help _ = putStr $ unlines $ "Usage:" : usage where
-
-  usage = map (\ (c, d) -> concat [ padRight size c, "   ", d ]) desc
-  size  = maximum $ map (length . fst) desc
-  desc  = [ ("\therms list", "list recipes")
-          , ("","")
-          , ("\therms view {index or \"Recipe Name\"}", "view a particular recipe")
-          , ("","")
-          , ("\therms add", "add a new recipe (interactive)")
-          , ("","")
-          , ("\therms edit {index or \"Recipe Name\"}", "edit a recipe")
-          , ("","")
-          , ("\therms remove {index or \"Recipe Name\"}", "remove a particular recipe")
-          , ("","")
-          , ("\therms help", "display this help")
-          , ("","")
-          , ("OPTIONS","")
-          , ("\t-s{num}", "specify serving size when viewing.")
-          , ("\t","E.g., 'herms view -s2 {recipe}' for two servings")
-          ]
-
-dispatch :: [(String, [String] -> IO ())]
-dispatch = [ ("add", add)
-           , ("view", view)
-           , ("remove", remove)
-           , ("list", list)
-           , ("help", help)
-           , ("edit", edit)
-           ]
-
 -- Writes an empty recipes file if it doesn't exist
 checkFileExists :: IO ()
 checkFileExists = do
@@ -210,15 +173,76 @@ checkFileExists = do
     createDirectoryIfMissing True dirName
     writeFile fileName "")
 
-herms :: [String]      -- command line arguments
-      -> Maybe (IO ()) -- failure or resulting IO action
-herms args = do
-  guard (not $ null args)
-  action <- lookup (head args) dispatch
-  return $ action (tail args)
-
 main :: IO ()
-main = do
-  checkFileExists
-  testCmd <- getArgs
-  fromMaybe (help [""]) (herms testCmd)
+main = execParser commandPI >>= runWithOpts
+
+-- @runWithOpts runs the action of selected command.
+runWithOpts :: Command -> IO ()
+runWithOpts List                   = list
+runWithOpts Add                    = add
+runWithOpts (Edit target)          = edit target
+runWithOpts (Remove targets)       = remove targets
+runWithOpts (View targets serving) = view targets serving
+
+------------------------------
+------------ CLI -------------
+------------------------------
+
+-- | 'Command' data type represents commands of CLI
+data Command = List                -- ^ shows all recipes
+             | Add                 -- ^ adds the recipe (interactively)
+             | Edit    String      -- ^ edits the recipe
+             | Remove [String]     -- ^ removes specified recipes
+             | View   [String] Int -- ^ shows specified recipes with given serving
+
+listP, addP, editP, removeP, viewP :: Parser Command
+listP   = pure List
+addP    = pure Add
+editP   = Edit   <$> recipeNameP
+removeP = Remove <$> severalRecipesP
+viewP   = View   <$> severalRecipesP <*> servingP
+
+-- | @servingP returns the parser of number of servings.
+servingP :: Parser Int
+servingP =  option auto
+         (  long "serving"
+         <> short 's'
+         <> help "specify serving size when viewing"
+         <> showDefault
+         <> value 0
+         <> metavar "INT" )
+
+-- | @recipeNameP parses the string of recipe name.
+recipeNameP :: Parser String
+recipeNameP = strArgument (  metavar "RECIPE_NAME"
+                          <> help "index or Recipe name")
+
+-- | @severalRecipesP parses several recipe names at once
+--   and returns the parser of list of names
+severalRecipesP :: Parser [String]
+severalRecipesP = many recipeNameP
+
+-- @optP parses particular command.
+optP :: Parser Command
+optP =  subparser
+     $  command "list"
+                (info (helper <*> listP)
+                      (progDesc "list recipes"))
+     <> command "view"
+                (info  (helper <*> viewP)
+                       (progDesc "view the particular recipes"))
+     <> command "add"
+                (info  (helper <*> addP)
+                       (progDesc "add a new recipe (interactively)"))
+     <> command "edit"
+                (info  (helper <*> editP)
+                       (progDesc "edit a recipe"))
+     <> command "remove"
+                (info  (helper <*> removeP)
+                       (progDesc "remove the particular recipes"))
+
+-- @prsr is the main parser of all CLI arguments.
+commandPI :: ParserInfo Command
+commandPI =  info ( helper <*> optP )
+          $  fullDesc
+          <> progDesc "HeRM's: a Haskell-based Recipe Manager"
