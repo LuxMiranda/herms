@@ -163,6 +163,22 @@ remove = removeWithVerbosity True
 removeSilent :: [String] -> IO ()
 removeSilent = removeWithVerbosity False
 
+
+shop :: [String] -> Int -> IO ()
+shop targets serv = do
+  recipeBook <- getRecipeBook
+  let servings = case serv of
+                   0 -> Nothing
+                   i -> Just i
+  let ingrts =
+        concatMap (\target ->
+          case readRecipeRef target recipeBook of
+            Nothing   -> []
+            Just recp -> ingredients recp)
+                  targets
+  forM_ (sort ingrts) $ \ingr ->
+    putStrLn $ showIngredient servings ingr
+
 -- Writes an empty recipes file if it doesn't exist
 checkFileExists :: IO ()
 checkFileExists = do
@@ -183,6 +199,7 @@ runWithOpts Add                    = add
 runWithOpts (Edit target)          = edit target
 runWithOpts (Remove targets)       = remove targets
 runWithOpts (View targets serving) = view targets serving
+runWithOpts (Shop targets serving) = shop targets serving
 
 ------------------------------
 ------------ CLI -------------
@@ -194,13 +211,15 @@ data Command = List                -- ^ shows all recipes
              | Edit    String      -- ^ edits the recipe
              | Remove [String]     -- ^ removes specified recipes
              | View   [String] Int -- ^ shows specified recipes with given serving
+             | Shop   [String] Int -- ^ generates the shopping list for given recipes
 
-listP, addP, editP, removeP, viewP :: Parser Command
+listP, addP, editP, removeP, viewP, shopP :: Parser Command
 listP   = pure List
 addP    = pure Add
 editP   = Edit   <$> recipeNameP
 removeP = Remove <$> severalRecipesP
 viewP   = View   <$> severalRecipesP <*> servingP
+shopP   = Shop   <$> severalRecipesP <*> servingP
 
 -- | @servingP returns the parser of number of servings.
 servingP :: Parser Int
@@ -240,6 +259,9 @@ optP =  subparser
      <> command "remove"
                 (info  (helper <*> removeP)
                        (progDesc "remove the particular recipes"))
+     <> command "shopping"
+                (info (helper <*> shopP)
+                      (progDesc "generate a shopping list for given recipes"))
 
 -- @prsr is the main parser of all CLI arguments.
 commandPI :: ParserInfo Command

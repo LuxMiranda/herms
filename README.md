@@ -35,19 +35,21 @@ To access Herm's from any directory, add the following directory to your PATH:
 ### Usage
 ```
 Usage:
-        herms list                                    list recipes
+        herms list                                     list recipes
 
-        herms add                                     add a new recipe (interactively)
+        herms add                                      add a new recipe (interactively)
 
-        herms edit RECIPE_NAME                        edit a recipe
+        herms edit RECIPE_NAME                         edit a recipe
 
-        herms remove RECIPE_NAMES                     remove the particular recipes
-                
-        herms view RECIPE_NAMES [-s|--serving INT]    view the particular recipes
-        
+        herms remove RECIPE_NAMES                      remove the particular recipes
+
+        herms view RECIPE_NAMES [-s|--serving INT]     view the particular recipes
+
+        herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
+
 Available options:
-        -h,--help                                     Show this help text
-        RECIPE_NAME                                   index or Recipe name
-        -s|--serving INT                              specify serving size when viewing.
-                                                      E.g., 'herms view -s2 {recipe}' for two servings
+        -h,--help                                      Show this help text
+        RECIPE_NAME                                    index or Recipe name
+        -s|--serving INT                               specify serving size when viewing.
+                                                       E.g., 'herms view -s 2 {recipe}' for two servings
 ```
