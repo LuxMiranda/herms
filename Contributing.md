@@ -35,11 +35,8 @@ Once all of the **bolded** features are implemented, we're going to begin the pr
 ### Are you crazy?!
 - Parse and store a recipe given a URL to allrecipes.com, food.com, etc.
 - Show available recipes given a list of ingredients
-- A pretty GUI!
+- A pretty (but optional) GUI!
 
 ## Known bugs
 
-## Other notes on design improvements
-- Rewriting out the entire recipe file minus a single recipe every time you remove a recipe is fine for now, but will quickly become impractical when storing large numbers of recipes. We ought to find a better way of doing it! Unless I'm just crazy because even the most dedicated chefs might store only a few hundred recipes...
-- There's a really gross thing where the entire removing function was copied over to a "silentRemove" function that does the exact same thing but without printing output. This was done to avoid restructuring the way that functions are dispatched. If we could figure out an elegent way to merge the two functions back together, that'd be great...
-- Flag handling is also a bit janky at the moment. There's defintiely some room for improvement!
+None at the moment!
