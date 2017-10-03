@@ -38,7 +38,7 @@ saveOrDiscard input oldRecp = do
   if response == "y" || response == "Y"
     then do
     recipeBook <- getRecipeBook
-    let recpName = recipeName (fromJust oldRecp)
+    let recpName = if isNothing oldRecp then recipeName newRecipe else recipeName (fromJust oldRecp)
     unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
     fileName <- getDataFileName recipesFileName
     appendFile fileName (show newRecipe ++ "\n")
