@@ -2,11 +2,11 @@
 
 ![Travis build](https://api.travis-ci.org/JackKiefer/herms.svg?branch=master)
 
-HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line with big dreams of one day having a GUI.
+HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 
-![Herm's Inn](https://images.duckduckgo.com/iu/?u=https%3A%2F%2Firs2.4sqi.net%2Fimg%2Fgeneral%2F600x600%2F803_DzmDgevV4Yw5OrVsh9c4iaE7Bx8aSA0AY7y4L5Um7Qg.jpg&f=1)
+![Herm's Interface](https://i.imgur.com/u9fPapw.jpg)
 
-In honor of Logan's greatest Breakfast & Brunch
+In honor of Logan, Utah's greatest Breakfast & Brunch.
 
 ### Features
 - Add recipes! :)
@@ -53,3 +53,5 @@ Available options:
         -s|--serving INT                               specify serving size when viewing.
                                                        E.g., 'herms view -s 2 {recipe}' for two servings
 ```
+
+![Herm's Inn](https://images.duckduckgo.com/iu/?u=https%3A%2F%2Firs2.4sqi.net%2Fimg%2Fgeneral%2F600x600%2F803_DzmDgevV4Yw5OrVsh9c4iaE7Bx8aSA0AY7y4L5Um7Qg.jpg&f=1)
