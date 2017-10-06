@@ -3,6 +3,7 @@ module Main where
 import System.Directory
 import System.IO
 import Control.Monad
+import Data.Function
 import Data.List
 import Data.Maybe
 import Data.Semigroup ((<>))
@@ -87,6 +88,21 @@ readRecipeRef :: String -> [Recipe] -> Maybe Recipe
 readRecipeRef target recipeBook =
   (safeLookup recipeBook . pred =<< readMaybe target)
   <|> getRecipe target recipeBook
+
+importFile :: String -> IO ()
+importFile target = do
+  recipeBook <- getRecipeBook
+  otherRecipeBook <- (map read . lines) <$> readFile target
+  let recipeEq = (==) `on` recipeName
+  let newRecipeBook = deleteFirstsBy recipeEq recipeBook otherRecipeBook
+                        ++ otherRecipeBook
+  replaceDataFile recipesFileName $ unlines $ show <$> newRecipeBook
+  if null otherRecipeBook
+  then putStrLn "Nothing to import"
+  else do
+    putStrLn "Imported recipes:"
+    forM_ otherRecipeBook $ \recipe ->
+      putStrLn $ "  " ++ recipeName recipe
 
 view :: [String] -> Int -> IO ()
 view targets serv = do
@@ -197,9 +213,11 @@ runWithOpts :: Command -> IO ()
 runWithOpts List                   = list
 runWithOpts Add                    = add
 runWithOpts (Edit target)          = edit target
+runWithOpts (Import target)        = importFile target
 runWithOpts (Remove targets)       = remove targets
 runWithOpts (View targets serving) = view targets serving
 runWithOpts (Shop targets serving) = shop targets serving
+
 
 ------------------------------
 ------------ CLI -------------
@@ -209,14 +227,16 @@ runWithOpts (Shop targets serving) = shop targets serving
 data Command = List                -- ^ shows all recipes
              | Add                 -- ^ adds the recipe (interactively)
              | Edit    String      -- ^ edits the recipe
+             | Import  String      -- ^ imports a recipe file
              | Remove [String]     -- ^ removes specified recipes
              | View   [String] Int -- ^ shows specified recipes with given serving
              | Shop   [String] Int -- ^ generates the shopping list for given recipes
 
-listP, addP, editP, removeP, viewP, shopP :: Parser Command
+listP, addP, editP, importP, removeP, viewP, shopP :: Parser Command
 listP   = pure List
 addP    = pure Add
 editP   = Edit   <$> recipeNameP
+importP = Import <$> fileNameP
 removeP = Remove <$> severalRecipesP
 viewP   = View   <$> severalRecipesP <*> servingP
 shopP   = Shop   <$> severalRecipesP <*> servingP
@@ -235,6 +255,11 @@ servingP =  option auto
 recipeNameP :: Parser String
 recipeNameP = strArgument (  metavar "RECIPE_NAME"
                           <> help "index or Recipe name")
+
+-- | @fileNameP parses the string of a file name.
+fileNameP :: Parser String
+fileNameP = strArgument (  metavar "FILE_NAME"
+                        <> help "file name")
 
 -- | @severalRecipesP parses several recipe names at once
 --   and returns the parser of list of names
@@ -256,6 +281,9 @@ optP =  subparser
      <> command "edit"
                 (info  (helper <*> editP)
                        (progDesc "edit a recipe"))
+     <> command "import"
+                (info  (helper <*> importP)
+                       (progDesc "import a recipe file"))
      <> command "remove"
                 (info  (helper <*> removeP)
                        (progDesc "remove the particular recipes"))
