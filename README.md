@@ -41,6 +41,8 @@ Usage:
 
         herms edit RECIPE_NAME                         edit a recipe
 
+        herms import FILE_NAME                         import a recipe file
+
         herms remove RECIPE_NAMES                      remove the particular recipes
 
         herms view RECIPE_NAMES [-s|--serving INT]     view the particular recipes
