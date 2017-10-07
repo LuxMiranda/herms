@@ -6,14 +6,15 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 
 ![Herm's Interface](https://i.imgur.com/u9fPapw.jpg)
 
-In honor of Logan, Utah's greatest Breakfast & Brunch.
-
 ### Features
 - Add recipes! :)
 - Look at recipes! :D
 - Edit recipes! :DD
 - Serving size adjustment! :DDD
 - Remove recipes :(
+- Import recipe files
+- Generate shopping lists
+- Keep track of recipes with tags
 
 ### Installation
 
@@ -35,7 +36,7 @@ To access Herm's from any directory, add the following directory to your PATH:
 ### Usage
 ```
 Usage:
-        herms list                                     list recipes
+        herms list [--sort SORT_ORDER]                 list recipes
 
         herms add                                      add a new recipe (interactively)
 
@@ -50,10 +51,13 @@ Usage:
         herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
 
 Available options:
-        -h,--help                                      Show this help text
+        -h|--help                                      Show this help text
         RECIPE_NAME                                    index or Recipe name
+        --sort SORT_ORDER                              'tags' to sort by tags
         -s|--serving INT                               specify serving size when viewing.
                                                        E.g., 'herms view -s 2 {recipe}' for two servings
 ```
+
+In honor of Logan, Utah's greatest Breakfast & Brunch.
 
 ![Herm's Inn](https://images.duckduckgo.com/iu/?u=https%3A%2F%2Firs2.4sqi.net%2Fimg%2Fgeneral%2F600x600%2F803_DzmDgevV4Yw5OrVsh9c4iaE7Bx8aSA0AY7y4L5Um7Qg.jpg&f=1)
