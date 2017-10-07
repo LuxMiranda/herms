@@ -6,6 +6,9 @@ name:                herms
 
 -- The package description
 description:         HeRM's: a Haskell-based Recipe Manager for delicious kitchen recipes with big dreams of one day having a GUI.
+tested-with:        GHC == 7.10.3
+                    GHC == 8.0.2
+                    GHC == 8.2.1
 
 -- The package version.  See the Haskell package versioning policy (PVP)
 -- for standards guiding when and how versions should be incremented.
@@ -13,12 +16,7 @@ description:         HeRM's: a Haskell-based Recipe Manager for delicious kitche
 -- PVP summary:      +-+------- New features or improvements with significant API change
 --                   | | +----- Bugfixes and improvements with minor change to API
 --                   | | | +--- Bugfixes and improvements with no change to API
-
-tested-with:        GHC == 7.10.3
-                    GHC == 8.0.2
-                    GHC == 8.2.1
-
-version:             1.2.1.0
+version:             1.5.0.0
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes

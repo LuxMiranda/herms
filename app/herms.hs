@@ -331,4 +331,4 @@ optP =  subparser
 commandPI :: ParserInfo Command
 commandPI =  info ( helper <*> optP )
           $  fullDesc
-          <> progDesc "HeRM's: a Haskell-based Recipe Manager"
+          <> progDesc "HeRM's: a Haskell-based Recipe Manager. Type \"herms --help\" for options"
