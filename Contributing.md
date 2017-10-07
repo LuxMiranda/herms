@@ -21,12 +21,11 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 Once all of the **bolded** features are implemented, we're going to begin the proccess of uploading to Hackage!
 
 ### Easy squeezy
-- Optional caloric / nutritional information
-- **Add categories for recipes** (I'm thinking of categories as simply lists of recipes... That way, recipes can be part of multiple categories and deleting a category doesn't break your recipes) 
 - Make yummy recipes and eat them
 
 ### May require elbow grease
 - **Unit conversions**
+- Optional caloric / nutritional information
 - Translation into languages other than English
 - "One step at a time" mode
 
