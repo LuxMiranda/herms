@@ -115,14 +115,30 @@ view targets serv = do
       Nothing   -> target ++ " does not exist\n"
       Just recp -> showRecipe recp servings
 
-list :: IO ()
-list = do
+list :: SortOrder -> IO ()
+list TagsOrder = listByTags
+list _ = listDefault
+
+listDefault :: IO ()
+listDefault = do
   recipes <- getRecipeBook
   let recipeList = map showRecipeInfo recipes
       size       = length $ show $ length recipeList
       indices    = map (padLeft size . show) [1..]
   putStr $ unlines $ zipWith (\ i -> ((i ++ ". ") ++)) indices recipeList
 
+listByTags :: IO ()
+listByTags = do
+  recipesWithIdx <- fmap (zip [1..]) getRecipeBook
+  let tagsRecipes =
+        groupBy ((==) `on` fst) $ sortBy (compare `on` fst) $
+          concat $ flip map recipesWithIdx $ \recipeWithIdx ->
+            map (flip (,) recipeWithIdx) $ tags $ snd recipeWithIdx
+  forM_ tagsRecipes $ \tagRecipes -> do
+    putStrLn $ fst $ head tagRecipes -- Tag name
+    forM_ (map snd tagRecipes) $ \(i, recipe) ->
+      putStrLn $ "  " ++ show i ++ ". " ++ showRecipeInfo recipe
+    putStrLn ""
 
 showRecipeInfo :: Recipe -> String
 showRecipeInfo recipe = name ++ "\n\t" ++ desc  ++ "\n\t[Tags: " ++ showTags ++ "]"
@@ -210,7 +226,7 @@ main = execParser commandPI >>= runWithOpts
 
 -- @runWithOpts runs the action of selected command.
 runWithOpts :: Command -> IO ()
-runWithOpts List                   = list
+runWithOpts (List order)           = list order
 runWithOpts Add                    = add
 runWithOpts (Edit target)          = edit target
 runWithOpts (Import target)        = importFile target
@@ -224,7 +240,7 @@ runWithOpts (Shop targets serving) = shop targets serving
 ------------------------------
 
 -- | 'Command' data type represents commands of CLI
-data Command = List                -- ^ shows all recipes
+data Command = List    SortOrder   -- ^ shows all recipes
              | Add                 -- ^ adds the recipe (interactively)
              | Edit    String      -- ^ edits the recipe
              | Import  String      -- ^ imports a recipe file
@@ -232,14 +248,34 @@ data Command = List                -- ^ shows all recipes
              | View   [String] Int -- ^ shows specified recipes with given serving
              | Shop   [String] Int -- ^ generates the shopping list for given recipes
 
-listP, addP, editP, importP, removeP, viewP, shopP :: Parser Command
-listP   = pure List
+
+data SortOrder = DefaultOrder
+               | TagsOrder
+
+listP, addP, editP, removeP, viewP, shopP :: Parser Command
+listP   = List   <$> sortOrderP
 addP    = pure Add
 editP   = Edit   <$> recipeNameP
 importP = Import <$> fileNameP
 removeP = Remove <$> severalRecipesP
 viewP   = View   <$> severalRecipesP <*> servingP
 shopP   = Shop   <$> severalRecipesP <*> servingP
+
+
+sortOrderP :: Parser SortOrder
+sortOrderP = option sortOrderRead
+         (  long "sort"
+         <> short 's'
+         <> help "Specify sort order (\"default\" or \"tags\")"
+         <> value DefaultOrder
+         <> metavar "ORDER" )
+
+sortOrderRead :: ReadM SortOrder
+sortOrderRead = eitherReader $ \s ->
+  case s of
+    "default" -> Right DefaultOrder
+    "tags"    -> Right TagsOrder
+    _         -> Left "Invalid sort order"
 
 -- | @servingP returns the parser of number of servings.
 servingP :: Parser Int
