@@ -25,6 +25,7 @@ import Brick.Util (on)
 
 data Name = RecipeName
           | Description
+          | ServingSize
           | IngrAmount
           | IngrUnit
           | IngrName
@@ -43,6 +44,7 @@ data St =
        , _edit6 :: E.Editor String Name
        , _edit7 :: E.Editor String Name
        , _edit8 :: E.Editor String Name
+       , _edit9 :: E.Editor String Name
        }
 
 makeLenses ''St
@@ -58,25 +60,28 @@ drawUI st = [ui]
         e6 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit6)
         e7 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit7)
         e8 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit8)
+        e9 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit9)
 
         ui = C.center $
             str "                                    Herm's - Add a recipe" <=>
             str " " <=>
             (str "          Name: " <+> (hLimit 62 e1)) <=>
             str " " <=>
-            (str "   Description: " <+> (hLimit 62 $ vLimit 5 e2)) <=>
+            (str "   Description: " <+> (hLimit 62 $ vLimit 4 e2)) <=>
+            str " " <=>
+            (str "  Serving size: " <+> (hLimit 3 e3)) <=>
             str " " <=>
             str "                  qty.   unit               name                attribute" <=>
             (str "  Ingredients: \n(one per line)  " 
-              <+> (hLimit 7 $ vLimit 8 e3) 
-              <+> (hLimit 9 $ vLimit 8 e4)
-              <+> (hLimit 28 $ vLimit 8 e5) 
-              <+> (hLimit 18 $ vLimit 8 e6)) 
+              <+> (hLimit 7 $ vLimit 7 e4)
+              <+> (hLimit 9 $ vLimit 7 e5)
+              <+> (hLimit 28 $ vLimit 7 e6)
+              <+> (hLimit 18 $ vLimit 7 e7))
               <=> 
             str " " <=>
-            (str "   Directions: \n(one per line)  " <+> (hLimit 62 $ vLimit 8 e7)) <=>
+            (str "   Directions: \n(one per line)  " <+> (hLimit 62 $ vLimit 8 e8)) <=>
             str " " <=>
-            (str "          Tags: " <+> (hLimit 62 $ vLimit 1 e8)) <=>
+            (str "          Tags: " <+> (hLimit 62 $ vLimit 1 e9)) <=>
             str " " <=>
             str "                       Tab / Shift+Tab      - Next / Previous field" <=>
             str "                       Ctrl + <Arrow keys>  - Navigate fields" <=>
@@ -92,6 +97,7 @@ appEvent st (T.VtyEvent ev) =
         V.EvKey V.KDown [V.MCtrl] -> M.continue $ st & focusRing %~ (case F.focusGetCurrent (st^.focusRing) of
                Just RecipeName -> (F.focusNext)
                Just Description -> (F.focusNext)
+               Just ServingSize -> (F.focusNext)
                Just IngrAmount -> (F.focusNext . F.focusNext . F.focusNext . F.focusNext)
                Just IngrUnit -> (F.focusNext . F.focusNext . F.focusNext)
                Just IngrName -> (F.focusNext . F.focusNext)
@@ -102,6 +108,7 @@ appEvent st (T.VtyEvent ev) =
         V.EvKey V.KUp [V.MCtrl] -> M.continue $ st & focusRing %~ (case F.focusGetCurrent (st^.focusRing) of
                Just RecipeName -> (F.focusPrev)
                Just Description -> (F.focusPrev)
+               Just ServingSize -> (F.focusPrev)
                Just IngrAttr -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
                Just IngrName -> (F.focusPrev . F.focusPrev . F.focusPrev)
                Just IngrUnit -> (F.focusPrev . F.focusPrev)
@@ -112,6 +119,7 @@ appEvent st (T.VtyEvent ev) =
         V.EvKey V.KRight [V.MCtrl] -> M.continue $ st & focusRing %~ (case F.focusGetCurrent (st^.focusRing) of
                Just RecipeName -> (F.focusNext . F.focusNext)
                Just Description -> (F.focusNext)
+               Just ServingSize -> (F.focusNext)
                Just IngrAmount -> (F.focusNext)
                Just IngrUnit -> (F.focusNext)
                Just IngrName -> (F.focusNext)
@@ -122,6 +130,7 @@ appEvent st (T.VtyEvent ev) =
         V.EvKey V.KLeft [V.MCtrl] -> M.continue $ st & focusRing %~ (case F.focusGetCurrent (st^.focusRing) of
                Just RecipeName -> (F.focusNext . F.focusNext)
                Just Description -> (F.focusNext)
+               Just ServingSize -> (F.focusNext)
                Just IngrAmount -> (F.focusNext . F.focusNext . F.focusNext)
                Just IngrUnit -> (F.focusPrev)
                Just IngrName -> (F.focusPrev)
@@ -133,20 +142,22 @@ appEvent st (T.VtyEvent ev) =
         _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
                Just RecipeName -> T.handleEventLensed st edit1 E.handleEditorEvent ev
                Just Description -> T.handleEventLensed st edit2 E.handleEditorEvent ev
-               Just IngrAmount -> T.handleEventLensed st edit3 E.handleEditorEvent ev
-               Just IngrUnit -> T.handleEventLensed st edit4 E.handleEditorEvent ev
-               Just IngrName -> T.handleEventLensed st edit5 E.handleEditorEvent ev
-               Just IngrAttr -> T.handleEventLensed st edit6 E.handleEditorEvent ev
-               Just Directions -> T.handleEventLensed st edit7 E.handleEditorEvent ev
-               Just Tags -> T.handleEventLensed st edit8 E.handleEditorEvent ev
+               Just ServingSize -> T.handleEventLensed st edit3 E.handleEditorEvent ev
+               Just IngrAmount -> T.handleEventLensed st edit4 E.handleEditorEvent ev
+               Just IngrUnit -> T.handleEventLensed st edit5 E.handleEditorEvent ev
+               Just IngrName -> T.handleEventLensed st edit6 E.handleEditorEvent ev
+               Just IngrAttr -> T.handleEventLensed st edit7 E.handleEditorEvent ev
+               Just Directions -> T.handleEventLensed st edit8 E.handleEditorEvent ev
+               Just Tags -> T.handleEventLensed st edit9 E.handleEditorEvent ev
                Nothing -> return st
 appEvent st _ = M.continue st
 
-initialState :: String -> String -> String -> String -> String -> String -> String -> String -> St
-initialState name desc amounts units ingrs attrs dirs tags =
-    St (F.focusRing [RecipeName, Description, IngrAmount, IngrUnit, IngrName, IngrAttr, Directions, Tags])
+initialState :: String -> String -> String -> String -> String -> String -> String -> String -> String -> St
+initialState name desc serving amounts units ingrs attrs dirs tags =
+    St (F.focusRing [RecipeName, Description, ServingSize, IngrAmount, IngrUnit, IngrName, IngrAttr, Directions, Tags])
        (E.editor RecipeName (Just 1) name)
        (E.editor Description Nothing desc)
+       (E.editor ServingSize (Just 1) serving)
        (E.editor IngrAmount Nothing amounts)
        (E.editor IngrUnit Nothing units)
        (E.editor IngrName Nothing ingrs)
@@ -172,9 +183,9 @@ theApp =
           , M.appAttrMap = const theMap
           }
 
-getEdit :: String -> String -> String -> String -> String -> String -> String -> String -> IO ([[String]])
-getEdit name desc amounts units ingrs attrs dirs tags = do
-  st <- M.defaultMain theApp (initialState name desc amounts units ingrs attrs dirs tags)
+getEdit :: String -> String -> String -> String -> String -> String -> String -> String -> String -> IO ([[String]])
+getEdit name desc serving amounts units ingrs attrs dirs tags = do
+  st <- M.defaultMain theApp (initialState name desc serving amounts units ingrs attrs dirs tags)
   return $ [ E.getEditContents $ st^.edit1
              , E.getEditContents $ st^.edit2
              , E.getEditContents $ st^.edit3
@@ -183,11 +194,12 @@ getEdit name desc amounts units ingrs attrs dirs tags = do
              , E.getEditContents $ st^.edit6
              , E.getEditContents $ st^.edit7
              , E.getEditContents $ st^.edit8 
+             , E.getEditContents $ st^.edit9
              ] 
 
 getAddInput :: IO ([[String]])
 getAddInput = do 
-  st <- M.defaultMain theApp (initialState "" "" "" "" "" "" "" "")
+  st <- M.defaultMain theApp (initialState "" "" "" "" "" "" "" "" "")
   return $ [ E.getEditContents $ st^.edit1
              , E.getEditContents $ st^.edit2
              , E.getEditContents $ st^.edit3
@@ -196,4 +208,5 @@ getAddInput = do
              , E.getEditContents $ st^.edit6
              , E.getEditContents $ st^.edit7
              , E.getEditContents $ st^.edit8 
+             , E.getEditContents $ st^.edit9
              ] 
