@@ -71,18 +71,24 @@ readIngredients :: [[String]] -> [Ingredient]
 readIngredients is = makeIngredients $ transpose $ fillVoid is (length (maximumBy (comparing length) is))
 
 showRecipe :: Recipe -> Maybe Int -> String
-showRecipe r servings =  "+--" ++ filler ++ "+\n"
+showRecipe r servings =  showRecipeHeader r servings
+                ++ "\n" ++ unlines (showRecipeSteps r)
+
+showRecipeHeader :: Recipe -> Maybe Int -> String
+showRecipeHeader r servings =  "+--" ++ filler ++ "+\n"
                 ++ "|  " ++ recipeName r ++ "  |\n"
                 ++ "+--" ++ filler ++ "+\n"
                 ++ "\n" ++ description r ++ "\n"
                 ++ "\nServings: " ++ servingStr ++ "\n"
                 ++ "\nIngredients:\n"
                 ++ unlines (map ((++) "* " . showIngredient servings) (ingredients r))
-                ++ "\n" ++ unlines (zipWith (\i d -> "(" ++ show i ++ ") " ++ d) [1..] (directions r))
                 where filler = replicate (length (recipeName r) + 2) '-'
                       servingStr = case servings of
                         Nothing -> "1"
                         Just s  -> show s
+
+showRecipeSteps :: Recipe -> [String]
+showRecipeSteps r =  zipWith (\i d -> "(" ++ show i ++ ") " ++ d) [1..] (directions r)
 
 readRecipe :: [[String]] -> Recipe
 readRecipe r = Recipe { recipeName = n, description = des, ingredients = i, directions = dir, tags = t }

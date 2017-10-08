@@ -115,6 +115,26 @@ view targets serv = do
       Nothing   -> target ++ " does not exist\n"
       Just recp -> showRecipe recp servings
 
+viewByStep :: [String] -> Int -> IO ()
+viewByStep targets serv = do
+  recipeBook <- getRecipeBook
+  let servings = case serv of
+                   0 -> Nothing
+                   i -> Just i
+  hSetBuffering stdout NoBuffering
+  forM_ targets $ \ target -> case readRecipeRef target recipeBook of
+    Nothing   -> putStr $ target ++ " does not exist\n"
+    Just recp -> viewRecipeByStep recp servings
+
+viewRecipeByStep :: Recipe -> Maybe Int -> IO ()
+viewRecipeByStep recp servings = do
+  putStr $ showRecipeHeader recp servings
+  let steps = showRecipeSteps recp
+  forM_ (init steps) $ \ step -> do
+    putStr $ step ++ " [more]"
+    getLine
+  putStr $ last steps ++ "\n"
+
 list :: SortOrder -> IO ()
 list TagsOrder = listByTags
 list _ = listDefault
@@ -226,13 +246,14 @@ main = execParser commandPI >>= runWithOpts
 
 -- @runWithOpts runs the action of selected command.
 runWithOpts :: Command -> IO ()
-runWithOpts (List order)           = list order
-runWithOpts Add                    = add
-runWithOpts (Edit target)          = edit target
-runWithOpts (Import target)        = importFile target
-runWithOpts (Remove targets)       = remove targets
-runWithOpts (View targets serving) = view targets serving
-runWithOpts (Shop targets serving) = shop targets serving
+runWithOpts (List order)                = list order
+runWithOpts Add                         = add
+runWithOpts (Edit target)               = edit target
+runWithOpts (Import target)             = importFile target
+runWithOpts (Remove targets)            = remove targets
+runWithOpts (View targets serving step) = if step then viewByStep targets serving
+                                          else view targets serving
+runWithOpts (Shop targets serving)      = shop targets serving
 
 
 ------------------------------
@@ -240,13 +261,13 @@ runWithOpts (Shop targets serving) = shop targets serving
 ------------------------------
 
 -- | 'Command' data type represents commands of CLI
-data Command = List    SortOrder   -- ^ shows all recipes
-             | Add                 -- ^ adds the recipe (interactively)
-             | Edit    String      -- ^ edits the recipe
-             | Import  String      -- ^ imports a recipe file
-             | Remove [String]     -- ^ removes specified recipes
-             | View   [String] Int -- ^ shows specified recipes with given serving
-             | Shop   [String] Int -- ^ generates the shopping list for given recipes
+data Command = List    SortOrder        -- ^ shows all recipes
+             | Add                      -- ^ adds the recipe (interactively)
+             | Edit    String           -- ^ edits the recipe
+             | Import  String           -- ^ imports a recipe file
+             | Remove [String]          -- ^ removes specified recipes
+             | View   [String] Int Bool -- ^ shows specified recipes with given serving
+             | Shop   [String] Int      -- ^ generates the shopping list for given recipes
 
 
 data SortOrder = DefaultOrder
@@ -258,7 +279,7 @@ addP    = pure Add
 editP   = Edit   <$> recipeNameP
 importP = Import <$> fileNameP
 removeP = Remove <$> severalRecipesP
-viewP   = View   <$> severalRecipesP <*> servingP
+viewP   = View   <$> severalRecipesP <*> servingP <*> stepP
 shopP   = Shop   <$> severalRecipesP <*> servingP
 
 
@@ -286,6 +307,12 @@ servingP =  option auto
          <> showDefault
          <> value 0
          <> metavar "INT" )
+
+stepP :: Parser Bool
+stepP = switch
+    (  long "step"
+    <> short 't'
+    <> help "Whether to show one step at a time" )
 
 -- | @recipeNameP parses the string of recipe name.
 recipeNameP :: Parser String
