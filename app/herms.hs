@@ -1,3 +1,5 @@
+{-# LANGUAGE ViewPatterns #-}
+
 module Main where
 
 import System.Directory
@@ -137,22 +139,32 @@ viewRecipeByStep recp servings = do
     getLine
   putStr $ last steps ++ "\n"
 
-list :: SortOrder -> IO ()
-list TagsOrder = listByTags
-list _ = listDefault
-
-listDefault :: IO ()
-listDefault = do
+list :: [String] -> SortOrder -> IO ()
+list inputTags sortOrder = do
   recipes <- getRecipeBook
+  let recipesWithIndex = zip [1..] recipes
+  let targetRecipes    = filterByTags inputTags recipesWithIndex
+  case sortOrder of
+    TagsOrder -> listByTags inputTags targetRecipes
+    _         -> listDefault targetRecipes
+
+filterByTags :: [String] -> [(Int, Recipe)] -> [(Int, Recipe)]
+filterByTags []        = id
+filterByTags inputTags = filter (inTags . tags . snd)
+ where
+  inTags r = all (`elem` r) inputTags
+
+listDefault :: [(Int, Recipe)] -> IO ()
+listDefault (unzip -> (indices, recipes)) = do
   let recipeList = map showRecipeInfo recipes
       size       = length $ show $ length recipeList
-      indices    = map (padLeft size . show) [1..]
-  putStr $ unlines $ zipWith (\ i -> ((i ++ ". ") ++)) indices recipeList
+      strIndices = map (padLeft size . show) indices
+  putStr $ unlines $ zipWith (\ i -> ((i ++ ". ") ++)) strIndices recipeList
 
-listByTags :: IO ()
-listByTags = do
-  recipesWithIdx <- fmap (zip [1..]) getRecipeBook
-  let tagsRecipes =
+listByTags :: [String] -> [(Int, Recipe)] -> IO ()
+listByTags inputTags recipesWithIdx = do
+  let tagsRecipes :: [[(String, (Int, Recipe))]]
+      tagsRecipes =
         groupBy ((==) `on` fst) $ sortBy (compare `on` fst) $
           concat $ flip map recipesWithIdx $ \recipeWithIdx ->
             map (flip (,) recipeWithIdx) $ tags $ snd recipeWithIdx
@@ -248,7 +260,7 @@ main = execParser commandPI >>= runWithOpts
 
 -- @runWithOpts runs the action of selected command.
 runWithOpts :: Command -> IO ()
-runWithOpts (List order)                = list order
+runWithOpts (List tags order)           = list tags order
 runWithOpts Add                         = add
 runWithOpts (Edit target)               = edit target
 runWithOpts (Import target)             = importFile target
@@ -263,20 +275,20 @@ runWithOpts (Shop targets serving)      = shop targets serving
 ------------------------------
 
 -- | 'Command' data type represents commands of CLI
-data Command = List    SortOrder        -- ^ shows all recipes
-             | Add                      -- ^ adds the recipe (interactively)
-             | Edit    String           -- ^ edits the recipe
-             | Import  String           -- ^ imports a recipe file
-             | Remove [String]          -- ^ removes specified recipes
-             | View   [String] Int Bool -- ^ shows specified recipes with given serving
-             | Shop   [String] Int      -- ^ generates the shopping list for given recipes
+data Command = List   [String] SortOrder  -- ^ shows recipes
+             | Add                        -- ^ adds the recipe (interactively)
+             | Edit    String             -- ^ edits the recipe
+             | Import  String             -- ^ imports a recipe file
+             | Remove [String]            -- ^ removes specified recipes
+             | View   [String] Int Bool   -- ^ shows specified recipes with given serving
+             | Shop   [String] Int        -- ^ generates the shopping list for given recipes
 
 
 data SortOrder = DefaultOrder
                | TagsOrder
 
 listP, addP, editP, removeP, viewP, shopP :: Parser Command
-listP   = List   <$> sortOrderP
+listP   = List   <$> (words <$> tagsP) <*> sortOrderP
 addP    = pure Add
 editP   = Edit   <$> recipeNameP
 importP = Import <$> fileNameP
@@ -299,6 +311,14 @@ sortOrderRead = eitherReader $ \s ->
     "default" -> Right DefaultOrder
     "tags"    -> Right TagsOrder
     _         -> Left "Invalid sort order"
+
+-- | @tagsP returns the parser of tags
+tagsP :: Parser String
+tagsP = strOption (  long "tags"
+                  <> value ""
+                  <> metavar "TAGS"
+                  <> help "show recipes with particular flags"
+                  )
 
 -- | @servingP returns the parser of number of servings.
 servingP :: Parser Int
