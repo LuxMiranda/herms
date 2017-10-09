@@ -36,7 +36,8 @@ To access Herm's from any directory, add the following directory to your PATH:
 ### Usage
 ```
 Usage:
-        herms list [--sort SORT_ORDER]                 list recipes
+
+        herms list [-g|--group] [--tags TAGS]          list recipes
 
         herms add                                      add a new recipe (interactively)
 
@@ -48,7 +49,6 @@ Usage:
 
         herms view RECIPE_NAMES [-s|--serving INT]     view the particular recipes
                                 [-t|--step]
-                                [--tags TAGS]
 
         herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
 
@@ -65,6 +65,8 @@ Available options:
 
         -t|--step                                      View recipe in "one-step-at-a-time" mode
                                                        (press enter between each direction)
+
+        -g|--group                                     group recipes by tags
 
         --tags TAGS                                    show recipes with particular flags
 ```
