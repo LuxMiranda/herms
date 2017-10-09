@@ -48,6 +48,7 @@ Usage:
 
         herms view RECIPE_NAMES [-s|--serving INT]     view the particular recipes
                                 [-t|--step]
+                                [--tags TAGS]
 
         herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
 
@@ -64,6 +65,8 @@ Available options:
 
         -t|--step                                      View recipe in "one-step-at-a-time" mode
                                                        (press enter between each direction)
+
+        --tags TAGS                                    show recipes with particular flags
 ```
 
 In honor of Logan, Utah's greatest Breakfast & Brunch.
