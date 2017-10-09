@@ -75,11 +75,11 @@ adjustIngredients factor = map adjustIngredient
           ingredient{ quantity = (quantity ingredient * factor) }
 
 showRecipe :: Recipe -> Maybe Int -> String
-showRecipe r servings =  showRecipeHeader r servings
+showRecipe r maybeServings =  showRecipeHeader r maybeServings
                 ++ "\n" ++ unlines (showRecipeSteps r)
 
 showRecipeHeader :: Recipe -> Maybe Int -> String
-showRecipeHeader r servings =  "+--" ++ filler ++ "+\n"
+showRecipeHeader r maybeServings =  "+--" ++ filler ++ "+\n"
                 ++ "|  " ++ recipeName r ++ "  |\n"
                 ++ "+--" ++ filler ++ "+\n"
                 ++ "\n" ++ description r ++ "\n"
