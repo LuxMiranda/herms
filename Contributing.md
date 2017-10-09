@@ -18,10 +18,9 @@ Whim-bam!
 
 A lot of these are quite indepedent from each other. If one looks pretty fun to you, you could probably jump right in!
 
-Once all of the **bolded** features are implemented, we're going to begin the proccess of uploading to Hackage!
+There used to be a lot of **bolded** ideas, but they're all features now! Only one remains. The deal with that is that we're going to begin the proccess of uploading to Hackage once it's implemented!
 
 - **Specify via a flag to view a recipe converted to a certain unit system (metric, imperial... others?)**
-- **List recipes with only with certain tag(s)**
 - Optional caloric / nutritional information
 - Translation into languages other than English
 - A configuration file to specify (one respective features are implemented):
