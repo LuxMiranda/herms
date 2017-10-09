@@ -7,6 +7,7 @@ import Data.Function
 import Data.List
 import Data.Maybe
 import Data.Semigroup ((<>))
+import Data.Ratio
 import Control.Applicative
 import Options.Applicative hiding (str)
 import Text.Read
@@ -62,9 +63,10 @@ add = do
 
 doEdit :: Recipe -> Maybe Recipe -> IO ()
 doEdit recp origRecp = do
-  input <- getEdit (recipeName recp) (description recp) amounts units ingrs attrs dirs tag
+  input <- getEdit (recipeName recp) (description recp) serving amounts units ingrs attrs dirs tag
   saveOrDiscard input origRecp
-  where ingrList = ingredients recp
+  where serving  = show $ servingSize recp
+        ingrList = adjustIngredients (servingSize recp % 1) $ ingredients recp
         toStr    = (\ f -> unlines (map f ingrList))
         amounts  = toStr (showFrac . quantity)
         units    = toStr unit
@@ -219,17 +221,17 @@ removeSilent = removeWithVerbosity False
 shop :: [String] -> Int -> IO ()
 shop targets serv = do
   recipeBook <- getRecipeBook
-  let servings = case serv of
-                   0 -> Nothing
-                   i -> Just i
+  let getFactor recp
+        | serv == 0 = servingSize recp % 1
+        | otherwise = serv % 1
   let ingrts =
         concatMap (\target ->
           case readRecipeRef target recipeBook of
             Nothing   -> []
-            Just recp -> ingredients recp)
+            Just recp -> adjustIngredients (getFactor recp) $ ingredients recp)
                   targets
   forM_ (sort ingrts) $ \ingr ->
-    putStrLn $ showIngredient servings ingr
+    putStrLn $ showIngredient 1 ingr
 
 -- Writes an empty recipes file if it doesn't exist
 checkFileExists :: IO ()
