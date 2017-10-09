@@ -139,14 +139,14 @@ viewRecipeByStep recp servings = do
     getLine
   putStr $ last steps ++ "\n"
 
-list :: [String] -> SortOrder -> IO ()
-list inputTags sortOrder = do
+list :: [String] -> Bool -> IO ()
+list inputTags groupByTags = do
   recipes <- getRecipeBook
   let recipesWithIndex = zip [1..] recipes
   let targetRecipes    = filterByTags inputTags recipesWithIndex
-  case sortOrder of
-    TagsOrder -> listByTags inputTags targetRecipes
-    _         -> listDefault targetRecipes
+  if groupByTags
+  then listByTags inputTags targetRecipes
+  else listDefault targetRecipes
 
 filterByTags :: [String] -> [(Int, Recipe)] -> [(Int, Recipe)]
 filterByTags []        = id
@@ -275,7 +275,7 @@ runWithOpts (Shop targets serving)      = shop targets serving
 ------------------------------
 
 -- | 'Command' data type represents commands of CLI
-data Command = List   [String] SortOrder  -- ^ shows recipes
+data Command = List   [String] Bool       -- ^ shows recipes
              | Add                        -- ^ adds the recipe (interactively)
              | Edit    String             -- ^ edits the recipe
              | Import  String             -- ^ imports a recipe file
@@ -284,11 +284,8 @@ data Command = List   [String] SortOrder  -- ^ shows recipes
              | Shop   [String] Int        -- ^ generates the shopping list for given recipes
 
 
-data SortOrder = DefaultOrder
-               | TagsOrder
-
 listP, addP, editP, removeP, viewP, shopP :: Parser Command
-listP   = List   <$> (words <$> tagsP) <*> sortOrderP
+listP   = List   <$> (words <$> tagsP) <*> groupByTagsP
 addP    = pure Add
 editP   = Edit   <$> recipeNameP
 importP = Import <$> fileNameP
@@ -297,20 +294,13 @@ viewP   = View   <$> severalRecipesP <*> servingP <*> stepP
 shopP   = Shop   <$> severalRecipesP <*> servingP
 
 
-sortOrderP :: Parser SortOrder
-sortOrderP = option sortOrderRead
-         (  long "sort"
-         <> short 's'
-         <> help "Specify sort order (\"default\" or \"tags\")"
-         <> value DefaultOrder
-         <> metavar "ORDER" )
-
-sortOrderRead :: ReadM SortOrder
-sortOrderRead = eitherReader $ \s ->
-  case s of
-    "default" -> Right DefaultOrder
-    "tags"    -> Right TagsOrder
-    _         -> Left "Invalid sort order"
+-- | @groupByTagsP is flag for grouping recipes by tags
+groupByTagsP :: Parser Bool
+groupByTagsP = switch
+         (  long "group"
+         <> short 'g'
+         <> help "group recipes by tags"
+         )
 
 -- | @tagsP returns the parser of tags
 tagsP :: Parser String
