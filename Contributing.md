@@ -14,25 +14,38 @@ stack exec herms
 ```
 Whim-bam! 
 
-## Definite feature plans
+## Feature Ideas
 
 A lot of these are quite indepedent from each other. If one looks pretty fun to you, you could probably jump right in!
 
 Once all of the **bolded** features are implemented, we're going to begin the proccess of uploading to Hackage!
 
-### Easy squeezy
-- Make yummy recipes and eat them
-
-### May require elbow grease
-- **Unit conversions**
+- **Specify via a flag to view a recipe converted to a certain unit system (metric, imperial... others?)**
+- **List recipes with only with certain tag(s)**
 - Optional caloric / nutritional information
 - Translation into languages other than English
-- "One step at a time" mode
+- A configuration file to specify (one respective features are implemented):
+  - Language
+  - Default units shown (metric, imperial, or unchanged)
+  - Default listing options
+  - Default recipe viewing options (Add some variety to how recipes can be displayed!)
+- Search for recipes using keywords
+  - Search just in titles, directions, ingredients, or any combination of the three
+- Add a `man` page
 
-### Are you crazy?!
+### Streeeetch goals
+
+#### Actual Stretch Goals
 - Parse and store a recipe given a URL to allrecipes.com, food.com, etc.
-- Show available recipes given a list of ingredients
 - A pretty (but optional) GUI!
+
+#### Achievements in Computer Science
+- Add an option to give up and just order pizza (without leaving the command line. [Take a look at this](https://github.com/fadein/sudo_make_me_a_sandwich) )
+- Keep track of the costs of recipes using real-time price data (is this even practical?)
+
+### Other Ideas
+
+If you have another feature idea, please feel free to let us know either by submitting a GitHub issue or shooting an email!
 
 ## Known bugs
 

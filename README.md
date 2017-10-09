@@ -47,15 +47,23 @@ Usage:
         herms remove RECIPE_NAMES                      remove the particular recipes
 
         herms view RECIPE_NAMES [-s|--serving INT]     view the particular recipes
+                                [-t|--step]
 
         herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
 
 Available options:
+
         -h|--help                                      Show this help text
+
         RECIPE_NAME                                    index or Recipe name
+
         --sort SORT_ORDER                              'tags' to sort by tags
+
         -s|--serving INT                               specify serving size when viewing.
                                                        E.g., 'herms view -s 2 {recipe}' for two servings
+
+        -t|--step                                      View recipe in "one-step-at-a-time" mode
+                                                       (press enter between each direction)
 ```
 
 In honor of Logan, Utah's greatest Breakfast & Brunch.
