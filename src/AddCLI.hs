@@ -34,6 +34,12 @@ data Name = RecipeName
           | Tags
           deriving (Ord, Show, Eq)
 
+data FocusChange = FocusDown
+                 | FocusUp
+                 | FocusLeft
+                 | FocusRight
+                 deriving Eq
+
 data St =
     St { _focusRing :: F.FocusRing Name
        , _edit1 :: E.Editor String Name
@@ -85,7 +91,7 @@ drawUI st = [ui]
             str " " <=>
             str "                       Tab / Shift+Tab      - Next / Previous field" <=>
             str "                       Ctrl + <Arrow keys>  - Navigate fields" <=>
-       --   str "                       Ctrl + <h-j-k-l>     - Navigate fields" <=> TODO
+            str "                       Meta + <h-j-k-l>     - Navigate fields" <=>
             str "                       Esc                  - Save or Cancel"
 
 appEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
@@ -94,50 +100,26 @@ appEvent st (T.VtyEvent ev) =
         V.EvKey V.KEsc [] -> M.halt st
         V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
         V.EvKey V.KBackTab [] -> M.continue $ st & focusRing %~ F.focusPrev
-        V.EvKey V.KDown [V.MCtrl] -> M.continue $ st & focusRing %~ (case F.focusGetCurrent (st^.focusRing) of
-               Just RecipeName -> (F.focusNext)
-               Just Description -> (F.focusNext)
-               Just ServingSize -> (F.focusNext)
-               Just IngrAmount -> (F.focusNext . F.focusNext . F.focusNext . F.focusNext)
-               Just IngrUnit -> (F.focusNext . F.focusNext . F.focusNext)
-               Just IngrName -> (F.focusNext . F.focusNext)
-               Just IngrAttr -> (F.focusNext)
-               Just Directions -> (F.focusNext)
-               Just Tags -> (F.focusNext)
-               Nothing -> (F.focusNext))
-        V.EvKey V.KUp [V.MCtrl] -> M.continue $ st & focusRing %~ (case F.focusGetCurrent (st^.focusRing) of
-               Just RecipeName -> (F.focusPrev)
-               Just Description -> (F.focusPrev)
-               Just ServingSize -> (F.focusPrev)
-               Just IngrAttr -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-               Just IngrName -> (F.focusPrev . F.focusPrev . F.focusPrev)
-               Just IngrUnit -> (F.focusPrev . F.focusPrev)
-               Just IngrAmount -> (F.focusPrev)
-               Just Directions -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-               Just Tags -> (F.focusPrev)
-               Nothing -> (F.focusPrev))
-        V.EvKey V.KRight [V.MCtrl] -> M.continue $ st & focusRing %~ (case F.focusGetCurrent (st^.focusRing) of
-               Just RecipeName -> (F.focusNext . F.focusNext)
-               Just Description -> (F.focusNext)
-               Just ServingSize -> (F.focusNext)
-               Just IngrAmount -> (F.focusNext)
-               Just IngrUnit -> (F.focusNext)
-               Just IngrName -> (F.focusNext)
-               Just IngrAttr -> (F.focusPrev . F.focusPrev . F.focusPrev)
-               Just Directions -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-               Just Tags -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-               Nothing -> (F.focusNext))
-        V.EvKey V.KLeft [V.MCtrl] -> M.continue $ st & focusRing %~ (case F.focusGetCurrent (st^.focusRing) of
-               Just RecipeName -> (F.focusNext . F.focusNext)
-               Just Description -> (F.focusNext)
-               Just ServingSize -> (F.focusNext)
-               Just IngrAmount -> (F.focusNext . F.focusNext . F.focusNext)
-               Just IngrUnit -> (F.focusPrev)
-               Just IngrName -> (F.focusPrev)
-               Just IngrAttr -> (F.focusPrev)
-               Just Directions -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-               Just Tags -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-               Nothing -> (F.focusNext))
+        
+        -- Ctrl + <Arrow Keys>
+        V.EvKey V.KDown [V.MCtrl] -> 
+          M.continue $ st & focusRing %~ (determineNextFocus FocusDown st)
+        V.EvKey V.KUp [V.MCtrl] -> 
+          M.continue $ st & focusRing %~ (determineNextFocus FocusUp st)
+        V.EvKey V.KRight [V.MCtrl] -> 
+          M.continue $ st & focusRing %~ (determineNextFocus FocusRight st)
+        V.EvKey V.KLeft [V.MCtrl] -> 
+          M.continue $ st & focusRing %~ (determineNextFocus FocusLeft st)
+
+        -- Meta + <h-j-k-l>
+        V.EvKey (V.KChar 'h') [V.MMeta] -> 
+          M.continue $ st & focusRing %~ (determineNextFocus FocusLeft st)
+        V.EvKey (V.KChar 'j') [V.MMeta] -> 
+          M.continue $ st & focusRing %~ (determineNextFocus FocusDown st)
+        V.EvKey (V.KChar 'k') [V.MMeta] -> 
+          M.continue $ st & focusRing %~ (determineNextFocus FocusUp st)
+        V.EvKey (V.KChar 'l') [V.MMeta] -> 
+          M.continue $ st & focusRing %~ (determineNextFocus FocusRight st)
  
         _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
                Just RecipeName -> T.handleEventLensed st edit1 E.handleEditorEvent ev
@@ -151,6 +133,56 @@ appEvent st (T.VtyEvent ev) =
                Just Tags -> T.handleEventLensed st edit9 E.handleEditorEvent ev
                Nothing -> return st
 appEvent st _ = M.continue st
+
+determineNextFocus :: FocusChange -> St -> F.FocusRing n -> F.FocusRing n
+determineNextFocus action st = 
+  case action of
+    FocusDown -> case currentFocus of 
+        Just RecipeName -> (F.focusNext)
+        Just Description -> (F.focusNext)
+        Just ServingSize -> (F.focusNext)
+        Just IngrAmount -> (F.focusNext . F.focusNext . F.focusNext . F.focusNext)
+        Just IngrUnit -> (F.focusNext . F.focusNext . F.focusNext)
+        Just IngrName -> (F.focusNext . F.focusNext)
+        Just IngrAttr -> (F.focusNext)
+        Just Directions -> (F.focusNext)
+        Just Tags -> (F.focusNext)
+        Nothing -> (F.focusNext)
+    FocusUp -> case currentFocus of
+        Just RecipeName -> (F.focusPrev)
+        Just Description -> (F.focusPrev)
+        Just ServingSize -> (F.focusPrev)
+        Just IngrAttr -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
+        Just IngrName -> (F.focusPrev . F.focusPrev . F.focusPrev)
+        Just IngrUnit -> (F.focusPrev . F.focusPrev)
+        Just IngrAmount -> (F.focusPrev)
+        Just Directions -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
+        Just Tags -> (F.focusPrev)
+        Nothing -> (F.focusPrev)
+    FocusLeft -> case currentFocus of
+        Just RecipeName -> (F.focusNext . F.focusNext)
+        Just Description -> (F.focusNext)
+        Just ServingSize -> (F.focusNext)
+        Just IngrAmount -> (F.focusNext . F.focusNext . F.focusNext)
+        Just IngrUnit -> (F.focusPrev)
+        Just IngrName -> (F.focusPrev)
+        Just IngrAttr -> (F.focusPrev)
+        Just Directions -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
+        Just Tags -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
+        Nothing -> (F.focusNext)
+    FocusRight -> case currentFocus of
+        Just RecipeName -> (F.focusNext . F.focusNext)
+        Just Description -> (F.focusNext)
+        Just ServingSize -> (F.focusNext)
+        Just IngrAmount -> (F.focusNext)
+        Just IngrUnit -> (F.focusNext)
+        Just IngrName -> (F.focusNext)
+        Just IngrAttr -> (F.focusPrev . F.focusPrev . F.focusPrev)
+        Just Directions -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
+        Just Tags -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
+        Nothing -> (F.focusNext)
+  where currentFocus = F.focusGetCurrent $ st^.focusRing
+
 
 initialState :: String -> String -> String -> String -> String -> String -> String -> String -> String -> St
 initialState name desc serving amounts units ingrs attrs dirs tags =
