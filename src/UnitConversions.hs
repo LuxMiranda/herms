@@ -3,11 +3,10 @@ module UnitConversions where
 import Data.List
 import Data.Ratio
 
-data Unit = Unit Metric | Imperial
-
-convertRecipeUnits :: Unit -> Recipe -> Recipe
+--unitType: 0 = Metric | 1 = Imperial
+convertRecipeUnits :: Int -> Recipe -> Recipe
 convertRecipeUnits un recp =
-    if un = Metric then
+    if un == 0 then
         recp{ingredients = map convertIngredientToMetric (ingredients recp)}
     else
         recp{ingredients = map convertIngredientToImperial (ingredients recp)}
@@ -19,8 +18,9 @@ convertIngredientToMetric ingr =
         "Tbsp"  -> ingr{quantity = qty * 15, unit = "mL"}
         "cup"   -> ingr{quantity = qty * 250, unit = "mL"}
         "oz"    -> ingr{quantity = qty * 28, unit = "g"}
+        _       -> ingr
     where
-        un = unit ingr,
+        un = unit ingr
         qty = quantity ingr
 
 convertIngredientToImperial :: Ingredient -> Ingredient
@@ -33,6 +33,7 @@ convertIngredientToImperial ingr =
                   else
                       ingr{quantity = qty / 250, unit = "cup"}
         "g"    -> ingr{quantity = qty / 28, unit = "oz"}
+        _      -> ingr
     where
-        un = unit ingr,
+        un = unit ingr
         qty = quantity ingr
