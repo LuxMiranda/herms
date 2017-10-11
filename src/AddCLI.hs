@@ -89,10 +89,10 @@ drawUI st = [ui]
             str " " <=>
             (str "          Tags: " <+> (hLimit 62 $ vLimit 1 e9)) <=>
             str " " <=>
-            str "                       Tab / Shift+Tab      - Next / Previous field" <=>
-            str "                       Ctrl + <Arrow keys>  - Navigate fields" <=>
-            str "                       Meta + <h-j-k-l>     - Navigate fields" <=>
-            str "                       Esc                  - Save or Cancel"
+            str "                      Tab / Shift+Tab           - Next / Previous field" <=>
+            str "                      Ctrl + <Arrow keys>       - Navigate fields" <=>
+            str "                      [Meta or Alt] + <h-j-k-l> - Navigate fields" <=>
+            str "                      Esc                       - Save or Cancel"
 
 appEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
 appEvent st (T.VtyEvent ev) =
