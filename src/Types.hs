@@ -4,6 +4,7 @@ import Data.List
 import Data.List.Split
 import Data.Ratio
 import Data.Ord
+import RichText
 
 data Ingredient = Ingredient { quantity :: Ratio Int
                              , unit :: String
@@ -74,20 +75,21 @@ adjustIngredients factor = map adjustIngredient
   where adjustIngredient ingredient =
           ingredient{ quantity = (quantity ingredient * factor) }
 
-showRecipe :: Recipe -> Maybe Int -> String
+showRecipe :: Recipe -> Maybe Int -> RichText
 showRecipe r maybeServings =  showRecipeHeader r maybeServings
-                ++ "\n" ++ unlines (showRecipeSteps r)
+                ~~ "\n" ~~ unlines (showRecipeSteps r)
 
-showRecipeHeader :: Recipe -> Maybe Int -> String
-showRecipeHeader r maybeServings =  "+--" ++ filler ++ "+\n"
-                ++ "|  " ++ recipeName r ++ "  |\n"
-                ++ "+--" ++ filler ++ "+\n"
-                ++ "\n" ++ description r ++ "\n"
-                ++ "\nServings: " ++ show servings ++ "\n"
-                ++ "\nIngredients:\n"
-                ++ unlines (map ((++) "* " . showIngredient servings) (ingredients r))
+showRecipeHeader :: Recipe -> Maybe Int -> RichText
+showRecipeHeader r maybeServings = nameBox
+                ~~ "\n" ~~ description r ~~ "\n"
+                ~~ bold "\nServings: " ~~ show servings ~~ "\n"
+                ~~ bold "\nIngredients:\n"
+                ~~ unlines (map ((++) "* " . showIngredient servings) (ingredients r))
                 where filler = replicate (length (recipeName r) + 2) '-'
                       servings = maybe (servingSize r) id maybeServings
+                      nameBox = fontColor Magenta $ bold $ "+--" ~~ filler ~~ "+\n"
+                                  ~~ "|  " ~~ recipeName r ~~ "  |\n"
+                                  ~~ "+--" ~~ filler ~~ "+\n"
 
 showRecipeSteps :: Recipe -> [String]
 showRecipeSteps r =  zipWith (\i d -> "(" ++ show i ++ ") " ++ d) [1..] (directions r)

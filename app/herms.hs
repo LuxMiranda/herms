@@ -15,6 +15,7 @@ import Options.Applicative hiding (str)
 import Text.Read
 import Utils
 import AddCLI
+import RichText
 import Types
 import Paths_herms
 
@@ -36,7 +37,7 @@ saveOrDiscard :: [[String]]   -- input for the new recipe
               -> IO ()
 saveOrDiscard input oldRecp = do
   let newRecipe = readRecipe input
-  putStrLn $ showRecipe newRecipe Nothing
+  putTextLn $ showRecipe newRecipe Nothing
   putStrLn "Save recipe? (Y)es  (N)o  (E)dit"
   response <- getLine
   if response == "y" || response == "Y"
@@ -115,8 +116,8 @@ view targets serv = do
                    0 -> Nothing
                    i -> Just i
   forM_ targets $ \ target ->
-    putStr $ case readRecipeRef target recipeBook of
-      Nothing   -> target ++ " does not exist\n"
+    putText $ case readRecipeRef target recipeBook of
+      Nothing   -> target ~~ " does not exist\n"
       Just recp -> showRecipe recp servings
 
 viewByStep :: [String] -> Int -> IO ()
@@ -132,7 +133,7 @@ viewByStep targets serv = do
 
 viewRecipeByStep :: Recipe -> Maybe Int -> IO ()
 viewRecipeByStep recp servings = do
-  putStr $ showRecipeHeader recp servings
+  putText $ showRecipeHeader recp servings
   let steps = showRecipeSteps recp
   forM_ (init steps) $ \ step -> do
     putStr $ step ++ " [more]"
@@ -159,7 +160,7 @@ listDefault (unzip -> (indices, recipes)) = do
   let recipeList = map showRecipeInfo recipes
       size       = length $ show $ length recipeList
       strIndices = map (padLeft size . show) indices
-  putStr $ unlines $ zipWith (\ i -> ((i ++ ". ") ++)) strIndices recipeList
+  mapM_ putTextLn $ zipWith (\ i -> ((i ~~ ". ") ~~)) strIndices recipeList
 
 listByTags :: [String] -> [(Int, Recipe)] -> IO ()
 listByTags inputTags recipesWithIdx = do
@@ -169,16 +170,16 @@ listByTags inputTags recipesWithIdx = do
           concat $ flip map recipesWithIdx $ \recipeWithIdx ->
             map (flip (,) recipeWithIdx) $ tags $ snd recipeWithIdx
   forM_ tagsRecipes $ \tagRecipes -> do
-    putStrLn $ fst $ head tagRecipes -- Tag name
+    putTextLn $ bold $ fontColor Magenta $ fst $ head tagRecipes -- Tag name
     forM_ (map snd tagRecipes) $ \(i, recipe) ->
-      putStrLn $ "  " ++ show i ++ ". " ++ showRecipeInfo recipe
+      putTextLn $ "  " ~~ show i ~~ ". " ~~ showRecipeInfo recipe
     putStrLn ""
 
-showRecipeInfo :: Recipe -> String
-showRecipeInfo recipe = name ++ "\n\t" ++ desc  ++ "\n\t[Tags: " ++ showTags ++ "]"
-  where name     = recipeName recipe
+showRecipeInfo :: Recipe -> RichText
+showRecipeInfo recipe = name ~~ "\n\t" ~~ desc ~~ "\n\t[Tags: " ~~ showTags ~~ "]"
+  where name     = fontColor Blue $ recipeName recipe
         desc     = (takeFullWords . description) recipe
-        showTags = (intercalate ", " . tags) recipe
+        showTags = fontColor Green $ (intercalate ", " . tags) recipe
 
 takeFullWords :: String -> String
 takeFullWords = (unwords . takeFullWords' 0 . words)
