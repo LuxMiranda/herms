@@ -2,6 +2,7 @@ module UnitConversions where
 
 import Data.List
 import Data.Ratio
+import Types
 
 --unitType: 0 = Metric | 1 = Imperial
 convertRecipeUnits :: Int -> Recipe -> Recipe
