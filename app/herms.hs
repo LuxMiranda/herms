@@ -140,14 +140,14 @@ viewRecipeByStep recp servings = do
     getLine
   putStr $ last steps ++ "\n"
 
-list :: [String] -> Bool -> IO ()
-list inputTags groupByTags = do
+list :: [String] -> Bool -> Bool -> IO ()
+list inputTags groupByTags nameOnly = do
   recipes <- getRecipeBook
   let recipesWithIndex = zip [1..] recipes
   let targetRecipes    = filterByTags inputTags recipesWithIndex
   if groupByTags
-  then listByTags inputTags targetRecipes
-  else listDefault targetRecipes
+  then listByTags nameOnly inputTags targetRecipes
+  else listDefault nameOnly targetRecipes
 
 filterByTags :: [String] -> [(Int, Recipe)] -> [(Int, Recipe)]
 filterByTags []        = id
@@ -155,15 +155,17 @@ filterByTags inputTags = filter (inTags . tags . snd)
  where
   inTags r = all (`elem` r) inputTags
 
-listDefault :: [(Int, Recipe)] -> IO ()
-listDefault (unzip -> (indices, recipes)) = do
+listDefault :: Bool -> [(Int, Recipe)] -> IO ()
+listDefault nameOnly (unzip -> (indices, recipes)) = do
   let recipeList = map showRecipeInfo recipes
       size       = length $ show $ length recipeList
       strIndices = map (padLeft size . show) indices
-  mapM_ putTextLn $ zipWith (\ i -> ((i ~~ ". ") ~~)) strIndices recipeList
+  if nameOnly
+  then mapM_ (putStrLn . recipeName) recipes
+  else mapM_ putTextLn $ zipWith (\ i -> ((i ~~ ". ") ~~)) strIndices recipeList
 
-listByTags :: [String] -> [(Int, Recipe)] -> IO ()
-listByTags inputTags recipesWithIdx = do
+listByTags :: Bool -> [String] -> [(Int, Recipe)] -> IO ()
+listByTags nameOnly inputTags recipesWithIdx = do
   let tagsRecipes :: [[(String, (Int, Recipe))]]
       tagsRecipes =
         groupBy ((==) `on` fst) $ sortBy (compare `on` fst) $
@@ -172,7 +174,9 @@ listByTags inputTags recipesWithIdx = do
   forM_ tagsRecipes $ \tagRecipes -> do
     putTextLn $ bold $ fontColor Magenta $ fst $ head tagRecipes -- Tag name
     forM_ (map snd tagRecipes) $ \(i, recipe) ->
-      putTextLn $ "  " ~~ show i ~~ ". " ~~ showRecipeInfo recipe
+      if nameOnly
+      then putStrLn $ recipeName recipe
+      else putTextLn $ "  " ~~ show i ~~ ". " ~~ showRecipeInfo recipe
     putStrLn ""
 
 showRecipeInfo :: Recipe -> RichText
@@ -261,7 +265,7 @@ main = execParser commandPI >>= runWithOpts
 
 -- @runWithOpts runs the action of selected command.
 runWithOpts :: Command -> IO ()
-runWithOpts (List tags order)           = list tags order
+runWithOpts (List tags group nameOnly)  = list tags group nameOnly
 runWithOpts Add                         = add
 runWithOpts (Edit target)               = edit target
 runWithOpts (Import target)             = importFile target
@@ -276,7 +280,7 @@ runWithOpts (Shop targets serving)      = shop targets serving
 ------------------------------
 
 -- | 'Command' data type represents commands of CLI
-data Command = List   [String] Bool       -- ^ shows recipes
+data Command = List   [String] Bool Bool  -- ^ shows recipes
              | Add                        -- ^ adds the recipe (interactively)
              | Edit    String             -- ^ edits the recipe
              | Import  String             -- ^ imports a recipe file
@@ -286,7 +290,7 @@ data Command = List   [String] Bool       -- ^ shows recipes
 
 
 listP, addP, editP, removeP, viewP, shopP :: Parser Command
-listP   = List   <$> (words <$> tagsP) <*> groupByTagsP
+listP   = List   <$> (words <$> tagsP) <*> groupByTagsP <*> nameOnlyP
 addP    = pure Add
 editP   = Edit   <$> recipeNameP
 importP = Import <$> fileNameP
@@ -301,6 +305,14 @@ groupByTagsP = switch
          (  long "group"
          <> short 'g'
          <> help "group recipes by tags"
+         )
+
+-- | @nameOnlyP is flag for showing recipe names only
+nameOnlyP :: Parser Bool
+nameOnlyP = switch
+         (  long "name-only"
+         <> short 'n'
+         <> help "show only recipe names"
          )
 
 -- | @tagsP returns the parser of tags
