@@ -63,7 +63,7 @@ data-dir:            data
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Utils, AddCLI, Types
+  exposed-modules:     Utils, AddCLI, Types, UnitConversions
   build-depends:       base >=4.8 && <5
                      , brick >=0.19 && <0.20
                      , directory >= 0.0
