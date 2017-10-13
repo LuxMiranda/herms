@@ -16,6 +16,7 @@ import Text.Read
 import Utils
 import AddCLI
 import Types
+import UnitConversions
 import Paths_herms
 
 -- Global constant
