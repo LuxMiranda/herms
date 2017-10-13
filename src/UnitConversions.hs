@@ -4,10 +4,11 @@ import Data.List
 import Data.Ratio
 import Types
 
---unitType: 0 = Metric | 1 = Imperial
-convertRecipeUnits :: Int -> Recipe -> Recipe
+data Conversion = Metric | Imperial
+
+convertRecipeUnits :: Conversion -> Recipe -> Recipe
 convertRecipeUnits un recp =
-    if un == 0 then
+    if un == Metric then
         recp{ingredients = map convertIngredientToMetric (ingredients recp)}
     else
         recp{ingredients = map convertIngredientToImperial (ingredients recp)}

@@ -371,3 +371,8 @@ commandPI :: ParserInfo Command
 commandPI =  info ( helper <*> optP )
           $  fullDesc
           <> progDesc "HeRM's: a Haskell-based Recipe Manager. Type \"herms --help\" for options"
+
+conversionP :: Parser Conversion
+conversionP = flag Imperial Metric (long "metric"
+                                    <> short "m"
+                                    <> help "Converts recipe units to metric system.")
