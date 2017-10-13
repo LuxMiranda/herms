@@ -4,14 +4,16 @@ import Data.List
 import Data.Ratio
 import Types
 
-data Conversion = Metric | Imperial
+data Conversion = Metric | Imperial | None deriving (Show, Eq)
 
 convertRecipeUnits :: Conversion -> Recipe -> Recipe
 convertRecipeUnits un recp =
     if un == Metric then
         recp{ingredients = map convertIngredientToMetric (ingredients recp)}
-    else
+    else if un == Imperial then
         recp{ingredients = map convertIngredientToImperial (ingredients recp)}
+    else
+        recp
 
 convertIngredientToMetric :: Ingredient -> Ingredient
 convertIngredientToMetric ingr =

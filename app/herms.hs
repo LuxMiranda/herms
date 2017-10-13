@@ -341,6 +341,18 @@ fileNameP = strArgument (  metavar "FILE_NAME"
 severalRecipesP :: Parser [String]
 severalRecipesP = many recipeNameP
 
+-- | @conversionMetricP flags recipes for unit conversion to metric.
+conversionMetricP :: Parser Conversion
+conversionMetricP = flag None Metric (long "metric"
+                                      <> short "m"
+                                      <> help "Converts recipe units to metric system.")
+
+-- | @conversionImperialP flags recipes for unit conversion to imperial.
+conversionImperialP :: Parser Conversion
+conversionImperialP = flag None Imperial (long "imperial"
+                                          <> short "i"
+                                          <> help "Converts recipe units to imperial system.")
+
 -- @optP parses particular command.
 optP :: Parser Command
 optP =  subparser
@@ -371,8 +383,3 @@ commandPI :: ParserInfo Command
 commandPI =  info ( helper <*> optP )
           $  fullDesc
           <> progDesc "HeRM's: a Haskell-based Recipe Manager. Type \"herms --help\" for options"
-
-conversionP :: Parser Conversion
-conversionP = flag Imperial Metric (long "metric"
-                                    <> short "m"
-                                    <> help "Converts recipe units to metric system.")
