@@ -14,7 +14,7 @@ stack exec herms
 ```
 Whim-bam! 
 
-## Feature Ideas
+## Feature/Improvement Ideas
 
 A lot of these are quite indepedent from each other. If one looks pretty fun to you, you could probably jump right in!
 
@@ -30,7 +30,7 @@ There used to be a lot of **bolded** ideas, but they're all features now! Only o
   - Default recipe viewing options (Add some variety to how recipes can be displayed!)
 - Search for recipes using keywords
   - Search just in titles, directions, ingredients, or any combination of the three
-- Add a `man` page
+- Fix up the "--help" display to more closely mirror the usage documentation in the readme 
 
 ### Streeeetch goals
 

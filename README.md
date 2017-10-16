@@ -38,6 +38,7 @@ To access Herm's from any directory, add the following directory to your PATH:
 Usage:
 
         herms list [-g|--group] [--tags TAGS]          list recipes
+                   [--name-only]
 
         herms add                                      add a new recipe (interactively)
 
@@ -69,6 +70,8 @@ Available options:
         -g|--group                                     group recipes by tags
 
         --tags TAGS                                    show recipes with particular flags
+
+        --name-only                                    only list recipes by name
 ```
 
 In honor of Logan, Utah's greatest Breakfast & Brunch.
