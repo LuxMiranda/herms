@@ -7,13 +7,11 @@ import Types
 data Conversion = Metric | Imperial | None deriving (Show, Eq)
 
 convertRecipeUnits :: Conversion -> Recipe -> Recipe
-convertRecipeUnits un recp =
-    if un == Metric then
-        recp{ingredients = map convertIngredientToMetric (ingredients recp)}
-    else if un == Imperial then
-        recp{ingredients = map convertIngredientToImperial (ingredients recp)}
-    else
-        recp
+convertRecipeUnits unit recp =
+    case unit of
+        None        -> recp
+        Metric      -> recp{ingredients = map convertIngredientToMetric (ingredients recp)}
+        Imperial    -> recp{ingredients = map convertIngredientToImperial (ingredients recp)}
 
 convertIngredientToMetric :: Ingredient -> Ingredient
 convertIngredientToMetric ingr =

@@ -358,13 +358,13 @@ severalRecipesP = many recipeNameP
 -- | @conversionMetricP flags recipes for unit conversion to metric.
 conversionMetricP :: Parser Conversion
 conversionMetricP = flag None Metric (long "metric"
-                                      <> short "m"
+                                      <> short 'm'
                                       <> help "Converts recipe units to metric system.")
 
 -- | @conversionImperialP flags recipes for unit conversion to imperial.
 conversionImperialP :: Parser Conversion
 conversionImperialP = flag None Imperial (long "imperial"
-                                          <> short "i"
+                                          <> short 'i'
                                           <> help "Converts recipe units to imperial system.")
 
 -- @optP parses particular command.
