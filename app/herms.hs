@@ -110,27 +110,29 @@ importFile target = do
     forM_ otherRecipeBook $ \recipe ->
       putStrLn $ "  " ++ recipeName recipe
 
-view :: [String] -> Int -> IO ()
-view targets serv = do
+view :: [String] -> Int -> Conversion -> Conversion -> IO ()
+view targets serv unMetric unImperial = do
   recipeBook <- getRecipeBook
   let servings = case serv of
                    0 -> Nothing
                    i -> Just i
+  let conversion = if unMetric == None then unImperial else unMetric
   forM_ targets $ \ target ->
     putText $ case readRecipeRef target recipeBook of
       Nothing   -> target ~~ " does not exist\n"
-      Just recp -> showRecipe recp servings
+      Just recp -> showRecipe (convertRecipeUnits conversion recp) servings
 
-viewByStep :: [String] -> Int -> IO ()
-viewByStep targets serv = do
+viewByStep :: [String] -> Int -> Conversion -> Conversion -> IO ()
+viewByStep targets serv unMetric unImperial = do
   recipeBook <- getRecipeBook
   let servings = case serv of
                    0 -> Nothing
                    i -> Just i
+  let conversion = if unMetric == None then unImperial else unMetric                   
   hSetBuffering stdout NoBuffering
   forM_ targets $ \ target -> case readRecipeRef target recipeBook of
     Nothing   -> putStr $ target ++ " does not exist\n"
-    Just recp -> viewRecipeByStep recp servings
+    Just recp -> viewRecipeByStep (convertRecipeUnits conversion recp) servings
 
 viewRecipeByStep :: Recipe -> Maybe Int -> IO ()
 viewRecipeByStep recp servings = do
@@ -266,14 +268,14 @@ main = execParser commandPI >>= runWithOpts
 
 -- @runWithOpts runs the action of selected command.
 runWithOpts :: Command -> IO ()
-runWithOpts (List tags group nameOnly)  = list tags group nameOnly
-runWithOpts Add                         = add
-runWithOpts (Edit target)               = edit target
-runWithOpts (Import target)             = importFile target
-runWithOpts (Remove targets)            = remove targets
-runWithOpts (View targets serving step) = if step then viewByStep targets serving
-                                          else view targets serving
-runWithOpts (Shop targets serving)      = shop targets serving
+runWithOpts (List tags group nameOnly)                                      = list tags group nameOnly
+runWithOpts Add                                                             = add
+runWithOpts (Edit target)                                                   = edit target
+runWithOpts (Import target)                                                 = importFile target
+runWithOpts (Remove targets)                                                = remove targets
+runWithOpts (View targets serving step conversionMetric conversionImperial) = if step then viewByStep targets serving conversionMetric conversionImperial
+                                                                              else view targets serving conversionMetric conversionImperial
+runWithOpts (Shop targets serving)                                          = shop targets serving
 
 
 ------------------------------
@@ -281,13 +283,13 @@ runWithOpts (Shop targets serving)      = shop targets serving
 ------------------------------
 
 -- | 'Command' data type represents commands of CLI
-data Command = List   [String] Bool Bool  -- ^ shows recipes
-             | Add                        -- ^ adds the recipe (interactively)
-             | Edit    String             -- ^ edits the recipe
-             | Import  String             -- ^ imports a recipe file
-             | Remove [String]            -- ^ removes specified recipes
-             | View   [String] Int Bool   -- ^ shows specified recipes with given serving
-             | Shop   [String] Int        -- ^ generates the shopping list for given recipes
+data Command = List   [String] Bool Bool                        -- ^ shows recipes
+             | Add                                              -- ^ adds the recipe (interactively)
+             | Edit    String                                   -- ^ edits the recipe
+             | Import  String                                   -- ^ imports a recipe file
+             | Remove [String]                                  -- ^ removes specified recipes
+             | View   [String] Int Bool Conversion Conversion   -- ^ shows specified recipes with given serving
+             | Shop   [String] Int                              -- ^ generates the shopping list for given recipes
 
 
 listP, addP, editP, removeP, viewP, shopP :: Parser Command
@@ -296,7 +298,7 @@ addP    = pure Add
 editP   = Edit   <$> recipeNameP
 importP = Import <$> fileNameP
 removeP = Remove <$> severalRecipesP
-viewP   = View   <$> severalRecipesP <*> servingP <*> stepP
+viewP   = View   <$> severalRecipesP <*> servingP <*> stepP <*> conversionMetricP <*> conversionImperialP
 shopP   = Shop   <$> severalRecipesP <*> servingP
 
 
