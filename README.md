@@ -12,6 +12,7 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 - Edit recipes! :DD
 - Serving size adjustment! :DDD
 - Remove recipes :(
+- View metric recipes in imperial units and vice-versa
 - Import recipe files
 - Generate shopping lists
 - Keep track of recipes with tags
@@ -37,19 +38,20 @@ To access Herm's from any directory, add the following directory to your PATH:
 ```
 Usage:
 
-        herms list [-g|--group] [--tags TAGS]          list recipes
-                   [--name-only]
+        herms list [-g|--group] [--tags TAGS]           list recipes
+                   [--name-only ]
+ 
+        herms add                                       add a new recipe (interactively)
 
-        herms add                                      add a new recipe (interactively)
+        herms edit RECIPE_NAME                          edit a recipe
 
-        herms edit RECIPE_NAME                         edit a recipe
+        herms import FILE_NAME                          import a recipe file
 
-        herms import FILE_NAME                         import a recipe file
+        herms remove RECIPE_NAMES                       remove the particular recipes
 
-        herms remove RECIPE_NAMES                      remove the particular recipes
-
-        herms view RECIPE_NAMES [-s|--serving INT]     view the particular recipes
+        herms view RECIPE_NAMES [-s|--serving INT]      view the particular recipes
                                 [-t|--step]
+                                [-c|--convert CONV_UNIT] 
 
         herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
 
@@ -72,6 +74,9 @@ Available options:
         --tags TAGS                                    show recipes with particular flags
 
         --name-only                                    only list recipes by name
+
+        -c|--convert CONV_UNIT                         view the recipe converted to imperial or metric
+                                                       E.g., 'herms view 2 -c imperial'
 ```
 
 In honor of Logan, Utah's greatest Breakfast & Brunch.

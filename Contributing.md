@@ -18,9 +18,6 @@ Whim-bam!
 
 A lot of these are quite indepedent from each other. If one looks pretty fun to you, you could probably jump right in!
 
-There used to be a lot of **bolded** ideas, but they're all features now! Only one remains. The deal with that is that we're going to begin the proccess of uploading to Hackage once it's implemented!
-
-- **Specify via a flag to view a recipe converted to a certain unit system (metric, imperial... others?)**
 - Optional caloric / nutritional information
 - Translation into languages other than English
 - A configuration file to specify (one respective features are implemented):
@@ -30,7 +27,7 @@ There used to be a lot of **bolded** ideas, but they're all features now! Only o
   - Default recipe viewing options (Add some variety to how recipes can be displayed!)
 - Search for recipes using keywords
   - Search just in titles, directions, ingredients, or any combination of the three
-- Fix up the "--help" display to more closely mirror the usage documentation in the readme 
+- Add a command that displays the usage documentation as it appears in the readme
 
 ### Streeeetch goals
 
