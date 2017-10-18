@@ -19,20 +19,32 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 
 ### Installation
 
-At the moment Herm's can only be cloned and built locally. (But this shall change... _soon_)
+#### PATH setup
 
-You'll need GHC and cabal.
+Firstly, make sure that the following is added to your PATH:
 
-Run the following commands:
+```
+~/.cabal/bin
+```
+
+#### Download and install
+
+You have two options!
+
+Via Hackage:
+```
+cabal update
+cabal install herms
+```
+
+Manually cloning and installing from source:
+
 ```
 git clone https://github.com/JackKiefer/herms
 cd herms
 cabal update
-cabal sandbox init
 cabal install -j
 ```
-To access Herm's from any directory, add the following directory to your PATH:
-`/path/to/herms/.cabal-sandbox/bin`
 
 ### Usage
 ```

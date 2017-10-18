@@ -2,10 +2,10 @@
 --  see http://haskell.org/cabal/users-guide/
 
 -- The name of the package.
-name:                herms
+name:               herms
 
 -- The package description
-description:         HeRM's: a Haskell-based Recipe Manager for delicious kitchen recipes with big dreams of one day having a GUI.
+description:        HeRM's: a Haskell-based Recipe Manager for delicious kitchen recipes
 tested-with:        GHC == 7.10.3
                     GHC == 8.0.2
                     GHC == 8.2.1
@@ -16,7 +16,7 @@ tested-with:        GHC == 7.10.3
 -- PVP summary:      +-+------- New features or improvements with significant API change
 --                   | | +----- Bugfixes and improvements with minor change to API
 --                   | | | +--- Bugfixes and improvements with no change to API
-version:             1.8.1.0
+version:             1.8.1.2
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes
@@ -43,13 +43,13 @@ maintainer:          jack.c.kiefer@gmail.com
 -- A copyright notice.
 -- copyright:
 
-category:            Culinary
+category:            Culinary, CLI, Command Line Tool
 
 build-type:          Simple
 
 -- Extra files to be distributed with the package, such as examples or a
 -- README.
-extra-source-files:  README.md
+extra-source-files:  README.md, changelog
 
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
@@ -60,42 +60,34 @@ data-files:          recipes.herms
 -- The directory name for the aboce files
 data-dir:            data
 
-
-library
-  hs-source-dirs:      src
-  exposed-modules:     Utils, AddCLI, RichText, Types, UnitConversions
-  build-depends:       ansi-terminal == 0.7.*
-                     , base >=4.8 && <5
-                     , brick >=0.19 && <0.20
-                     , directory >= 0.0
-                     , microlens >=0.4 && <0.5
-                     , microlens-th >=0.4 && <0.5
-                     , split >=0.2 && <0.3
-                     , vty >=5.15 && <5.16
-  default-language:    Haskell2010
-
 executable herms
-  hs-source-dirs:      app
+  hs-source-dirs:      app, src
   -- .hs or .lhs file containing the Main module.
   main-is:             herms.hs
 
   -- Modules included in this executable, other than Main.
-  other-modules:       Paths_herms
+  other-modules:       Utils
+                     , AddCLI
+                     , RichText
+                     , Types
+                     , UnitConversions
+                     , Paths_herms
 
   -- LANGUAGE extensions used by modules in this package.
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
 
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.8 && <5
+  build-depends:       ansi-terminal == 0.7.* 
+                     , base >=4.8 && <5
                      , brick >=0.19 && <0.20
                      , directory >= 0.0
-                     , herms
                      , microlens >=0.4 && <0.5
                      , microlens-th >=0.4 && <0.5
                      , optparse-applicative >=0.14 && <0.15
                      , semigroups == 0.18.3
                      , split >=0.2 && <0.3
                      , vty >=5.15 && <5.16
+
 
   -- Directories containing source files.
   -- hs-source-dirs:
