@@ -19,6 +19,18 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 
 ### Installation
 
+#### PATH setup
+
+Firstly, make sure that the following is added to your PATH:
+
+```
+~/.cabal/bin
+```
+
+#### Download and install
+
+You have two options!
+
 Via Hackage:
 ```
 cabal update
