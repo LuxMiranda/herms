@@ -2,8 +2,8 @@ module UnitConversions where
 
 import Data.List
 import Data.Ratio
-import Data.Char
-import Types
+import Data.Char (toLower)
+import Types 
 
 data Conversion = Metric | Imperial | None deriving (Show, Read, Eq)
 
@@ -47,7 +47,7 @@ getSynonym units
 
 convertIngredientToMetric :: Ingredient -> Ingredient
 convertIngredientToMetric ingr =
-    case (getSynonym units) of
+    case getSynonym units of
         Just "tsp"   -> ingr{quantity = qty * 5, unit = "mL"}
         Just "Tbsp"  -> ingr{quantity = qty * 15, unit = "mL"}
         Just "cups"  -> ingr{quantity = qty * 250, unit = "mL"}
