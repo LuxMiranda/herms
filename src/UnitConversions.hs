@@ -4,7 +4,7 @@ import Data.List
 import Data.Ratio
 import Types
 
-data Conversion = Metric | Imperial | None deriving (Show, Eq)
+data Conversion = Metric | Imperial | None deriving (Show, Read, Eq)
 
 convertRecipeUnits :: Conversion -> Recipe -> Recipe
 convertRecipeUnits unit recp =

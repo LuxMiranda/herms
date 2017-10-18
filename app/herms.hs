@@ -110,29 +110,35 @@ importFile target = do
     forM_ otherRecipeBook $ \recipe ->
       putStrLn $ "  " ++ recipeName recipe
 
-view :: [String] -> Int -> Conversion -> Conversion -> IO ()
-view targets serv unMetric unImperial = do
+view :: [String] -> Int -> String -> IO ()
+view targets serv convName = do
   recipeBook <- getRecipeBook
   let servings = case serv of
                    0 -> Nothing
                    i -> Just i
-  let conversion = if unMetric == None then unImperial else unMetric
+  let conv = case convName of
+               "metric"   -> Metric
+               "imperial" -> Imperial
+               _          -> None 
   forM_ targets $ \ target ->
     putText $ case readRecipeRef target recipeBook of
       Nothing   -> target ~~ " does not exist\n"
-      Just recp -> showRecipe (convertRecipeUnits conversion recp) servings
+      Just recp -> showRecipe (convertRecipeUnits conv recp) servings
 
-viewByStep :: [String] -> Int -> Conversion -> Conversion -> IO ()
-viewByStep targets serv unMetric unImperial = do
+viewByStep :: [String] -> Int -> String -> IO ()
+viewByStep targets serv convName = do
   recipeBook <- getRecipeBook
   let servings = case serv of
                    0 -> Nothing
                    i -> Just i
-  let conversion = if unMetric == None then unImperial else unMetric                   
+  let conv = case convName of
+              "metric"   -> Metric
+              "imperial" -> Imperial
+              _          -> None
   hSetBuffering stdout NoBuffering
   forM_ targets $ \ target -> case readRecipeRef target recipeBook of
     Nothing   -> putStr $ target ++ " does not exist\n"
-    Just recp -> viewRecipeByStep (convertRecipeUnits conversion recp) servings
+    Just recp -> viewRecipeByStep (convertRecipeUnits conv recp) servings
 
 viewRecipeByStep :: Recipe -> Maybe Int -> IO ()
 viewRecipeByStep recp servings = do
@@ -268,14 +274,14 @@ main = execParser commandPI >>= runWithOpts
 
 -- @runWithOpts runs the action of selected command.
 runWithOpts :: Command -> IO ()
-runWithOpts (List tags group nameOnly)                                      = list tags group nameOnly
-runWithOpts Add                                                             = add
-runWithOpts (Edit target)                                                   = edit target
-runWithOpts (Import target)                                                 = importFile target
-runWithOpts (Remove targets)                                                = remove targets
-runWithOpts (View targets serving step conversionMetric conversionImperial) = if step then viewByStep targets serving conversionMetric conversionImperial
-                                                                              else view targets serving conversionMetric conversionImperial
-runWithOpts (Shop targets serving)                                          = shop targets serving
+runWithOpts (List tags group nameOnly)              = list tags group nameOnly
+runWithOpts Add                                     = add
+runWithOpts (Edit target)                           = edit target
+runWithOpts (Import target)                         = importFile target
+runWithOpts (Remove targets)                        = remove targets
+runWithOpts (View targets serving step conversion)  = if step then viewByStep targets serving conversion
+                                                      else view targets serving conversion
+runWithOpts (Shop targets serving)                  = shop targets serving
 
 
 ------------------------------
@@ -283,13 +289,13 @@ runWithOpts (Shop targets serving)                                          = sh
 ------------------------------
 
 -- | 'Command' data type represents commands of CLI
-data Command = List   [String] Bool Bool                        -- ^ shows recipes
-             | Add                                              -- ^ adds the recipe (interactively)
-             | Edit    String                                   -- ^ edits the recipe
-             | Import  String                                   -- ^ imports a recipe file
-             | Remove [String]                                  -- ^ removes specified recipes
-             | View   [String] Int Bool Conversion Conversion   -- ^ shows specified recipes with given serving
-             | Shop   [String] Int                              -- ^ generates the shopping list for given recipes
+data Command = List   [String] Bool Bool         -- ^ shows recipes
+             | Add                               -- ^ adds the recipe (interactively)
+             | Edit    String                    -- ^ edits the recipe
+             | Import  String                    -- ^ imports a recipe file
+             | Remove [String]                   -- ^ removes specified recipes
+             | View   [String] Int Bool String   -- ^ shows specified recipes with given serving
+             | Shop   [String] Int               -- ^ generates the shopping list for given recipes
 
 
 listP, addP, editP, removeP, viewP, shopP :: Parser Command
@@ -298,7 +304,7 @@ addP    = pure Add
 editP   = Edit   <$> recipeNameP
 importP = Import <$> fileNameP
 removeP = Remove <$> severalRecipesP
-viewP   = View   <$> severalRecipesP <*> servingP <*> stepP <*> conversionMetricP <*> conversionImperialP
+viewP   = View   <$> severalRecipesP <*> servingP <*> stepP <*> conversionP
 shopP   = Shop   <$> severalRecipesP <*> servingP
 
 
@@ -357,17 +363,14 @@ fileNameP = strArgument (  metavar "FILE_NAME"
 severalRecipesP :: Parser [String]
 severalRecipesP = many recipeNameP
 
--- | @conversionMetricP flags recipes for unit conversion to metric.
-conversionMetricP :: Parser Conversion
-conversionMetricP = flag None Metric (long "metric"
-                                      <> short 'm'
-                                      <> help "Converts recipe units to metric system.")
-
--- | @conversionImperialP flags recipes for unit conversion to imperial.
-conversionImperialP :: Parser Conversion
-conversionImperialP = flag None Imperial (long "imperial"
-                                          <> short 'i'
-                                          <> help "Converts recipe units to imperial system.")
+-- | @conversionP flags recipes for unit conversion
+conversionP :: Parser String
+conversionP = strOption
+            (long "convert"
+            <> short 'c'
+            <> help "Converts recipe units to either metric or imperial."
+            <> metavar "CONV_UNIT"
+            <> value "none")
 
 -- @optP parses particular command.
 optP :: Parser Command
