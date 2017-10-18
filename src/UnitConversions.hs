@@ -2,7 +2,8 @@ module UnitConversions where
 
 import Data.List
 import Data.Ratio
-import Types
+import Data.Char (toLower)
+import Types 
 
 data Conversion = Metric | Imperial | None deriving (Show, Read, Eq)
 
@@ -13,16 +14,47 @@ convertRecipeUnits unit recp =
         Metric      -> recp{ingredients = map convertIngredientToMetric (ingredients recp)}
         Imperial    -> recp{ingredients = map convertIngredientToImperial (ingredients recp)}
 
+
+getSynonym :: String -> Maybe String
+getSynonym units
+  | u `elem` tspSyns  = Just "tsp"
+  | u `elem` tbspSyns = Just "Tbsp"
+  | u `elem` cupSyns  = Just "cups"
+  | u `elem` ozSyns   = Just "oz"
+  | otherwise = Nothing
+  where u = map toLower units
+        tspSyns  = [ "tsp",
+                     "tsp.",
+                     "teaspoon",
+                     "teaspoons" ]
+
+        tbspSyns = [ "tbsp",
+                     "tbsp.",
+                     "tablespoon",
+                     "tablespoons" ]
+
+        cupSyns  = [ "cup",
+                     "cups",
+                     "cp",
+                     "cps",
+                     "cp." ,
+                     "cps." ]
+
+        ozSyns   = [ "oz",
+                     "oz.",
+                     "ounce",
+                     "ounces" ]
+
 convertIngredientToMetric :: Ingredient -> Ingredient
 convertIngredientToMetric ingr =
-    case un of
-        "tsp"   -> ingr{quantity = qty * 5, unit = "mL"}
-        "Tbsp"  -> ingr{quantity = qty * 15, unit = "mL"}
-        "cup"   -> ingr{quantity = qty * 250, unit = "mL"}
-        "oz"    -> ingr{quantity = qty * 28, unit = "g"}
-        _       -> ingr
+    case getSynonym units of
+        Just "tsp"   -> ingr{quantity = qty * 5, unit = "mL"}
+        Just "Tbsp"  -> ingr{quantity = qty * 15, unit = "mL"}
+        Just "cups"  -> ingr{quantity = qty * 250, unit = "mL"}
+        Just "oz"    -> ingr{quantity = qty * 28, unit = "g"}
+        Nothing      -> ingr
     where
-        un = unit ingr
+        units = unit ingr
         qty = quantity ingr
 
 convertIngredientToImperial :: Ingredient -> Ingredient
@@ -33,7 +65,7 @@ convertIngredientToImperial ingr =
                   else if qty < 250 then
                       ingr{quantity = qty / 15, unit = "Tbsp"}
                   else
-                      ingr{quantity = qty / 250, unit = "cup"}
+                      ingr{quantity = qty / 250, unit = "cup(s)"}
         "g"    -> ingr{quantity = qty / 28, unit = "oz"}
         _      -> ingr
     where
