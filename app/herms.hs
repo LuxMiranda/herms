@@ -51,7 +51,7 @@ saveOrDiscard input oldRecp = do
     putStrLn "Recipe saved!"
   else if response == "n" || response == "N"
     then do
-    putStrLn "Recipe discarded."
+    putStrLn "Changes discarded."
   else if response == "e" || response == "E"
     then do
     doEdit newRecipe oldRecp
