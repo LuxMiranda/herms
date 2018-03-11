@@ -29,15 +29,24 @@ Firstly, make sure that the following is added to your PATH:
 
 #### Download and install
 
-You have two options!
+You have options!
 
-Via Hackage:
+Via Hackage and Cabal:
 ```
 cabal update
 cabal install herms
 ```
 
-Manually cloning and installing from source:
+Manually cloning and installing from source with stack (recommended):
+
+```
+git clone https://github.com/JackKiefer/herms
+cd herms
+stack update
+stack install
+```
+
+You can also manually compile with cabal, but your milage may vary with dependency resolution:
 
 ```
 git clone https://github.com/JackKiefer/herms
