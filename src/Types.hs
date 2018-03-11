@@ -102,7 +102,11 @@ readRecipe r = Recipe { recipeName = n, description = des, servingSize = s,
         s   = read $ concat $ r !! 2
         i   = adjustIngredients (1 % s) $ readIngredients [r !! 3, r !! 4, r !! 5, r !! 6]
         dir = r !! 7
-        t   = words $ concat (r !! 8)
+        unparsedTags = concat (r !! 8)
+        t   = if ',' `elem` unparsedTags then
+                map (dropWhile (== ' ')) $ splitOn "," unparsedTags
+              else
+                words unparsedTags
 
 fillVoidTo :: [String] -> Int -> [String]
 fillVoidTo xs n = if l < n then xs ++ replicate (n - l) "" else xs
