@@ -46,7 +46,7 @@ stack update
 stack install
 ```
 
-You can also manually compile with cabal, but your milage may very with dependency resolution:
+You can also manually compile with cabal, but your milage may vary with dependency resolution:
 
 ```
 git clone https://github.com/JackKiefer/herms
