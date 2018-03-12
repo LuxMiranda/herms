@@ -122,10 +122,11 @@ view targets serv convName = do
   let servings = case serv of
                    0 -> Nothing
                    i -> Just i
+  defaultUnit <- getDefaultUnit
   let conv = case convName of
                "metric"   -> Metric
                "imperial" -> Imperial
-               _          -> None 
+               _          -> defaultUnit
   forM_ targets $ \ target ->
     putText $ case readRecipeRef target recipeBook of
       Nothing   -> target ~~ " does not exist\n"
