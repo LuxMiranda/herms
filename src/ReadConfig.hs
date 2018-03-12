@@ -23,7 +23,3 @@ getConfig = do
   fileName <- getDataFileName "config.hs"
   contents <- readFile fileName
   return (read (dropComments contents) :: Config)
-
-getDefaultUnit = do
-  conf <- getConfig
-  return (defaultUnit conf)

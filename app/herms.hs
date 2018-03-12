@@ -22,19 +22,24 @@ import ReadConfig
 import Paths_herms
 
 -- Global constants
-recipesFileName :: String
-recipesFileName = "recipes.herms"
+versionStr :: String
+versionStr = "1.8.2.0"
 
+configPath :: IO FilePath
 configPath = getDataFileName "config.hs"
 
-versionStr :: String
-versionStr = "1.8.1.4"
-
-getRecipeBook :: IO [Recipe]
-getRecipeBook = do
-  fileName <- getDataFileName recipesFileName
+-- | @getRecipeBookWith reads in recipe book with already read-in config
+getRecipeBookWith :: Config -> IO [Recipe]
+getRecipeBookWith config = do
+  fileName <- getDataFileName (recipesFile config)
   contents <- readFile fileName
   return $ map read $ lines contents
+
+-- | @getRecipeBook reads in config before reading in recipe book
+getRecipeBook :: IO [Recipe]
+getRecipeBook = do
+  config <- getConfig
+  getRecipeBookWith config
 
 getRecipe :: String -> [Recipe] -> Maybe Recipe
 getRecipe target = listToMaybe . filter ((target ==) . recipeName)
@@ -49,10 +54,11 @@ saveOrDiscard input oldRecp = do
   response <- getLine
   if response == "y" || response == "Y"
     then do
-    recipeBook <- getRecipeBook
+    config <- getConfig
+    recipeBook <- getRecipeBookWith config
     let recpName = if isNothing oldRecp then recipeName newRecipe else recipeName (fromJust oldRecp)
     unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
-    fileName <- getDataFileName recipesFileName
+    fileName <- getDataFileName (recipesFile config)
     appendFile fileName (show newRecipe ++ "\n")
     putStrLn "Recipe saved!"
   else if response == "n" || response == "N"
@@ -103,12 +109,13 @@ readRecipeRef target recipeBook =
 
 importFile :: String -> IO ()
 importFile target = do
-  recipeBook <- getRecipeBook
+  config     <- getConfig
+  recipeBook <- getRecipeBookWith config
   otherRecipeBook <- (map read . lines) <$> readFile target
   let recipeEq = (==) `on` recipeName
   let newRecipeBook = deleteFirstsBy recipeEq recipeBook otherRecipeBook
                         ++ otherRecipeBook
-  replaceDataFile recipesFileName $ unlines $ show <$> newRecipeBook
+  replaceDataFile (recipesFile config) $ unlines $ show <$> newRecipeBook
   if null otherRecipeBook
   then putStrLn "Nothing to import"
   else do
@@ -118,15 +125,17 @@ importFile target = do
 
 view :: [String] -> Int -> String -> IO ()
 view targets serv convName = do
-  recipeBook <- getRecipeBook
+  config     <- getConfig
+  recipeBook <- getRecipeBookWith config
   let servings = case serv of
-                   0 -> Nothing
+                   0 -> (case defaultServingSize config of
+                           0 -> Nothing
+                           j -> Just j)
                    i -> Just i
-  defaultUnit <- getDefaultUnit
   let conv = case convName of
                "metric"   -> Metric
                "imperial" -> Imperial
-               _          -> defaultUnit
+               _          -> (defaultUnit config)
   forM_ targets $ \ target ->
     putText $ case readRecipeRef target recipeBook of
       Nothing   -> target ~~ " does not exist\n"
@@ -134,14 +143,17 @@ view targets serv convName = do
 
 viewByStep :: [String] -> Int -> String -> IO ()
 viewByStep targets serv convName = do
-  recipeBook <- getRecipeBook
+  config     <- getConfig
+  recipeBook <- getRecipeBookWith config
   let servings = case serv of
-                   0 -> Nothing
+                   0 -> (case defaultServingSize config of
+                           0 -> Nothing
+                           j -> Just j)
                    i -> Just i
   let conv = case convName of
               "metric"   -> Metric
               "imperial" -> Imperial
-              _          -> None
+              _          -> (defaultUnit config)
   hSetBuffering stdout NoBuffering
   forM_ targets $ \ target -> case readRecipeRef target recipeBook of
     Nothing   -> putStr $ target ++ " does not exist\n"
@@ -229,7 +241,8 @@ replaceDataFile fp str = do
 
 removeWithVerbosity :: Bool -> [String] -> IO ()
 removeWithVerbosity v targets = do
-  recipeBook <- getRecipeBook
+  config     <- getConfig
+  recipeBook <- getRecipeBookWith config
   mrecipes   <- forM targets $ \ target -> do
     -- Resolve the recipes all at once; this way if we remove multiple
     -- recipes based on their respective index, all of the index are
@@ -242,7 +255,7 @@ removeWithVerbosity v targets = do
     return mrecp
   -- Remove all the resolved recipes at once
   let newRecipeBook = recipeBook \\ catMaybes mrecipes
-  replaceDataFile recipesFileName $ unlines $ show <$> newRecipeBook
+  replaceDataFile (recipesFile config) $ unlines $ show <$> newRecipeBook
 
 remove :: [String] -> IO ()
 remove = removeWithVerbosity True
@@ -269,7 +282,8 @@ shop targets serv = do
 -- Writes an empty recipes file if it doesn't exist
 checkFileExists :: IO ()
 checkFileExists = do
-  fileName <- getDataFileName recipesFileName
+  config   <- getConfig
+  fileName <- getDataFileName (recipesFile config)
   fileExists <- doesFileExist fileName
   unless fileExists (do
     dirName <- getDataDir
