@@ -20,14 +20,14 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
 
 - Optional caloric / nutritional information
 - Translation into languages other than English
-- A configuration file to specify (one respective features are implemented):
+- Add the following to the configuration file:
   - Language
-  - Default units shown (metric, imperial, or unchanged)
   - Default listing options
   - Default recipe viewing options (Add some variety to how recipes can be displayed!)
+  - Allow herms to create a recipe file specified if it doesn't already exist
 - Search for recipes using keywords
   - Search just in titles, directions, ingredients, or any combination of the three
-- Add a command that displays the usage documentation as it appears in the readme
+- Tab-complete when typing a recipe name
 
 ### Streeeetch goals
 
