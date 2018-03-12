@@ -27,7 +27,7 @@ A lot of these are quite indepedent from each other. If one looks pretty fun to 
   - Allow herms to create a recipe file specified if it doesn't already exist
 - Search for recipes using keywords
   - Search just in titles, directions, ingredients, or any combination of the three
-- Add a command that displays the usage documentation as it appears in the readme
+- Tab-complete when typing a recipe name
 
 ### Streeeetch goals
 
