@@ -1,6 +1,10 @@
 module ReadConfig where
 
 import UnitConversions
+import qualified Text.Read as TR
+import Control.Exception
+import Data.Typeable
+import Data.List.Split
 import Paths_herms
 
 data Config = Config
@@ -9,17 +13,22 @@ data Config = Config
   , recipesFile        :: String
   } deriving (Read, Show)
 
-isNotComment :: String -> Bool
-isNotComment []       = True
-isNotComment (a:[])   = True
-isNotComment (a:b:[]) = True
-isNotComment (a:b:xs) = a /= '-' && b /= '-'
+data ConfigParseError = ConfigParseError 
+  deriving Typeable
+
+instance Show ConfigParseError where
+  show ConfigParseError = "Error parsing config.hs"
+
+instance Exception ConfigParseError
 
 dropComments :: String -> String
-dropComments = unlines . filter (isNotComment) . lines
+dropComments = unlines . map (head . (splitOn "--")) . lines
 
 getConfig :: IO Config
 getConfig = do
   fileName <- getDataFileName "config.hs"
   contents <- readFile fileName
-  return (read (dropComments contents) :: Config)
+  let result = TR.readEither (dropComments contents) :: Either String Config
+  case result of
+    Left str -> throw ConfigParseError
+    Right r  -> return r
