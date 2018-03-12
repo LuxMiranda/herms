@@ -8,7 +8,7 @@ name:               herms
 description:        HeRM's: a Haskell-based Recipe Manager for delicious kitchen recipes
 tested-with:        GHC == 7.10.3
                     GHC == 8.0.2
-                    GHC == 8.2.1
+                    GHC == 8.2.2
 
 -- The package version.  See the Haskell package versioning policy (PVP)
 -- for standards guiding when and how versions should be incremented.
@@ -77,7 +77,7 @@ executable herms
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
 
   -- Other library packages from which modules are imported.
-  build-depends:       ansi-terminal == 0.7.* 
+  build-depends:       ansi-terminal >= 0.7.0 && <= 0.8.1
                      , base >=4.8 && <5
                      , brick >=0.19 && <= 0.34.1
                      , directory >= 0.0
