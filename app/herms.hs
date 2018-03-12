@@ -18,11 +18,14 @@ import AddCLI
 import RichText
 import Types
 import UnitConversions
+import ReadConfig
 import Paths_herms
 
 -- Global constants
 recipesFileName :: String
 recipesFileName = "recipes.herms"
+
+configPath = getDataFileName "config.hs"
 
 versionStr :: String
 versionStr = "1.8.1.4"

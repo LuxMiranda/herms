@@ -69,6 +69,7 @@ executable herms
   other-modules:       Utils
                      , AddCLI
                      , RichText
+                     , ReadConfig
                      , Types
                      , UnitConversions
                      , Paths_herms
