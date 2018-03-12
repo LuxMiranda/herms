@@ -17,6 +17,13 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 - Generate shopping lists
 - Keep track of recipes with tags
 
+### What's new:
+- Set default unit systems, serving sizes, and recipe file path in ``config.hs``!
+    - Coming soon: Multi-language support
+- Added support for multi-word tags
+- Check your Herm's version with ``-v`` or ``--version``
+- Herm's is now on Stackage!
+
 ### Installation
 
 #### PATH setup
@@ -29,15 +36,9 @@ Firstly, make sure that the following is added to your PATH:
 
 #### Download and install
 
-You have options!
+At the moment, Herm's can only be compiled from source, but binaries are in the works!
 
-Via Hackage and Cabal:
-```
-cabal update
-cabal install herms
-```
-
-Manually cloning and installing from source with stack (recommended):
+##### Manually cloning and installing from source with Stack _(recommended)_:
 
 ```
 git clone https://github.com/JackKiefer/herms
@@ -46,7 +47,16 @@ stack update
 stack install
 ```
 
-You can also manually compile with cabal, but your milage may vary with dependency resolution:
+##### Via Hackage and Cabal:
+
+```
+cabal update
+cabal install herms
+```
+
+##### Manually with Cabal:
+
+Your milage may vary with dependency resolution
 
 ```
 git clone https://github.com/JackKiefer/herms
@@ -79,6 +89,8 @@ Usage:
 Available options:
 
         -h|--help                                      Show this help text
+
+        -v|--version                                   Show version
 
         RECIPE_NAME                                    index or Recipe name
 
