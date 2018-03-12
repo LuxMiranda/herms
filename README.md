@@ -66,6 +66,13 @@ cabal install -j
 ```
 
 ### Usage
+
+#### Command-line interface 
+
+Herm's has a pretty intuitive interface for users familiar with other command-line programs! 
+
+Below is the exhaustive list of all commands and their functionalities. Take a gander!
+
 ```
 Usage:
 
@@ -85,6 +92,8 @@ Usage:
                                 [-c|--convert CONV_UNIT] 
 
         herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
+
+        herms datadir                                  print location of recipe and config files
 
 Available options:
 
@@ -111,6 +120,19 @@ Available options:
         -c|--convert CONV_UNIT                         view the recipe converted to imperial or metric
                                                        E.g., 'herms view 2 -c imperial'
 ```
+
+#### Configuring Herm's and managing recipe files
+
+Herm's stores its recipes file, ``recipes.herms``,  and configuration file, ``config.hs``, in the same directory. Herm's keeps track of its location! Run ``herms datadir`` to see the full directory path.
+
+``config.hs`` is a pseudo-Haskell-source-code file with several options for configuring the behaviour of Herm's. It currently supports the following options:
+
+- `defaultUnit` : The default unit system to show recipes in. Options: `Imperial`, `Metric`, `None`. Setting to `None` will simply show recipes in whatever unit system they're stored in.
+- `defaultServingSize` : Default serving size to calculate when showing recipes. Can be any non-negative integer; set to `0` for no default. This can be useful when you're always cooking for the same number of people!
+- `recipesFile` : The recipes file and relative location. Make sure the file already exists by running `touch FILENAME` before running Herm's or it will throw a fit. This option currently supports relative location, as well; if your data directory is `~/herms/data`, for example, and you want a recipe file in your home directoy called `~/GrandmasHugeCookbook.herms`, set this option to `"../../GrandmasHugeCookbook.herms"`.
+
+
+---
 
 In honor of Logan, Utah's greatest Breakfast & Brunch.
 

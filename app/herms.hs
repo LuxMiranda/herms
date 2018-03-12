@@ -279,6 +279,11 @@ shop targets serv = do
   forM_ (sort ingrts) $ \ingr ->
     putStrLn $ showIngredient 1 ingr
 
+printDataDir :: IO ()
+printDataDir = do
+  dir <- getDataDir
+  putStrLn $ filter (/= '\"') (show dir) ++ "/"
+
 -- Writes an empty recipes file if it doesn't exist
 checkFileExists :: IO ()
 checkFileExists = do
@@ -303,6 +308,7 @@ runWithOpts (Remove targets)                        = remove targets
 runWithOpts (View targets serving step conversion)  = if step then viewByStep targets serving conversion
                                                       else view targets serving conversion
 runWithOpts (Shop targets serving)                  = shop targets serving
+runWithOpts DataDir                                 = printDataDir
 
 
 ------------------------------
@@ -317,16 +323,18 @@ data Command = List   [String] Bool Bool         -- ^ shows recipes
              | Remove [String]                   -- ^ removes specified recipes
              | View   [String] Int Bool String   -- ^ shows specified recipes with given serving
              | Shop   [String] Int               -- ^ generates the shopping list for given recipes
+             | DataDir                           -- ^ prints the directory of recipe file and config.hs
 
 
-listP, addP, editP, removeP, viewP, shopP :: Parser Command
-listP   = List   <$> (words <$> tagsP) <*> groupByTagsP <*> nameOnlyP
-addP    = pure Add
-editP   = Edit   <$> recipeNameP
-importP = Import <$> fileNameP
-removeP = Remove <$> severalRecipesP
-viewP   = View   <$> severalRecipesP <*> servingP <*> stepP <*> conversionP
-shopP   = Shop   <$> severalRecipesP <*> servingP
+listP, addP, editP, removeP, viewP, shopP, dataDirP :: Parser Command
+listP    = List   <$> (words <$> tagsP) <*> groupByTagsP <*> nameOnlyP
+addP     = pure Add
+editP    = Edit   <$> recipeNameP
+importP  = Import <$> fileNameP
+removeP  = Remove <$> severalRecipesP
+viewP    = View   <$> severalRecipesP <*> servingP <*> stepP <*> conversionP
+shopP    = Shop   <$> severalRecipesP <*> servingP
+dataDirP = pure DataDir
 
 
 -- | @groupByTagsP is flag for grouping recipes by tags
@@ -417,6 +425,9 @@ optP =  subparser
      <> command "shopping"
                 (info (helper <*> shopP)
                       (progDesc "generate a shopping list for given recipes"))
+     <> command "datadir"
+                (info (helper <*> dataDirP)
+                      (progDesc "show location of recipe and config files"))
 
 versionOption :: Parser (a -> a)
 versionOption = infoOption versionStr 
