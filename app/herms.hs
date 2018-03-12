@@ -20,9 +20,12 @@ import Types
 import UnitConversions
 import Paths_herms
 
--- Global constant
+-- Global constants
 recipesFileName :: String
 recipesFileName = "recipes.herms"
+
+versionStr :: String
+versionStr = "1.8.1.4"
 
 getRecipeBook :: IO [Recipe]
 getRecipeBook = do
@@ -397,8 +400,14 @@ optP =  subparser
                 (info (helper <*> shopP)
                       (progDesc "generate a shopping list for given recipes"))
 
+versionOption :: Parser (a -> a)
+versionOption = infoOption versionStr 
+                (long "version"
+                <> short 'v' 
+                <> help "Show version")
+
 -- @prsr is the main parser of all CLI arguments.
 commandPI :: ParserInfo Command
-commandPI =  info ( helper <*> optP )
+commandPI =  info ( helper <*> versionOption <*> optP )
           $  fullDesc
           <> progDesc "HeRM's: a Haskell-based Recipe Manager. Type \"herms --help\" for options"
