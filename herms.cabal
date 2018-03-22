@@ -80,14 +80,14 @@ executable herms
   -- Other library packages from which modules are imported.
   build-depends:       ansi-terminal >= 0.7.0 && <= 0.8.1
                      , base >=4.8 && <5
-                     , brick >= 0.35 && < 0.36
+                     , brick >= 0.19 && < 0.36
                      , directory >= 0.0
                      , microlens >=0.4 && <0.5
                      , microlens-th >=0.4 && <0.5
                      , optparse-applicative >=0.14 && <0.15
                      , semigroups >= 0.18.3 && <= 0.18.4
                      , split >=0.2 && <0.3
-                     , vty >=5.21 && < 5.22
+                     , vty >=5.15 && < 5.22
 
 
   -- Directories containing source files.
