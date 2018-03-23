@@ -26,19 +26,18 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 
 ### Installation
 
-#### PATH setup
+At the moment, Herm's can only be installed via [stack](https://docs.haskellstack.org/en/stable/README/) or [cabal](https://www.haskell.org/cabal/), but standalone binaries are in the works!
 
-Firstly, make sure that the following is added to your PATH:
+If you're interested developing/hacking Herm's instead of just using it, see [Contributing.md](Contibuting.md) instead.
+
+##### Via Stack _(recommended)_:
 
 ```
-~/.cabal/bin
+stack update
+stack install herms
 ```
 
-#### Download and install
-
-At the moment, Herm's can only be compiled from source, but binaries are in the works!
-
-##### Manually cloning and installing from source with Stack _(recommended)_:
+##### Manually cloning and installing from source with Stack
 
 ```
 git clone https://github.com/JackKiefer/herms
@@ -49,6 +48,8 @@ stack install
 
 ##### Via Hackage and Cabal:
 
+_Note_: Your milage may vary with dependency resolution
+
 ```
 cabal update
 cabal install herms
@@ -56,13 +57,13 @@ cabal install herms
 
 ##### Manually with Cabal:
 
-Your milage may vary with dependency resolution
+_Note_: Your milage may vary with dependency resolution
 
 ```
 git clone https://github.com/JackKiefer/herms
 cd herms
 cabal update
-cabal install -j
+cabal install
 ```
 
 ### Usage
