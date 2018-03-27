@@ -2,6 +2,7 @@ module Types where
 
 import Data.List
 import Data.List.Split
+import Data.Maybe
 import Data.Ratio
 import Data.Ord
 import RichText
@@ -53,7 +54,7 @@ showIngredient :: Int -> Ingredient -> String
 showIngredient servings i = qty ++ u ++ ingredientName i ++ att
   where qty = if quantity i == 0
                 then ""
-                else (showFrac (quantity i * (servings % 1))) ++ " "
+                else showFrac (quantity i * (servings % 1)) ++ " "
         u   = if null (unit i) then "" else unit i ++ " "
         att = if null (attribute i) then "" else ", " ++ attribute i
 
@@ -73,7 +74,7 @@ readIngredients is = makeIngredients $ transpose $ fillVoid is (length (maximumB
 adjustIngredients :: Ratio Int -> [Ingredient] -> [Ingredient]
 adjustIngredients factor = map adjustIngredient
   where adjustIngredient ingredient =
-          ingredient{ quantity = (quantity ingredient * factor) }
+          ingredient{ quantity = quantity ingredient * factor }
 
 showRecipe :: Recipe -> Maybe Int -> RichText
 showRecipe r maybeServings =  showRecipeHeader r maybeServings
@@ -86,7 +87,7 @@ showRecipeHeader r maybeServings = nameBox
                 ~~ bold "\nIngredients:\n"
                 ~~ unlines (map ((++) "* " . showIngredient servings) (ingredients r))
                 where filler = replicate (length (recipeName r) + 2) '-'
-                      servings = maybe (servingSize r) id maybeServings
+                      servings = fromMaybe (servingSize r) maybeServings
                       nameBox = fontColor Magenta $ bold $ "+--" ~~ filler ~~ "+\n"
                                   ~~ "|  " ~~ recipeName r ~~ "  |\n"
                                   ~~ "+--" ~~ filler ~~ "+\n"

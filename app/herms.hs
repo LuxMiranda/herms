@@ -56,16 +56,16 @@ saveOrDiscard input oldRecp = do
     then do
     config <- getConfig
     recipeBook <- getRecipeBookWith config
-    let recpName = if isNothing oldRecp then recipeName newRecipe else recipeName (fromJust oldRecp)
+    let recpName = maybe (recipeName newRecipe) recipeName oldRecp
     unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
     fileName <- getDataFileName (recipesFile config)
     appendFile fileName (show newRecipe ++ "\n")
     putStrLn "Recipe saved!"
   else if response == "n" || response == "N"
-    then do
+    then
     putStrLn "Changes discarded."
   else if response == "e" || response == "E"
-    then do
+    then
     doEdit newRecipe oldRecp
   else
     do
@@ -83,7 +83,7 @@ doEdit recp origRecp = do
   saveOrDiscard input origRecp
   where serving  = show $ servingSize recp
         ingrList = adjustIngredients (servingSize recp % 1) $ ingredients recp
-        toStr    = (\ f -> unlines (map f ingrList))
+        toStr f  = unlines (map f ingrList)
         amounts  = toStr (showFrac . quantity)
         units    = toStr unit
         ingrs    = toStr ingredientName
@@ -111,7 +111,7 @@ importFile :: String -> IO ()
 importFile target = do
   config     <- getConfig
   recipeBook <- getRecipeBookWith config
-  otherRecipeBook <- (map read . lines) <$> readFile target
+  otherRecipeBook <- map read . lines <$> readFile target
   let recipeEq = (==) `on` recipeName
   let newRecipeBook = deleteFirstsBy recipeEq recipeBook otherRecipeBook
                         ++ otherRecipeBook
@@ -123,19 +123,23 @@ importFile target = do
     forM_ otherRecipeBook $ \recipe ->
       putStrLn $ "  " ++ recipeName recipe
 
+getServingsAndConv :: Int -> String -> Config -> (Maybe Int, Conversion)
+getServingsAndConv serv convName config = (servings, conv)
+  where servings = case serv of
+                   0 -> case defaultServingSize config of
+                           0 -> Nothing
+                           j -> Just j
+                   i -> Just i
+        conv = case convName of
+               "metric"   -> Metric
+               "imperial" -> Imperial
+               _          -> defaultUnit config
+
 view :: [String] -> Int -> String -> IO ()
 view targets serv convName = do
   config     <- getConfig
   recipeBook <- getRecipeBookWith config
-  let servings = case serv of
-                   0 -> (case defaultServingSize config of
-                           0 -> Nothing
-                           j -> Just j)
-                   i -> Just i
-  let conv = case convName of
-               "metric"   -> Metric
-               "imperial" -> Imperial
-               _          -> (defaultUnit config)
+  let (servings, conv) = getServingsAndConv serv convName config
   forM_ targets $ \ target ->
     putText $ case readRecipeRef target recipeBook of
       Nothing   -> target ~~ " does not exist\n"
@@ -145,15 +149,7 @@ viewByStep :: [String] -> Int -> String -> IO ()
 viewByStep targets serv convName = do
   config     <- getConfig
   recipeBook <- getRecipeBookWith config
-  let servings = case serv of
-                   0 -> (case defaultServingSize config of
-                           0 -> Nothing
-                           j -> Just j)
-                   i -> Just i
-  let conv = case convName of
-              "metric"   -> Metric
-              "imperial" -> Imperial
-              _          -> (defaultUnit config)
+  let (servings, conv) = getServingsAndConv serv convName config
   hSetBuffering stdout NoBuffering
   forM_ targets $ \ target -> case readRecipeRef target recipeBook of
     Nothing   -> putStr $ target ++ " does not exist\n"
@@ -214,12 +210,12 @@ showRecipeInfo recipe = name ~~ "\n\t" ~~ desc ~~ "\n\t[Tags: " ~~ showTags ~~ "
         showTags = fontColor Green $ (intercalate ", " . tags) recipe
 
 takeFullWords :: String -> String
-takeFullWords = (unwords . takeFullWords' 0 . words)
-  where takeFullWords' n (x:[]) | (length x + n) > 40 = []
+takeFullWords = unwords . takeFullWords' 0 . words
+  where takeFullWords' n [x]    | (length x + n) > 40 = []
                                 | otherwise           = [x]
         takeFullWords' n (x:xs) | (length x + n) > 40 = [x ++ "..."]
                                 | otherwise           =
-                                  [x] ++ takeFullWords' ((length x) + n) xs
+                                  x : takeFullWords' (length x + n) xs
 
 -- | @replaceDataFile fp str@ replaces the target data file @fp@ with
 --   the new content @str@ in a safe manner: it opens a temporary file

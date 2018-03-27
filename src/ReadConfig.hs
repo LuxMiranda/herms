@@ -22,7 +22,7 @@ instance Show ConfigParseError where
 instance Exception ConfigParseError
 
 dropComments :: String -> String
-dropComments = unlines . map (head . (splitOn "--")) . lines
+dropComments = unlines . map (head . splitOn "--") . lines
 
 getConfig :: IO Config
 getConfig = do
