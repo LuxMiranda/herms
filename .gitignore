@@ -4,3 +4,7 @@
 *.dyn_o
 *.dyn_hi
 dist/*
+
+# vim swap files
+*.swp
+*.swo
