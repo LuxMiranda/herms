@@ -20,6 +20,9 @@ import Types
 import UnitConversions
 import ReadConfig
 import Paths_herms
+import Control.Exception
+import GHC.IO.Exception
+import Foreign.C.Error
 
 -- Global constants
 versionStr :: String
@@ -211,7 +214,8 @@ showRecipeInfo recipe = name ~~ "\n\t" ~~ desc ~~ "\n\t[Tags: " ~~ showTags ~~ "
 
 takeFullWords :: String -> String
 takeFullWords = unwords . takeFullWords' 0 . words
-  where takeFullWords' n [x]    | (length x + n) > 40 = []
+  where takeFullWords' _ []                           = []
+        takeFullWords' n [x]    | (length x + n) > 40 = []
                                 | otherwise           = [x]
         takeFullWords' n (x:xs) | (length x + n) > 40 = [x ++ "..."]
                                 | otherwise           =
@@ -229,7 +233,10 @@ replaceDataFile fp str = do
   hClose tempHandle
   fileName <- getDataFileName fp
   removeFile fileName
-  renameFile tempName fileName
+  let exdev e = if ioe_errno e == Just ((\(Errno a) -> a) eXDEV)
+                    then copyFile tempName fileName >> removeFile tempName
+                    else throw e
+  renameFile tempName fileName `catch` exdev
 
 -- | @removeWithVerbosity v recipes@ deletes the @recipes@ from the
 --   book, listing its work only if @v@ is set to @True@.
@@ -426,9 +433,9 @@ optP =  subparser
                       (progDesc "show location of recipe and config files"))
 
 versionOption :: Parser (a -> a)
-versionOption = infoOption versionStr 
+versionOption = infoOption versionStr
                 (long "version"
-                <> short 'v' 
+                <> short 'v'
                 <> help "Show version")
 
 -- @prsr is the main parser of all CLI arguments.
