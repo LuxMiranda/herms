@@ -20,6 +20,9 @@ import Types
 import UnitConversions
 import ReadConfig
 import Paths_herms
+import Control.Exception
+import GHC.IO.Exception
+import Foreign.C.Error
 
 -- Global constants
 versionStr :: String
@@ -230,7 +233,10 @@ replaceDataFile fp str = do
   hClose tempHandle
   fileName <- getDataFileName fp
   removeFile fileName
-  renameFile tempName fileName
+  let exdev e = if ioe_errno e == Just ((\(Errno a) -> a) eXDEV)
+                    then copyFile tempName fileName >> removeFile tempName
+                    else throw e
+  renameFile tempName fileName `catch` exdev
 
 -- | @removeWithVerbosity v recipes@ deletes the @recipes@ from the
 --   book, listing its work only if @v@ is set to @True@.
