@@ -211,7 +211,8 @@ showRecipeInfo recipe = name ~~ "\n\t" ~~ desc ~~ "\n\t[Tags: " ~~ showTags ~~ "
 
 takeFullWords :: String -> String
 takeFullWords = unwords . takeFullWords' 0 . words
-  where takeFullWords' n [x]    | (length x + n) > 40 = []
+  where takeFullWords' _ []                           = []
+        takeFullWords' n [x]    | (length x + n) > 40 = []
                                 | otherwise           = [x]
         takeFullWords' n (x:xs) | (length x + n) > 40 = [x ++ "..."]
                                 | otherwise           =
