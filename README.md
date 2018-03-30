@@ -68,9 +68,9 @@ cabal install
 
 ### Usage
 
-#### Command-line interface 
+#### Command-line interface
 
-Herm's has a pretty intuitive interface for users familiar with other command-line programs! 
+Herm's has a pretty intuitive interface for users familiar with other command-line programs!
 
 Below is the exhaustive list of all commands and their functionalities. Take a gander!
 
@@ -79,7 +79,7 @@ Usage:
 
         herms list [-g|--group] [--tags TAGS]           list recipes
                    [--name-only ]
- 
+
         herms add                                       add a new recipe (interactively)
 
         herms edit RECIPE_NAME                          edit a recipe
@@ -90,7 +90,7 @@ Usage:
 
         herms view RECIPE_NAMES [-s|--serving INT]      view the particular recipes
                                 [-t|--step]
-                                [-c|--convert CONV_UNIT] 
+                                [-c|--convert CONV_UNIT]
 
         herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
 

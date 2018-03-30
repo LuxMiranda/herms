@@ -12,7 +12,7 @@ stack setup
 stack build
 stack exec herms
 ```
-Whim-bam! 
+Whim-bam!
 
 ## Feature/Improvement Ideas
 

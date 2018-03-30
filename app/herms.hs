@@ -426,9 +426,9 @@ optP =  subparser
                       (progDesc "show location of recipe and config files"))
 
 versionOption :: Parser (a -> a)
-versionOption = infoOption versionStr 
+versionOption = infoOption versionStr
                 (long "version"
-                <> short 'v' 
+                <> short 'v'
                 <> help "Show version")
 
 -- @prsr is the main parser of all CLI arguments.
