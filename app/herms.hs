@@ -23,7 +23,7 @@ import Paths_herms
 import Control.Exception
 import GHC.IO.Exception
 import Foreign.C.Error
-import qualified HermsStrings.English as Str
+import qualified Lang.English as Str
 
 -- Global constants
 versionStr :: String
@@ -54,9 +54,9 @@ saveOrDiscard :: [[String]]   -- input for the new recipe
 saveOrDiscard input oldRecp = do
   let newRecipe = readRecipe input
   putTextLn $ showRecipe newRecipe Nothing
-  putStrLn "Save recipe? (Y)es  (N)o  (E)dit"
+  putStrLn Str.saveRecipeYesNoEdit
   response <- getLine
-  if response == "y" || response == "Y"
+  if response == Str.y || response == Str.yCap
     then do
     config <- getConfig
     recipeBook <- getRecipeBookWith config
@@ -64,16 +64,16 @@ saveOrDiscard input oldRecp = do
     unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
     fileName <- getDataFileName (recipesFile config)
     appendFile fileName (show newRecipe ++ "\n")
-    putStrLn "Recipe saved!"
-  else if response == "n" || response == "N"
+    putStrLn Str.recipeSaved
+  else if response == Str.n || response == Str.nCap
     then
-    putStrLn "Changes discarded."
-  else if response == "e" || response == "E"
+    putStrLn Str.changesDiscarded
+  else if response == Str.e || response == Str.eCap
     then
     doEdit newRecipe oldRecp
   else
     do
-      putStrLn "\n" ++ "Please enter ONLY 'y', 'n' or 'e'" ++ "\n"
+    putStrLn ("\n" ++ Str.badEntry ++ "\n")
     saveOrDiscard input oldRecp
 
 add :: IO ()
@@ -99,7 +99,7 @@ edit :: String -> IO ()
 edit target = do
   recipeBook <- getRecipeBook
   case readRecipeRef target recipeBook of
-    Nothing   -> putStrLn $ target ++ " does not exist"++"\n"
+    Nothing   -> putStrLn $ target ++ Str.doesNotExist
     Just recp -> doEdit recp (Just recp)
   -- Only supports editing one recipe per command
 
@@ -121,9 +121,9 @@ importFile target = do
                         ++ otherRecipeBook
   replaceDataFile (recipesFile config) $ unlines $ show <$> newRecipeBook
   if null otherRecipeBook
-  then putStrLn "Nothing to import"
+  then putStrLn Str.nothingToImport
   else do
-    putStrLn "Imported recipes:"
+    putStrLn Str.importedRecipes
     forM_ otherRecipeBook $ \recipe ->
       putStrLn $ "  " ++ recipeName recipe
 
@@ -134,10 +134,10 @@ getServingsAndConv serv convName config = (servings, conv)
                            0 -> Nothing
                            j -> Just j
                    i -> Just i
-        conv = case convName of
-               "metric"   -> Metric
-               "imperial" -> Imperial
-               _          -> defaultUnit config
+        conv
+          | convName  == Str.metric   =  Metric
+          | convName  == Str.imperial =  Imperial
+          | otherwise = defaultUnit config
 
 view :: [String] -> Int -> String -> IO ()
 view targets serv convName = do
@@ -146,7 +146,7 @@ view targets serv convName = do
   let (servings, conv) = getServingsAndConv serv convName config
   forM_ targets $ \ target ->
     putText $ case readRecipeRef target recipeBook of
-      Nothing   -> target ~~ " does not exist"++"\n"
+      Nothing   -> target ~~ Str.doesNotExist
       Just recp -> showRecipe (convertRecipeUnits conv recp) servings
 
 viewByStep :: [String] -> Int -> String -> IO ()
@@ -156,7 +156,7 @@ viewByStep targets serv convName = do
   let (servings, conv) = getServingsAndConv serv convName config
   hSetBuffering stdout NoBuffering
   forM_ targets $ \ target -> case readRecipeRef target recipeBook of
-    Nothing   -> putStr $ target ++ " does not exist"++"\n"
+    Nothing   -> putStr $ target ++ Str.doesNotExist
     Just recp -> viewRecipeByStep (convertRecipeUnits conv recp) servings
 
 viewRecipeByStep :: Recipe -> Maybe Int -> IO ()
@@ -164,7 +164,7 @@ viewRecipeByStep recp servings = do
   putText $ showRecipeHeader recp servings
   let steps = showRecipeSteps recp
   forM_ (init steps) $ \ step -> do
-    putStr $ step ++ " [more]"
+    putStr $ step ++ Str.more
     getLine
   putStr $ last steps ++ "\n"
 
@@ -208,10 +208,11 @@ listByTags nameOnly inputTags recipesWithIdx = do
     putStrLn ""
 
 showRecipeInfo :: Recipe -> RichText
-showRecipeInfo recipe = name ~~ "\n\t" ~~ desc ~~ "\n\t[Tags: " ~~ showTags ~~ "]"
+showRecipeInfo recipe = name ~~ "\n\t" ~~ desc ~~ "\n\t[" ~~ tagsStr ~~ ": " ~~ showTags ~~ "]"
   where name     = fontColor Blue $ recipeName recipe
         desc     = (takeFullWords . description) recipe
         showTags = fontColor Green $ (intercalate ", " . tags) recipe
+        tagsStr  = fontColor White $ Str.capTags
 
 takeFullWords :: String -> String
 takeFullWords = unwords . takeFullWords' 0 . words
@@ -254,8 +255,8 @@ removeWithVerbosity v targets = do
     -- remove anything
     let mrecp = readRecipeRef target recipeBook
     () <- putStr $ case mrecp of
-       Nothing -> target ++ " does not exist.\n"
-       Just r  -> guard v *> "Removing recipe: " ++ recipeName r ++ "...\n"
+       Nothing -> target ++ Str.doesNotExist
+       Just r  -> guard v *> Str.removingRecipe ++ recipeName r ++ "...\n"
     return mrecp
   -- Remove all the resolved recipes at once
   let newRecipeBook = recipeBook \\ catMaybes mrecipes
@@ -344,52 +345,52 @@ dataDirP = pure DataDir
 -- | @groupByTagsP is flag for grouping recipes by tags
 groupByTagsP :: Parser Bool
 groupByTagsP = switch
-         (  long "group"
-         <> short 'g'
-         <> help "group recipes by tags"
+         (  long Str.group
+         <> short Str.groupShort
+         <> help Str.groupDesc
          )
 
 -- | @nameOnlyP is flag for showing recipe names only
 nameOnlyP :: Parser Bool
 nameOnlyP = switch
-         (  long "name-only"
-         <> short 'n'
-         <> help "show only recipe names"
+         (  long Str.nameOnly
+         <> short Str.nameOnlyShort
+         <> help Str.nameOnlyDesc
          )
 
 -- | @tagsP returns the parser of tags
 tagsP :: Parser String
-tagsP = strOption (  long "tags"
+tagsP = strOption (  long Str.tags
                   <> value ""
-                  <> metavar "TAGS"
-                  <> help "show recipes with particular flags"
+                  <> metavar Str.tagsMetavar
+                  <> help Str.tagsDesc
                   )
 
 -- | @servingP returns the parser of number of servings.
 servingP :: Parser Int
 servingP =  option auto
-         (  long "serving"
-         <> short 's'
-         <> help "specify serving size when viewing"
+         (  long Str.serving
+         <> short Str.servingShort
+         <> help Str.servingDesc
          <> showDefault
          <> value 0
-         <> metavar "INT" )
+         <> metavar Str.servingMetavar )
 
 stepP :: Parser Bool
 stepP = switch
-    (  long "step"
-    <> short 't'
-    <> help "Whether to show one step at a time" )
+    (  long Str.step
+    <> short Str.stepShort
+    <> help Str.stepDesc )
 
 -- | @recipeNameP parses the string of recipe name.
 recipeNameP :: Parser String
-recipeNameP = strArgument (  metavar "RECIPE_NAME"
-                          <> help "index or Recipe name")
+recipeNameP = strArgument (  metavar Str.recipeNameMetavar
+                          <> help Str.recipeNameDesc)
 
 -- | @fileNameP parses the string of a file name.
 fileNameP :: Parser String
-fileNameP = strArgument (  metavar "FILE_NAME"
-                        <> help "file name")
+fileNameP = strArgument (  metavar Str.fileNameMetavar
+                        <> help Str.fileNameDesc)
 
 -- | @severalRecipesP parses several recipe names at once
 --   and returns the parser of list of names
@@ -399,45 +400,45 @@ severalRecipesP = many recipeNameP
 -- | @conversionP flags recipes for unit conversion
 conversionP :: Parser String
 conversionP = strOption
-            (long "convert"
-            <> short 'c'
-            <> help "Converts recipe units to either metric or imperial."
-            <> metavar "CONV_UNIT"
-            <> value "none")
+            (long Str.convert
+            <> short Str.convertShort
+            <> help Str.convertDesc
+            <> metavar Str.convertMetavar
+            <> value Str.none)
 
 -- @optP parses particular command.
 optP :: Parser Command
 optP =  subparser
-     $  command "list"
+     $  command Str.list
                 (info (helper <*> listP)
-                      (progDesc "list recipes"))
-     <> command "view"
+                      (progDesc Str.listDesc))
+     <> command Str.view
                 (info  (helper <*> viewP)
-                       (progDesc "view the particular recipes"))
-     <> command "add"
+                       (progDesc Str.viewDesc))
+     <> command Str.add
                 (info  (helper <*> addP)
-                       (progDesc "add a new recipe (interactively)"))
-     <> command "edit"
+                       (progDesc Str.addDesc))
+     <> command Str.edit
                 (info  (helper <*> editP)
-                       (progDesc "edit a recipe"))
-     <> command "import"
+                       (progDesc Str.editDesc))
+     <> command Str.import'
                 (info  (helper <*> importP)
-                       (progDesc "import a recipe file"))
-     <> command "remove"
+                       (progDesc Str.importDesc))
+     <> command Str.remove
                 (info  (helper <*> removeP)
-                       (progDesc "remove the particular recipes"))
-     <> command "shopping"
+                       (progDesc Str.removeDesc))
+     <> command Str.shopping
                 (info (helper <*> shopP)
-                      (progDesc "generate a shopping list for given recipes"))
-     <> command "datadir"
+                      (progDesc Str.shoppingDesc))
+     <> command Str.datadir
                 (info (helper <*> dataDirP)
-                      (progDesc "show location of recipe and config files"))
+                      (progDesc Str.datadirDesc))
 
 versionOption :: Parser (a -> a)
 versionOption = infoOption versionStr
-                (long "version"
-                <> short 'v'
-                <> help "Show version")
+                (long Str.version
+                <> short Str.versionShort
+                <> help Str.versionDesc)
 
 -- @prsr is the main parser of all CLI arguments.
 commandPI :: ParserInfo Command

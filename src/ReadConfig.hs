@@ -11,6 +11,7 @@ data Config = Config
   { defaultUnit        :: Conversion
   , defaultServingSize :: Int
   , recipesFile        :: String
+  , language           :: String
   } deriving (Read, Show)
 
 data ConfigParseError = ConfigParseError 

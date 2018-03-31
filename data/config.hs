@@ -11,4 +11,5 @@ Config
 -- Recipes file name and relative location.
 -- Default is "recipes.herms"
 , recipesFile = "recipes.herms"
+, language = "pirate"
 }

@@ -1,9 +1,9 @@
-module HermsStrings.English where
+module Lang.Strings where
 
 {--------------------------
  -- Interactive messages --
  --------------------------}
- 
+
 saveRecipeYesNoEdit = "Save recipe? (Y)es  (N)o  (E)dit"
 
 y    = "y" 
@@ -12,13 +12,16 @@ yCap = "Y"
 n    = "n" 
 nCap = "N"
 
+e    = "e" 
+eCap = "E"
+
 recipeSaved = "Recipe saved!"
 
 changesDiscarded = "Changes discarded."
 
 badEntry = "Please enter ONLY 'y', 'n' or 'e'"
 
-doesNotExist = " does not exist"
+doesNotExist = " does not exist\n"
 
 nothingToImport = "Nothing to import"
 
@@ -28,7 +31,9 @@ metric = "metric"
 
 imperial = "imperial"
 
-more = "[more]"
+more = " [more]"
+
+capTags = "Tags"
 
 removingRecipe = "Removing recipe: "
 
@@ -72,7 +77,7 @@ fileNameDesc    = "file name"
 
 {--------------------------
  -- Commands             --
- --------------------------}
+ -------------------------}
  
 list     = "list"
 listDesc = "list recipes"
@@ -106,4 +111,4 @@ versionDesc  = "Show version"
  --     Other            --
  --------------------------}
  
-progDesc = "HeRM's: a Haskell-based Recipe Manager. Type \"herms --" ++ help ++"\" for options"
+progDesc = "HeRM's: a Haskell-based Recipe Manager. Type \"herms --help\" for options"
