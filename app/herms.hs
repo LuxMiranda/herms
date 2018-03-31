@@ -23,6 +23,7 @@ import Paths_herms
 import Control.Exception
 import GHC.IO.Exception
 import Foreign.C.Error
+import qualified HermsStrings.English as Str
 
 -- Global constants
 versionStr :: String
@@ -72,7 +73,7 @@ saveOrDiscard input oldRecp = do
     doEdit newRecipe oldRecp
   else
     do
-    putStrLn "\nPlease enter ONLY 'y', 'n' or 'e'\n"
+      putStrLn "\n" ++ "Please enter ONLY 'y', 'n' or 'e'" ++ "\n"
     saveOrDiscard input oldRecp
 
 add :: IO ()
@@ -98,7 +99,7 @@ edit :: String -> IO ()
 edit target = do
   recipeBook <- getRecipeBook
   case readRecipeRef target recipeBook of
-    Nothing   -> putStrLn $ target ++ " does not exist\n"
+    Nothing   -> putStrLn $ target ++ " does not exist"++"\n"
     Just recp -> doEdit recp (Just recp)
   -- Only supports editing one recipe per command
 
@@ -145,7 +146,7 @@ view targets serv convName = do
   let (servings, conv) = getServingsAndConv serv convName config
   forM_ targets $ \ target ->
     putText $ case readRecipeRef target recipeBook of
-      Nothing   -> target ~~ " does not exist\n"
+      Nothing   -> target ~~ " does not exist"++"\n"
       Just recp -> showRecipe (convertRecipeUnits conv recp) servings
 
 viewByStep :: [String] -> Int -> String -> IO ()
@@ -155,7 +156,7 @@ viewByStep targets serv convName = do
   let (servings, conv) = getServingsAndConv serv convName config
   hSetBuffering stdout NoBuffering
   forM_ targets $ \ target -> case readRecipeRef target recipeBook of
-    Nothing   -> putStr $ target ++ " does not exist\n"
+    Nothing   -> putStr $ target ++ " does not exist"++"\n"
     Just recp -> viewRecipeByStep (convertRecipeUnits conv recp) servings
 
 viewRecipeByStep :: Recipe -> Maybe Int -> IO ()
@@ -442,4 +443,4 @@ versionOption = infoOption versionStr
 commandPI :: ParserInfo Command
 commandPI =  info ( helper <*> versionOption <*> optP )
           $  fullDesc
-          <> progDesc "HeRM's: a Haskell-based Recipe Manager. Type \"herms --help\" for options"
+          <> progDesc Str.progDesc
