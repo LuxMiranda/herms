@@ -140,9 +140,8 @@ getServingsAndConv serv convName config = (servings, conv)
           | convName  == Str.imperial =  Imperial
           | otherwise = defaultUnit config
 
-view :: [String] -> Int -> String -> IO ()
-view targets serv convName = do
-  config     <- getConfig
+view :: [String] -> Int -> String -> Config -> IO ()
+view targets serv convName config = do
   recipeBook <- getRecipeBookWith config
   let (servings, conv) = getServingsAndConv serv convName config
   forM_ targets $ \ target ->
@@ -150,9 +149,8 @@ view targets serv convName = do
       Nothing   -> target ~~ Str.doesNotExist
       Just recp -> showRecipe (convertRecipeUnits conv recp) servings
 
-viewByStep :: [String] -> Int -> String -> IO ()
-viewByStep targets serv convName = do
-  config     <- getConfig
+viewByStep :: [String] -> Int -> String -> Config -> IO ()
+viewByStep targets serv convName config = do
   recipeBook <- getRecipeBookWith config
   let (servings, conv) = getServingsAndConv serv convName config
   hSetBuffering stdout NoBuffering
@@ -263,16 +261,15 @@ removeWithVerbosity v targets = do
   let newRecipeBook = recipeBook \\ catMaybes mrecipes
   replaceDataFile (recipesFile config) $ unlines $ show <$> newRecipeBook
 
-remove :: [String] -> IO ()
-remove = removeWithVerbosity True
+remove :: Config -> [String] -> IO ()
+remove config = removeWithVerbosity True config
 
-removeSilent :: [String] -> IO ()
-removeSilent = removeWithVerbosity False
+removeSilent :: Config -> [String] -> IO ()
+removeSilent config = removeWithVerbosity False config
 
-
-shop :: [String] -> Int -> IO ()
-shop targets serv = do
-  recipeBook <- getRecipeBook
+shop :: [String] -> Int -> Config -> IO ()
+shop targets serv config = do
+  recipeBook <- getRecipeBookWith config
   let getFactor recp
         | serv == 0 = servingSize recp % 1
         | otherwise = serv % 1
@@ -305,19 +302,19 @@ main :: IO ()
 main = do
   config <- getConfig
   let translate = toLang config
-  execParser (commandPI translate) >>= runWithOpts
+  execParser (commandPI translate) >>= (runWithOpts config)
 
 -- @runWithOpts runs the action of selected command.
-runWithOpts :: Command -> IO ()
-runWithOpts (List tags group nameOnly)              = list tags group nameOnly
-runWithOpts Add                                     = add
-runWithOpts (Edit target)                           = edit target
-runWithOpts (Import target)                         = importFile target
-runWithOpts (Remove targets)                        = remove targets
-runWithOpts (View targets serving step conversion)  = if step then viewByStep targets serving conversion
-                                                      else view targets serving conversion
-runWithOpts (Shop targets serving)                  = shop targets serving
-runWithOpts DataDir                                 = printDataDir
+runWithOpts :: Config -> Command -> IO ()
+runWithOpts config (List tags group nameOnly)              = list tags group nameOnly
+runWithOpts config Add                                     = add
+runWithOpts config (Edit target)                           = edit target
+runWithOpts config (Import target)                         = importFile target
+runWithOpts config (Remove targets)                        = remove targets
+runWithOpts config (View targets serving step conversion)  = if step then viewByStep targets serving conversion config
+                                                                     else view targets serving conversion config
+runWithOpts config (Shop targets serving)                  = shop targets serving config
+runWithOpts _      DataDir                                 = printDataDir
 
 
 ------------------------------
