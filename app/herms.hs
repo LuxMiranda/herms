@@ -23,7 +23,8 @@ import Paths_herms
 import Control.Exception
 import GHC.IO.Exception
 import Foreign.C.Error
-import qualified Lang.English as Str
+import Lang.Base (toLang, Translator)
+import qualified Lang.Strings as Str
 
 -- Global constants
 versionStr :: String
@@ -301,7 +302,10 @@ checkFileExists = do
     writeFile fileName "")
 
 main :: IO ()
-main = execParser commandPI >>= runWithOpts
+main = do
+  config <- getConfig
+  let translate = toLang config
+  execParser (commandPI translate) >>= runWithOpts
 
 -- @runWithOpts runs the action of selected command.
 runWithOpts :: Command -> IO ()
@@ -407,32 +411,32 @@ conversionP = strOption
             <> value Str.none)
 
 -- @optP parses particular command.
-optP :: Parser Command
-optP =  subparser
+optP :: Translator -> Parser Command
+optP translate = subparser
      $  command Str.list
                 (info (helper <*> listP)
-                      (progDesc Str.listDesc))
+                      (progDesc (translate Str.listDesc)))
      <> command Str.view
                 (info  (helper <*> viewP)
-                       (progDesc Str.viewDesc))
+                       (progDesc (translate Str.viewDesc)))
      <> command Str.add
                 (info  (helper <*> addP)
-                       (progDesc Str.addDesc))
+                       (progDesc (translate Str.addDesc)))
      <> command Str.edit
                 (info  (helper <*> editP)
-                       (progDesc Str.editDesc))
+                       (progDesc (translate Str.editDesc)))
      <> command Str.import'
                 (info  (helper <*> importP)
-                       (progDesc Str.importDesc))
+                       (progDesc (translate Str.importDesc)))
      <> command Str.remove
                 (info  (helper <*> removeP)
-                       (progDesc Str.removeDesc))
+                       (progDesc (translate Str.removeDesc)))
      <> command Str.shopping
                 (info (helper <*> shopP)
-                      (progDesc Str.shoppingDesc))
+                      (progDesc (translate Str.shoppingDesc)))
      <> command Str.datadir
                 (info (helper <*> dataDirP)
-                      (progDesc Str.datadirDesc))
+                      (progDesc (translate Str.datadirDesc)))
 
 versionOption :: Parser (a -> a)
 versionOption = infoOption versionStr
@@ -441,7 +445,7 @@ versionOption = infoOption versionStr
                 <> help Str.versionDesc)
 
 -- @prsr is the main parser of all CLI arguments.
-commandPI :: ParserInfo Command
-commandPI =  info ( helper <*> versionOption <*> optP )
+commandPI :: Translator -> ParserInfo Command
+commandPI translate = info ( helper <*> versionOption <*> (optP translate) )
           $  fullDesc
-          <> progDesc Str.progDesc
+          <> progDesc (translate Str.progDesc)

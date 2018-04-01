@@ -73,7 +73,9 @@ executable herms
                      , Types
                      , UnitConversions
                      , Paths_herms
-                     , Lang.English
+                     , Lang.Base
+                     , Lang.Strings
+                     , Lang.Pirate
 
   -- LANGUAGE extensions used by modules in this package.
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
