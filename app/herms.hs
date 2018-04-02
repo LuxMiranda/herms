@@ -25,7 +25,6 @@ import Paths_herms
 import Control.Exception
 import GHC.IO.Exception
 import Foreign.C.Error
-import Lang.Base (toLang, Translator)
 import qualified Lang.Strings as Str
 
 -- Global constants
@@ -40,7 +39,7 @@ type HermsReader = ReaderT (Config, RecipeBook)
 -- | @getRecipeBookWith reads in recipe book with already read-in config
 getRecipeBookWith :: Config -> IO [Recipe]
 getRecipeBookWith config = do
-  fileName <- getDataFileName (recipesFile config)
+  fileName <- getDataFileName (recipesFile' config)
   contents <- readFile fileName
   return $ map read $ lines contents
 
@@ -60,7 +59,7 @@ saveOrDiscard input oldRecp = do
     then do
     let recpName = maybe (recipeName newRecipe) recipeName oldRecp
     unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
-    fileName <- liftIO $ getDataFileName (recipesFile config)
+    fileName <- liftIO $ getDataFileName (recipesFile' config)
     liftIO $ appendFile fileName (show newRecipe ++ "\n")
     liftIO $ putStrLn Str.recipeSaved
   else if response == Str.n || response == Str.nCap
@@ -116,7 +115,7 @@ importFile target = do
   let recipeEq = (==) `on` recipeName
   let newRecipeBook = deleteFirstsBy recipeEq recipeBook otherRecipeBook
                         ++ otherRecipeBook
-  liftIO $ replaceDataFile (recipesFile config) $ unlines $ show <$> newRecipeBook
+  liftIO $ replaceDataFile (recipesFile' config) $ unlines $ show <$> newRecipeBook
   liftIO $ if null otherRecipeBook
   then putStrLn Str.nothingToImport
   else do
@@ -127,14 +126,14 @@ importFile target = do
 getServingsAndConv :: Int -> String -> Config -> (Maybe Int, Conversion)
 getServingsAndConv serv convName config = (servings, conv)
   where servings = case serv of
-                   0 -> case defaultServingSize config of
+                   0 -> case defaultServingSize' config of
                            0 -> Nothing
                            j -> Just j
                    i -> Just i
         conv
           | convName  == Str.metric   =  Metric
           | convName  == Str.imperial =  Imperial
-          | otherwise = defaultUnit config
+          | otherwise = defaultUnit' config
 
 view :: [String] -> Int -> String -> HermsReader IO ()
 view targets serv convName = do
@@ -254,14 +253,13 @@ removeWithVerbosity v targets = do
     return mrecp
   -- Remove all the resolved recipes at once
   let newRecipeBook = recipeBook \\ catMaybes mrecipes
-  liftIO $ replaceDataFile (recipesFile config) $ unlines $ show <$> newRecipeBook
+  liftIO $ replaceDataFile (recipesFile' config) $ unlines $ show <$> newRecipeBook
 
 remove :: [String] -> HermsReader IO ()
 remove = removeWithVerbosity True
 
 removeSilent :: [String] -> HermsReader IO ()
 removeSilent = removeWithVerbosity False
-
 
 shop :: [String] -> Int -> HermsReader IO ()
 shop targets serv = do
@@ -287,7 +285,7 @@ printDataDir = do
 checkFileExists :: IO ()
 checkFileExists = do
   config   <- getConfig
-  fileName <- getDataFileName (recipesFile config)
+  fileName <- getDataFileName (recipesFile' config)
   fileExists <- doesFileExist fileName
   unless fileExists (do
     dirName <- getDataDir
