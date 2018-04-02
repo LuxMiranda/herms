@@ -16,7 +16,7 @@ tested-with:        GHC == 8.4.1
 -- PVP summary:      +-+------- New features or improvements with significant API change
 --                   | | +----- Bugfixes and improvements with minor change to API
 --                   | | | +--- Bugfixes and improvements with no change to API
-version:             1.8.2.1
+version:             1.8.2.2
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes
@@ -83,7 +83,7 @@ executable herms
   -- Other library packages from which modules are imported.
   build-depends:       ansi-terminal >= 0.7.0 && <= 0.8.1
                      , base >=4.8 && <5
-                     , brick >= 0.19 && < 0.36
+                     , brick >= 0.19 && < 0.37
                      , directory >= 0.0
                      , microlens >=0.4 && <0.5
                      , microlens-th >=0.4 && <0.5
