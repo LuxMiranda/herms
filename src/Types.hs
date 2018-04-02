@@ -35,6 +35,8 @@ data Recipe = Recipe { recipeName :: String
                      , tags :: [String]
                      } deriving (Eq, Show, Read)
 
+type RecipeBook = [Recipe]
+
 showFrac :: Ratio Int -> String
 showFrac x
   | numerator x == denominator x = show (numerator x)

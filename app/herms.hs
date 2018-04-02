@@ -5,6 +5,8 @@ module Main where
 import System.Directory
 import System.IO
 import Control.Monad
+import Control.Monad.IO.Class
+import Control.Monad.Reader
 import Data.Function
 import Data.List
 import Data.Maybe
@@ -28,7 +30,7 @@ import qualified Lang.Strings as Str
 
 -- Global constants
 versionStr :: String
-versionStr = "1.8.2.0"
+versionStr = "1.9.0.0"
 
 configPath :: IO FilePath
 configPath = getDataFileName "config.hs"
@@ -140,12 +142,11 @@ getServingsAndConv serv convName config = (servings, conv)
           | convName  == Str.imperial =  Imperial
           | otherwise = defaultUnit config
 
-view :: [String] -> Int -> String -> IO ()
+view :: [String] -> Int -> String -> ReaderT (Config, RecipeBook) IO ()
 view targets serv convName = do
-  config     <- getConfig
-  recipeBook <- getRecipeBookWith config
+  (config,recipeBook) <- ask
   let (servings, conv) = getServingsAndConv serv convName config
-  forM_ targets $ \ target ->
+  liftIO $ forM_ targets $ \ target ->
     putText $ case readRecipeRef target recipeBook of
       Nothing   -> target ~~ Str.doesNotExist
       Just recp -> showRecipe (convertRecipeUnits conv recp) servings
@@ -169,12 +170,12 @@ viewRecipeByStep recp servings = do
     getLine
   putStr $ last steps ++ "\n"
 
-list :: [String] -> Bool -> Bool -> IO ()
+list :: [String] -> Bool -> Bool -> ReaderT (Config, RecipeBook) IO ()
 list inputTags groupByTags nameOnly = do
-  recipes <- getRecipeBook
+  (config,recipes) <- ask
   let recipesWithIndex = zip [1..] recipes
   let targetRecipes    = filterByTags inputTags recipesWithIndex
-  if groupByTags
+  liftIO $ if groupByTags
   then listByTags nameOnly inputTags targetRecipes
   else listDefault nameOnly targetRecipes
 
@@ -301,23 +302,25 @@ checkFileExists = do
     createDirectoryIfMissing True dirName
     writeFile fileName "")
 
-main :: IO ()
 main = do
   config <- getConfig
-  let translate = toLang config
-  execParser (commandPI translate) >>= runWithOpts
+  recipeBook <- getRecipeBookWith config
+--  execParser commandPI >>= runWithOpts
+--  runReaderT (runWithOpts $ View ["1"] 1 False "metric") (config, recipeBook)
+  command <- execParser commandPI
+  runReaderT (runWithOpts command) (config, recipeBook)
 
 -- @runWithOpts runs the action of selected command.
-runWithOpts :: Command -> IO ()
+runWithOpts :: Command -> ReaderT (Config, RecipeBook) IO ()
 runWithOpts (List tags group nameOnly)              = list tags group nameOnly
-runWithOpts Add                                     = add
-runWithOpts (Edit target)                           = edit target
-runWithOpts (Import target)                         = importFile target
-runWithOpts (Remove targets)                        = remove targets
-runWithOpts (View targets serving step conversion)  = if step then viewByStep targets serving conversion
-                                                      else view targets serving conversion
-runWithOpts (Shop targets serving)                  = shop targets serving
-runWithOpts DataDir                                 = printDataDir
+--runWithOpts Add                                     = add
+--runWithOpts (Edit target)                           = edit target
+--runWithOpts (Import target)                         = importFile target
+--runWithOpts (Remove targets)                        = remove targets
+runWithOpts (View targets serving step conversion)  = view targets serving conversion{--if step then viewByStep targets serving conversion
+                                                                     else view targets serving conversion config --}
+--runWithOpts (Shop targets serving)                  = shop targets serving
+--runWithOpts DataDir                                 = printDataDir
 
 
 ------------------------------
@@ -326,24 +329,27 @@ runWithOpts DataDir                                 = printDataDir
 
 -- | 'Command' data type represents commands of CLI
 data Command = List   [String] Bool Bool         -- ^ shows recipes
+             | View   [String] Int Bool String   -- ^ shows specified recipes with given serving
+{--
              | Add                               -- ^ adds the recipe (interactively)
              | Edit    String                    -- ^ edits the recipe
              | Import  String                    -- ^ imports a recipe file
              | Remove [String]                   -- ^ removes specified recipes
-             | View   [String] Int Bool String   -- ^ shows specified recipes with given serving
              | Shop   [String] Int               -- ^ generates the shopping list for given recipes
              | DataDir                           -- ^ prints the directory of recipe file and config.hs
 
+--}
 
-listP, addP, editP, removeP, viewP, shopP, dataDirP :: Parser Command
+--listP, addP, editP, removeP, viewP, shopP, dataDirP :: Parser Command
+listP,viewP :: Parser Command
 listP    = List   <$> (words <$> tagsP) <*> groupByTagsP <*> nameOnlyP
-addP     = pure Add
-editP    = Edit   <$> recipeNameP
-importP  = Import <$> fileNameP
-removeP  = Remove <$> severalRecipesP
+--addP     = pure Add
+--editP    = Edit   <$> recipeNameP
+--importP  = Import <$> fileNameP
+--removeP  = Remove <$> severalRecipesP
 viewP    = View   <$> severalRecipesP <*> servingP <*> stepP <*> conversionP
-shopP    = Shop   <$> severalRecipesP <*> servingP
-dataDirP = pure DataDir
+--shopP    = Shop   <$> severalRecipesP <*> servingP
+--dataDirP = pure DataDir
 
 
 -- | @groupByTagsP is flag for grouping recipes by tags
@@ -411,15 +417,14 @@ conversionP = strOption
             <> value Str.none)
 
 -- @optP parses particular command.
-optP :: Translator -> Parser Command
-optP translate = subparser
-     $  command Str.list
-                (info (helper <*> listP)
-                      (progDesc (translate Str.listDesc)))
+optP :: Parser Command
+optP = subparser
+     $  command Str.list (info (helper <*> listP)
+                      (progDesc (Str.listDesc)))
      <> command Str.view
                 (info  (helper <*> viewP)
-                       (progDesc (translate Str.viewDesc)))
-     <> command Str.add
+                       (progDesc (Str.viewDesc)))
+    {-- <> command Str.add
                 (info  (helper <*> addP)
                        (progDesc (translate Str.addDesc)))
      <> command Str.edit
@@ -437,6 +442,7 @@ optP translate = subparser
      <> command Str.datadir
                 (info (helper <*> dataDirP)
                       (progDesc (translate Str.datadirDesc)))
+                --}
 
 versionOption :: Parser (a -> a)
 versionOption = infoOption versionStr
@@ -445,7 +451,7 @@ versionOption = infoOption versionStr
                 <> help Str.versionDesc)
 
 -- @prsr is the main parser of all CLI arguments.
-commandPI :: Translator -> ParserInfo Command
-commandPI translate = info ( helper <*> versionOption <*> (optP translate) )
+commandPI :: ParserInfo Command
+commandPI = info ( helper <*> versionOption <*> (optP) )
           $  fullDesc
-          <> progDesc (translate Str.progDesc)
+          <> progDesc (Str.progDesc)
