@@ -26,7 +26,7 @@ import Foreign.C.Error
 
 -- Global constants
 versionStr :: String
-versionStr = "1.8.2.0"
+versionStr = "1.8.2.2"
 
 configPath :: IO FilePath
 configPath = getDataFileName "config.hs"
