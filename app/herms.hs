@@ -296,7 +296,7 @@ main :: IO ()
 main = do
   config <- getConfig
   recipeBook <- getRecipeBookWith config
-  command <- execParser commandPI
+  command <- execParser (commandPI (translator config))
   runReaderT (runWithOpts command) (config, recipeBook)
 
 -- @runWithOpts runs the action of selected command.
@@ -403,31 +403,32 @@ conversionP = strOption
             <> value Str.none)
 
 -- @optP parses particular command.
-optP :: Parser Command
-optP = subparser
-     $  command Str.list (info (helper <*> listP)
-                      (progDesc (Str.listDesc)))
-     <> command Str.view
+optP :: Translator -> Parser Command
+optP t = subparser
+     $  command (t Str.list)
+                (info (helper <*> listP)
+                      (progDesc (t Str.listDesc)))
+     <> command (t Str.view)
                 (info  (helper <*> viewP)
-                       (progDesc (Str.viewDesc)))
-     <> command Str.add
+                       (progDesc (t Str.viewDesc)))
+     <> command (t Str.add)
                 (info  (helper <*> addP)
-                       (progDesc (Str.addDesc)))
-     <> command Str.edit
+                       (progDesc (t Str.addDesc)))
+     <> command (t Str.edit)
                 (info  (helper <*> editP)
-                       (progDesc (Str.editDesc)))
-     <> command Str.import'
+                       (progDesc (t Str.editDesc)))
+     <> command (t Str.import')
                 (info  (helper <*> importP)
-                       (progDesc (Str.importDesc)))
-     <> command Str.remove
+                       (progDesc (t Str.importDesc)))
+     <> command (t Str.remove)
                 (info  (helper <*> removeP)
-                       (progDesc (Str.removeDesc)))
-     <> command Str.shopping
+                       (progDesc (t Str.removeDesc)))
+     <> command (t Str.shopping)
                 (info (helper <*> shopP)
-                      (progDesc (Str.shoppingDesc)))
-     <> command Str.datadir
+                      (progDesc (t Str.shoppingDesc)))
+     <> command (t Str.datadir)
                 (info (helper <*> dataDirP)
-                      (progDesc (Str.datadirDesc)))
+                      (progDesc (t Str.datadirDesc)))
 
 versionOption :: Parser (a -> a)
 versionOption = infoOption versionStr
@@ -436,7 +437,7 @@ versionOption = infoOption versionStr
                 <> help Str.versionDesc)
 
 -- @prsr is the main parser of all CLI arguments.
-commandPI :: ParserInfo Command
-commandPI = info ( helper <*> versionOption <*> (optP) )
+commandPI :: Translator -> ParserInfo Command
+commandPI t = info ( helper <*> versionOption <*> (optP t))
           $  fullDesc
-          <> progDesc (Str.progDesc)
+          <> progDesc (t Str.progDesc)

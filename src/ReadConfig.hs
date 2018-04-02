@@ -68,7 +68,7 @@ processConfig raw = Config
   { defaultUnit'        = defaultUnit raw
   , defaultServingSize' = defaultServingSize raw
   , recipesFile'        = recipesFile raw
-  , translate           = getTranslator $ getLang raw
+  , translator          = getTranslator $ getLang raw
   }
 
 getConfig :: IO Config
