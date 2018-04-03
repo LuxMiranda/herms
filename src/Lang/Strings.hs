@@ -1,8 +1,34 @@
 module Lang.Strings where
 
-{--------------------------
- -- Interactive messages --
- --------------------------}
+--------------------------
+---- Add Recipe TUI ------
+--------------------------
+  
+-- *** Note: Whitespace is important!!! ***
+  
+tuiTitle       = "                                    Herm's - Add a recipe"
+tuiName        = "          Name: "
+tuiDesc        = "   Description: "
+tuiServingSize = "  Serving size: "
+tuiHeaders     = "                  qty.   unit               name                attribute"
+tuiIngrs       = "  Ingredients: \n(one per line)  " 
+tuiDirs        = "   Directions: \n(one per line)  "
+tuiTags        = "          Tags: "
+tuiHelp1       = "                      Tab / Shift+Tab           - Next / Previous field"
+tuiHelp2       = "                      Ctrl + <Arrow keys>       - Navigate fields"
+tuiHelp3       = "                      [Meta or Alt] + <h-j-k-l> - Navigate fields"
+tuiHelp4       = "                      Esc                       - Save or Cancel"
+
+--------------------
+-- Recipe Headers --
+--------------------
+
+headerServs = "\nServings: "
+headerIngrs = "\nIngredients:\n"
+
+--------------------------
+-- Interactive messages --
+--------------------------
 
 saveRecipeYesNoEdit = "Save recipe? (Y)es  (N)o  (E)dit"
 
@@ -37,9 +63,9 @@ capTags = "Tags"
 
 removingRecipe = "Removing recipe: "
 
-{--------------------------
- --   Options and Flags  --
- --------------------------}
+--------------------------
+--   Options and Flags  --
+--------------------------
  
 group      = "group"
 groupShort = 'g'
@@ -75,9 +101,9 @@ recipeNameDesc    = "index or Recipe name"
 fileNameMetavar = "FILE_NAME"
 fileNameDesc    = "file name"
 
-{--------------------------
- -- Commands             --
- -------------------------}
+--------------------------
+-- Commands             --
+--------------------------
  
 list     = "list"
 listDesc = "list recipes"
@@ -107,8 +133,8 @@ version      = "version"
 versionShort = 'v'
 versionDesc  = "Show version"
 
-{--------------------------
- --     Other            --
- --------------------------}
+--------------------------
+--     Misc             --
+--------------------------
  
 progDesc = "HeRM's: a Haskell-based Recipe Manager. Type \"herms --help\" for options"

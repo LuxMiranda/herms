@@ -73,7 +73,6 @@ executable herms
                      , Types
                      , UnitConversions
                      , Paths_herms
-                     , Lang.Base
                      , Lang.Strings
                      , Lang.Pirate
 
