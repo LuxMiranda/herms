@@ -5,7 +5,7 @@ import Lang.Strings
 pirate :: String -> String
 pirate str
   | is tuiTitle       = "                                  Herm's - Drop the anchor!"
-  | is tuiName        = "          Name: "
+  | is tuiName        = "  Giv'r a name: "
   | is tuiDesc        = "    Describin': "
   | is tuiServingSize = "  Servin' size: "
   | is tuiIngrs       = "     Reagents: \n(one per line)  " 
