@@ -22,6 +22,8 @@ import qualified Brick.Widgets.Edit as E
 import qualified Brick.AttrMap as A
 import qualified Brick.Focus as F
 import Brick.Util (on)
+import ReadConfig (Translator)
+import qualified Lang.Strings as Str
 
 data Name = RecipeName
           | Description
@@ -55,8 +57,8 @@ data St =
 
 makeLenses ''St
 
-drawUI :: St -> [T.Widget Name]
-drawUI st = [ui]
+drawUI :: Translator -> St -> [T.Widget Name]
+drawUI t st = [ui]
     where
         e1 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit1)
         e2 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit2)
@@ -69,30 +71,30 @@ drawUI st = [ui]
         e9 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit9)
 
         ui = C.center $
-            str "                                    Herm's - Add a recipe" <=>
+            str (t Str.tuiTitle) <=>
             str " " <=>
-            (str "          Name: " <+> (hLimit 62 e1)) <=>
+            (str (t Str.tuiName) <+> (hLimit 62 e1)) <=>
             str " " <=>
-            (str "   Description: " <+> (hLimit 62 $ vLimit 4 e2)) <=>
+            (str (t Str.tuiDesc) <+> (hLimit 62 $ vLimit 4 e2)) <=>
             str " " <=>
-            (str "  Serving size: " <+> (hLimit 3 e3)) <=>
+            (str (t Str.tuiServingSize) <+> (hLimit 3 e3)) <=>
             str " " <=>
-            str "                  qty.   unit               name                attribute" <=>
-            (str "  Ingredients: \n(one per line)  " 
+            str (t Str.tuiHeaders) <=>
+            (str (t Str.tuiIngrs) 
               <+> (hLimit 7 $ vLimit 7 e4)
               <+> (hLimit 9 $ vLimit 7 e5)
               <+> (hLimit 28 $ vLimit 7 e6)
               <+> (hLimit 18 $ vLimit 7 e7))
               <=> 
             str " " <=>
-            (str "   Directions: \n(one per line)  " <+> (hLimit 62 $ vLimit 8 e8)) <=>
+            (str (t Str.tuiDirs) <+> (hLimit 62 $ vLimit 8 e8)) <=>
             str " " <=>
-            (str "          Tags: " <+> (hLimit 62 $ vLimit 1 e9)) <=>
+            (str (t Str.tuiTags) <+> (hLimit 62 $ vLimit 1 e9)) <=>
             str " " <=>
-            str "                      Tab / Shift+Tab           - Next / Previous field" <=>
-            str "                      Ctrl + <Arrow keys>       - Navigate fields" <=>
-            str "                      [Meta or Alt] + <h-j-k-l> - Navigate fields" <=>
-            str "                      Esc                       - Save or Cancel"
+            str (t Str.tuiHelp1) <=>
+            str (t Str.tuiHelp2) <=>
+            str (t Str.tuiHelp3) <=>
+            str (t Str.tuiHelp4)
 
 appEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
 appEvent st (T.VtyEvent ev) =
@@ -206,18 +208,18 @@ theMap = A.attrMap V.defAttr
 appCursor :: St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
 appCursor = F.focusRingCursor (^.focusRing)
 
-theApp :: M.App St e Name
-theApp =
-    M.App { M.appDraw = drawUI
+theApp :: Translator -> M.App St e Name
+theApp t =
+    M.App { M.appDraw = drawUI t
           , M.appChooseCursor = appCursor
           , M.appHandleEvent = appEvent
           , M.appStartEvent = return
           , M.appAttrMap = const theMap
           }
 
-getEdit :: String -> String -> String -> String -> String -> String -> String -> String -> String -> IO ([[String]])
-getEdit name desc serving amounts units ingrs attrs dirs tags = do
-  st <- M.defaultMain theApp (initialState name desc serving amounts units ingrs attrs dirs tags)
+getEdit :: Translator -> String -> String -> String -> String -> String -> String -> String -> String -> String -> IO ([[String]])
+getEdit t name desc serving amounts units ingrs attrs dirs tags = do
+  st <- M.defaultMain (theApp t) (initialState name desc serving amounts units ingrs attrs dirs tags)
   return $ [ E.getEditContents $ st^.edit1
              , E.getEditContents $ st^.edit2
              , E.getEditContents $ st^.edit3
@@ -229,9 +231,9 @@ getEdit name desc serving amounts units ingrs attrs dirs tags = do
              , E.getEditContents $ st^.edit9
              ] 
 
-getAddInput :: IO ([[String]])
-getAddInput = do 
-  st <- M.defaultMain theApp (initialState "" "" "" "" "" "" "" "" "")
+getAddInput :: Translator -> IO ([[String]])
+getAddInput t = do 
+  st <- M.defaultMain (theApp t) (initialState "" "" "" "" "" "" "" "" "")
   return $ [ E.getEditContents $ st^.edit1
              , E.getEditContents $ st^.edit2
              , E.getEditContents $ st^.edit3

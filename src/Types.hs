@@ -6,6 +6,7 @@ import Data.Maybe
 import Data.Ratio
 import Data.Ord
 import RichText
+import qualified Lang.Strings as Str
 
 data Ingredient = Ingredient { quantity :: Ratio Int
                              , unit :: String
@@ -34,6 +35,8 @@ data Recipe = Recipe { recipeName :: String
                      , directions :: [String]
                      , tags :: [String]
                      } deriving (Eq, Show, Read)
+
+type RecipeBook = [Recipe]
 
 showFrac :: Ratio Int -> String
 showFrac x
@@ -76,15 +79,15 @@ adjustIngredients factor = map adjustIngredient
   where adjustIngredient ingredient =
           ingredient{ quantity = quantity ingredient * factor }
 
-showRecipe :: Recipe -> Maybe Int -> RichText
-showRecipe r maybeServings =  showRecipeHeader r maybeServings
+showRecipe :: (String -> String) -> Recipe -> Maybe Int -> RichText
+showRecipe t r maybeServings =  showRecipeHeader t r maybeServings
                 ~~ "\n" ~~ unlines (showRecipeSteps r)
 
-showRecipeHeader :: Recipe -> Maybe Int -> RichText
-showRecipeHeader r maybeServings = nameBox
+showRecipeHeader :: (String -> String) -> Recipe -> Maybe Int -> RichText
+showRecipeHeader t r maybeServings = nameBox
                 ~~ "\n" ~~ description r ~~ "\n"
-                ~~ bold "\nServings: " ~~ show servings ~~ "\n"
-                ~~ bold "\nIngredients:\n"
+                ~~ bold (t Str.headerServs) ~~ show servings ~~ "\n"
+                ~~ bold (t Str.headerIngrs)
                 ~~ unlines (map ((++) "* " . showIngredient servings) (ingredients r))
                 where filler = replicate (length (recipeName r) + 2) '-'
                       servings = fromMaybe (servingSize r) maybeServings

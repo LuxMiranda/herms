@@ -1,4 +1,4 @@
-Config
+ConfigInfo
 { 
 -- Default unit system to show recipes in.
 -- OPTIONS: Imperial, Metric, None
@@ -11,4 +11,5 @@ Config
 -- Recipes file name and relative location.
 -- Default is "recipes.herms"
 , recipesFile = "recipes.herms"
+, language = "english"
 }

@@ -16,7 +16,7 @@ tested-with:        GHC == 8.4.1
 -- PVP summary:      +-+------- New features or improvements with significant API change
 --                   | | +----- Bugfixes and improvements with minor change to API
 --                   | | | +--- Bugfixes and improvements with no change to API
-version:             1.8.2.2
+version:             1.9.0.0
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes
@@ -73,6 +73,8 @@ executable herms
                      , Types
                      , UnitConversions
                      , Paths_herms
+                     , Lang.Strings
+                     , Lang.Pirate
 
   -- LANGUAGE extensions used by modules in this package.
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
@@ -84,6 +86,7 @@ executable herms
                      , directory >= 0.0
                      , microlens >=0.4 && <0.5
                      , microlens-th >=0.4 && <0.5
+                     , mtl >= 2.2.1 && <= 2.2.2
                      , optparse-applicative >=0.14 && <0.15
                      , semigroups >= 0.18.3 && <= 0.18.4
                      , split >=0.2 && <0.3
