@@ -4,6 +4,7 @@ import UnitConversions
 import qualified Text.Read as TR
 import Control.Exception
 import Data.Typeable
+import Data.Char (toLower)
 import Data.List.Split
 import Lang.Pirate
 import Paths_herms
@@ -30,6 +31,7 @@ data Config = Config
 
 data Language = English
               | Pirate
+              | Portuguese
 
 type Translator = String -> String
 
@@ -45,17 +47,38 @@ instance Show ConfigParseError where
 
 instance Exception ConfigParseError
 
+------------------------------
+------ Language Synonyms -----
+------------------------------
+
+englishSyns = [ "english"
+              , "en"
+              , "en-US"
+              , "\'murican"
+              ]
+
+pirateSyns = [ "pirate"
+             , "pr"
+             ]
+
+portugueseSyns = [ "portuguese"
+                , "português"
+                , "portugues"
+                , "pt"
+                ]
 
 ------------------------------
 --------- Functions ----------
 ------------------------------
 
 getLang :: ConfigInfo -> Language
-getLang c = case (language c) of
-              "english" -> English
-              "pirate" -> Pirate
+getLang c
+  | isIn englishSyns = English
+  -- | isIn portugueseSyns = Portuguese
+  | isIn pirateSyns  = Pirate
+  where isIn = elem (map toLower $ language c)
 
-getTranslator :: Language -> (String -> String)
+getTranslator :: Language -> Translator
 getTranslator lang = case lang of
                        English -> id :: String -> String
                        Pirate  -> pirate
