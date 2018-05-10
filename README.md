@@ -1,5 +1,8 @@
 # Herm's
 
+[![Hackage](https://img.shields.io/hackage/v/herms.svg)](https://hackage.haskell.org/package/herms)
+[![stackage LTS
+package](http://stackage.org/package/herms/badge/lts)](http://stackage.org/lts/package/herms)
 ![Travis build](https://api.travis-ci.org/JackKiefer/herms.svg?branch=master)
 
 HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
