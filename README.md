@@ -20,7 +20,7 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 
 ### What's new:
 - Yarr! Herm's now supports both English and Pirate! Simply make it ``language = "pirate"`` in your ``config.hs``!
-- "Pirate" is but the first language that Herm's is now capable of supporting. We need your help to translate it into others!
+- "Pirate" is but the first language that Herm's is now capable of supporting. We need your help to translate it into others! Currently in progress: Português, Español 
 
 ### Installation
 

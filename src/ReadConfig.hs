@@ -53,7 +53,7 @@ instance Exception ConfigParseError
 
 englishSyns = [ "english"
               , "en"
-              , "en-US"
+              , "en-us"
               , "\'murican"
               ]
 
@@ -62,10 +62,10 @@ pirateSyns = [ "pirate"
              ]
 
 portugueseSyns = [ "portuguese"
-                , "português"
-                , "portugues"
-                , "pt"
-                ]
+                 , "português"
+                 , "portugues"
+                 , "pt"
+                 ]
 
 ------------------------------
 --------- Functions ----------
