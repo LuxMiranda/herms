@@ -53,6 +53,10 @@ instance Exception ConfigParseError
 ------ Language Synonyms -----
 ------------------------------
 
+-- Contributor's note: Make sure that all of these synonyms are lower-case as
+-- we handle case-sensitivity by first converting the user's settings input
+-- to all lower-case.
+
 englishSyns = [ "english"
               , "en"
               , "en-us"
