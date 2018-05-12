@@ -71,7 +71,9 @@ portugueseSyns = [ "portuguese"
 
 frenchSyns = [ "french"
               , "fr"
-              , "fr-FR"
+              , "fr-fr"
+              , "français"
+              , "francais"
               ]
 
 
