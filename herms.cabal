@@ -16,7 +16,7 @@ tested-with:        GHC == 8.4.1
 -- PVP summary:      +-+------- New features or improvements with significant API change
 --                   | | +----- Bugfixes and improvements with minor change to API
 --                   | | | +--- Bugfixes and improvements with no change to API
-version:             1.9.0.0
+version:             1.9.0.1
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes

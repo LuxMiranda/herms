@@ -19,11 +19,11 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 - Import recipe files
 - Generate shopping lists
 - Keep track of recipes with tags
-- Set default unit systems, serving sizes, and recipe file path in ``config.hs``
+- Set default unit systems, serving sizes, language, and recipe file path in ``config.hs``
 
 ### What's new:
-- Yarr! Herm's now supports both English and Pirate! Simply make it ``language = "pirate"`` in your ``config.hs``!
-- "Pirate" is but the first language that Herm's is now capable of supporting. We need your help to translate it into others! Currently in progress: Português, Español 
+- Bonjour! Herm's now has language support for Français (French), English, and Pirate. Set your language preferences in ``config.hs``!
+- These are but the first languages that Herm's is now capable of supporting. We need your help to translate it into others! Currently in progress: Português (Portuguese), Español (Spanish)
 
 ### Installation
 
@@ -49,7 +49,7 @@ stack install
 
 ##### Via Hackage and Cabal:
 
-_Note_: Your milage may vary with dependency resolution
+_Note_: Your mileage may vary with dependency resolution
 
 ```
 cabal update
@@ -57,8 +57,6 @@ cabal install herms
 ```
 
 ##### Manually with Cabal:
-
-_Note_: Your milage may vary with dependency resolution
 
 ```
 git clone https://github.com/JackKiefer/herms
@@ -132,7 +130,7 @@ Herm's stores its recipes file, ``recipes.herms``,  and configuration file, ``co
 - `defaultUnit` : The default unit system to show recipes in. Options: `Imperial`, `Metric`, `None`. Setting to `None` will simply show recipes in whatever unit system they're stored in.
 - `defaultServingSize` : Default serving size to calculate when showing recipes. Can be any non-negative integer; set to `0` for no default. This can be useful when you're always cooking for the same number of people!
 - `recipesFile` : The recipes file to use. This option currently supports relative (but not absolute) location, as well; if your data directory is `~/herms/data`, for example, and you want a recipe file in your home directoy called `~/GrandmasHugeCookbook.herms`, set this option to `"../../GrandmasHugeCookbook.herms"`.
-- `language` : Human language to use. Currently supported: ``"english"``, ``"pirate"``
+- `language` : Human language to use. Currently supported: ``"Français"``, ``"English"``, ``"Pirate"``
 
 
 ---
