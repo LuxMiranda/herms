@@ -7,6 +7,7 @@ import Data.Typeable
 import Data.Char (toLower)
 import Data.List.Split
 import Lang.Pirate
+import Lang.French
 import Paths_herms
 
 ------------------------------
@@ -32,6 +33,7 @@ data Config = Config
 data Language = English
               | Pirate
               | Portuguese
+              | French
 
 type Translator = String -> String
 
@@ -67,6 +69,12 @@ portugueseSyns = [ "portuguese"
                  , "pt"
                  ]
 
+frenchSyns = [ "french"
+              , "fr"
+              , "fr-FR"
+              ]
+
+
 ------------------------------
 --------- Functions ----------
 ------------------------------
@@ -76,12 +84,15 @@ getLang c
   | isIn englishSyns = English
   -- | isIn portugueseSyns = Portuguese
   | isIn pirateSyns  = Pirate
+  -- | isIn frenchSyns = French
+  | isIn frenchSyns  = French
   where isIn = elem (map toLower $ language c)
 
 getTranslator :: Language -> Translator
 getTranslator lang = case lang of
                        English -> id :: String -> String
                        Pirate  -> pirate
+                       French  -> french
 
 dropComments :: String -> String
 dropComments = unlines . map (head . splitOn "--") . lines
