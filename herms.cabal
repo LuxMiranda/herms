@@ -76,6 +76,7 @@ executable herms
                      , Lang.Strings
                      , Lang.Pirate
                      , Lang.Portuguese
+                     , Lang.French
 
   -- LANGUAGE extensions used by modules in this package.
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
