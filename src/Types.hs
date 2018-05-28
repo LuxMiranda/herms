@@ -7,6 +7,7 @@ import Data.Ratio
 import Data.Ord
 import RichText
 import qualified Lang.Strings as Str
+import Text.Read (readMaybe)
 
 data Ingredient = Ingredient { quantity :: Ratio Int
                              , unit :: String
@@ -103,7 +104,7 @@ readRecipe r = Recipe { recipeName = n, description = des, servingSize = s,
                         ingredients = i, directions = dir, tags = t }
   where n   = concat $ head r
         des = concat $ r !! 1
-        s   = read $ concat $ r !! 2
+        s   = fromMaybe 1 $ readMaybe $ concat $ r !! 2
         i   = adjustIngredients (1 % s) $ readIngredients [r !! 3, r !! 4, r !! 5, r !! 6]
         dir = r !! 7
         unparsedTags = concat (r !! 8)
