@@ -129,7 +129,7 @@ Herm's stores its recipes file, ``recipes.herms``,  and configuration file, ``co
 
 - `defaultUnit` : The default unit system to show recipes in. Options: `Imperial`, `Metric`, `None`. Setting to `None` will simply show recipes in whatever unit system they're stored in.
 - `defaultServingSize` : Default serving size to calculate when showing recipes. Can be any non-negative integer; set to `0` for no default. This can be useful when you're always cooking for the same number of people!
-- `recipesFile` : The recipes file to use. This option currently supports relative (but not absolute) location, as well; if your data directory is `~/herms/data`, for example, and you want a recipe file in your home directoy called `~/GrandmasHugeCookbook.herms`, set this option to `"../../GrandmasHugeCookbook.herms"`.
+- `recipesFile` : The recipes file to use. This option currently supports relative (but not absolute) location, as well; if your data directory is `~/herms/data`, for example, and you want a recipe file in your home directory called `~/GrandmasHugeCookbook.herms`, set this option to `"../../GrandmasHugeCookbook.herms"`.
 - `language` : Human language to use. Currently supported: ``"Français"``, ``"English"``, ``"Pirate"``
 
 

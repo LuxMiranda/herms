@@ -16,7 +16,7 @@ Whim-bam!
 
 ## Feature/Improvement Ideas
 
-A lot of these are quite indepedent from each other. If one looks pretty fun to you, you could probably jump right in!
+A lot of these are quite independent from each other. If one looks pretty fun to you, you could probably jump right in!
 
 - Optional caloric / nutritional information
 - Translation into languages other than English
