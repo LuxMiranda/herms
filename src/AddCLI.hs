@@ -80,12 +80,12 @@ drawUI t st = [ui]
             (str (t Str.tuiServingSize) <+> (hLimit 3 e3)) <=>
             str " " <=>
             str (t Str.tuiHeaders) <=>
-            (str (t Str.tuiIngrs) 
+            (str (t Str.tuiIngrs)
               <+> (hLimit 7 $ vLimit 7 e4)
               <+> (hLimit 9 $ vLimit 7 e5)
               <+> (hLimit 28 $ vLimit 7 e6)
               <+> (hLimit 18 $ vLimit 7 e7))
-              <=> 
+              <=>
             str " " <=>
             (str (t Str.tuiDirs) <+> (hLimit 62 $ vLimit 8 e8)) <=>
             str " " <=>
@@ -102,27 +102,27 @@ appEvent st (T.VtyEvent ev) =
         V.EvKey V.KEsc [] -> M.halt st
         V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
         V.EvKey V.KBackTab [] -> M.continue $ st & focusRing %~ F.focusPrev
-        
+
         -- Ctrl + <Arrow Keys>
-        V.EvKey V.KDown [V.MCtrl] -> 
+        V.EvKey V.KDown [V.MCtrl] ->
           M.continue $ st & focusRing %~ (determineNextFocus FocusDown st)
-        V.EvKey V.KUp [V.MCtrl] -> 
+        V.EvKey V.KUp [V.MCtrl] ->
           M.continue $ st & focusRing %~ (determineNextFocus FocusUp st)
-        V.EvKey V.KRight [V.MCtrl] -> 
+        V.EvKey V.KRight [V.MCtrl] ->
           M.continue $ st & focusRing %~ (determineNextFocus FocusRight st)
-        V.EvKey V.KLeft [V.MCtrl] -> 
+        V.EvKey V.KLeft [V.MCtrl] ->
           M.continue $ st & focusRing %~ (determineNextFocus FocusLeft st)
 
         -- Meta + <h-j-k-l>
-        V.EvKey (V.KChar 'h') [V.MMeta] -> 
+        V.EvKey (V.KChar 'h') [V.MMeta] ->
           M.continue $ st & focusRing %~ (determineNextFocus FocusLeft st)
-        V.EvKey (V.KChar 'j') [V.MMeta] -> 
+        V.EvKey (V.KChar 'j') [V.MMeta] ->
           M.continue $ st & focusRing %~ (determineNextFocus FocusDown st)
-        V.EvKey (V.KChar 'k') [V.MMeta] -> 
+        V.EvKey (V.KChar 'k') [V.MMeta] ->
           M.continue $ st & focusRing %~ (determineNextFocus FocusUp st)
-        V.EvKey (V.KChar 'l') [V.MMeta] -> 
+        V.EvKey (V.KChar 'l') [V.MMeta] ->
           M.continue $ st & focusRing %~ (determineNextFocus FocusRight st)
- 
+
         _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
                Just RecipeName -> T.handleEventLensed st edit1 E.handleEditorEvent ev
                Just Description -> T.handleEventLensed st edit2 E.handleEditorEvent ev
@@ -137,9 +137,9 @@ appEvent st (T.VtyEvent ev) =
 appEvent st _ = M.continue st
 
 determineNextFocus :: FocusChange -> St -> F.FocusRing n -> F.FocusRing n
-determineNextFocus action st = 
+determineNextFocus action st =
   case action of
-    FocusDown -> case currentFocus of 
+    FocusDown -> case currentFocus of
         Just RecipeName -> (F.focusNext)
         Just Description -> (F.focusNext)
         Just ServingSize -> (F.focusNext)
@@ -227,9 +227,9 @@ getEdit t name desc serving amounts units ingrs attrs dirs tags = do
              , E.getEditContents $ st^.edit5
              , E.getEditContents $ st^.edit6
              , E.getEditContents $ st^.edit7
-             , E.getEditContents $ st^.edit8 
+             , E.getEditContents $ st^.edit8
              , E.getEditContents $ st^.edit9
-             ] 
+             ]
 
 getAddInput :: Translator -> IO ([[String]])
 getAddInput t = do 
@@ -241,6 +241,6 @@ getAddInput t = do
              , E.getEditContents $ st^.edit5
              , E.getEditContents $ st^.edit6
              , E.getEditContents $ st^.edit7
-             , E.getEditContents $ st^.edit8 
+             , E.getEditContents $ st^.edit8
              , E.getEditContents $ st^.edit9
-             ] 
+             ]
