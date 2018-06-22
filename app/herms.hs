@@ -75,7 +75,7 @@ saveOrDiscard input oldRecp = do
     saveOrDiscard input oldRecp
 
 add :: HermsReader IO ()
-add = do 
+add = do
   (config, recipeBook) <- ask
   input <- liftIO $ getAddInput (translator config)
   saveOrDiscard input Nothing
@@ -93,7 +93,7 @@ doEdit recp origRecp = do
         ingrs    = toStr ingredientName
         dirs     = unlines (directions recp)
         attrs    = toStr attribute
-        tag      = unlines (tags recp)
+        tag      = unwords (tags recp)
 
 edit :: String -> HermsReader IO ()
 edit target = do
