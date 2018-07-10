@@ -120,6 +120,9 @@ editDesc = "edit a recipe"
 import'    = "import"
 importDesc = "import a recipe file"
 
+export     = "export"
+exportDesc = "export recipes to stdout"
+
 remove     = "remove"
 removeDesc = "remove the particular recipes"
 
