@@ -84,6 +84,8 @@ Usage:
         herms edit RECIPE_NAME                          edit a recipe
 
         herms import FILE_NAME                          import a recipe file
+        
+        herms export DESTINATION                        export recipes to DESTINATION
 
         herms remove RECIPE_NAMES                       remove the particular recipes
 

@@ -16,7 +16,7 @@ tested-with:        GHC == 8.4.1
 -- PVP summary:      +-+------- New features or improvements with significant API change
 --                   | | +----- Bugfixes and improvements with minor change to API
 --                   | | | +--- Bugfixes and improvements with no change to API
-version:             1.9.0.1
+version:             1.9.0.2
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes
@@ -90,7 +90,7 @@ executable herms
                      , microlens-th >=0.4 && <0.5
                      , mtl >= 2.2.1 && <= 2.2.2
                      , optparse-applicative >=0.14 && <0.15
-                     , semigroups >= 0.18.3 && <= 0.18.4
+                     , semigroups >= 0.18.3 && < 0.19
                      , split >=0.2 && <0.3
                      , vty >=5.15 && < 5.22
 
