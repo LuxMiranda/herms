@@ -1,4 +1,5 @@
 # This file has been generated -- see https://github.com/hvr/multi-ghc-travis
+# hlint-related material was added manually
 language: c
 sudo: false
 
@@ -15,13 +16,13 @@ matrix:
   include:
     - env: CABALVER=1.24 GHCVER=8.0.2
       compiler: ": #GHC 8.0.2"
-      addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.2], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [hlint,cabal-install-1.24,ghc-8.0.2], sources: [hvr-ghc]}}
     - env: CABALVER=2.0 GHCVER=8.2.1
       compiler: ": #GHC 8.2.1"
-      addons: {apt: {packages: [cabal-install-2.0,ghc-8.2.1], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [hlint,cabal-install-2.0,ghc-8.2.1], sources: [hvr-ghc]}}
     - env: CABALVER=2.0 GHCVER=8.4.1
       compiler: ": #GHC 8.4.1"
-      addons: {apt: {packages: [cabal-install-2.0,ghc-8.4.1], sources: [hvr-ghc]}}
+      addons: {apt: {packages: [hlint,cabal-install-2.0,ghc-8.4.1], sources: [hvr-ghc]}}
 
 before_install:
  - unset CC
@@ -72,6 +73,8 @@ script:
  - cabal test
  - cabal check
  - cabal sdist   # tests that a source-distribution can be generated
+
+ - hlint app src
 
 # Check that the resulting source distribution can be built & installed.
 # If there are no other `.tar.gz` files in `dist`, this can be even simpler:

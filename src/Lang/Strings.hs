@@ -3,15 +3,15 @@ module Lang.Strings where
 --------------------------
 ---- Add Recipe TUI ------
 --------------------------
-  
+
 -- *** Note: Whitespace is important!!! ***
-  
+
 tuiTitle       = "                                    Herm's - Add a recipe"
 tuiName        = "          Name: "
 tuiDesc        = "   Description: "
 tuiServingSize = "  Serving size: "
 tuiHeaders     = "                  qty.   unit               name                attribute"
-tuiIngrs       = "  Ingredients: \n(one per line)  " 
+tuiIngrs       = "  Ingredients: \n(one per line)  "
 tuiDirs        = "   Directions: \n(one per line)  "
 tuiTags        = "          Tags: "
 tuiHelp1       = "                      Tab / Shift+Tab           - Next / Previous field"
@@ -32,13 +32,13 @@ headerIngrs = "\nIngredients:\n"
 
 saveRecipeYesNoEdit = "Save recipe? (Y)es  (N)o  (E)dit"
 
-y    = "y" 
+y    = "y"
 yCap = "Y"
 
-n    = "n" 
+n    = "n"
 nCap = "N"
 
-e    = "e" 
+e    = "e"
 eCap = "E"
 
 recipeSaved = "Recipe saved!"
@@ -66,7 +66,7 @@ removingRecipe = "Removing recipe: "
 --------------------------
 --   Options and Flags  --
 --------------------------
- 
+
 group      = "group"
 groupShort = 'g'
 groupDesc  = "group recipes by tags"
@@ -104,7 +104,7 @@ fileNameDesc    = "file name"
 --------------------------
 -- Commands             --
 --------------------------
- 
+
 list     = "list"
 listDesc = "list recipes"
 
@@ -136,5 +136,5 @@ versionDesc  = "Show version"
 --------------------------
 --     Misc             --
 --------------------------
- 
+
 progDesc = "HeRM's: a Haskell-based Recipe Manager. Type \"herms --help\" for options"

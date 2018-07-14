@@ -8,7 +8,7 @@ pirate str
   | is tuiName        = "  Giv'r a name: "
   | is tuiDesc        = "    Describin': "
   | is tuiServingSize = "  Servin' size: "
-  | is tuiIngrs       = "     Reagents: \n(one per line)  " 
+  | is tuiIngrs       = "     Reagents: \n(one per line)  "
   | is tuiHelp1       = "                      Tab / Shift+Tab           - Next / Previous bay"
   | is tuiHelp2       = "                      Ctrl + <Arrow keys>       - Navigate the sea"
   | is tuiHelp3       = "                      [Meta or Alt] + <h-j-k-l> - Navigate the sea"

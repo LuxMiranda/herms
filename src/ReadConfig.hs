@@ -13,7 +13,7 @@ import Paths_herms
 ------------------------------
 ------- Config Types ---------
 ------------------------------
-  
+
 -- TODO Allow record synonyms with that fancy stuff
 
 data ConfigInfo = ConfigInfo
@@ -28,7 +28,7 @@ data Config = Config
   , defaultServingSize' :: Int
   , recipesFile'        :: String
   , translator          :: String -> String
-  } 
+  }
 
 data Language = English
               | Pirate
@@ -41,7 +41,7 @@ type Translator = String -> String
 ---- Exception Handling ------
 ------------------------------
 
-data ConfigParseError = ConfigParseError 
+data ConfigParseError = ConfigParseError
   deriving Typeable
 
 instance Show ConfigParseError where
