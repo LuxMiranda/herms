@@ -7,7 +7,6 @@ module RichText (
 import Data.String
 import System.Console.ANSI
 import System.IO
-import Debug.Trace
 
 class Text t where
   toStr :: Bool -> t -> String

@@ -65,6 +65,9 @@ executable herms
   -- .hs or .lhs file containing the Main module.
   main-is:             herms.hs
 
+  Ghc-Options:         -W -Wcompat
+                       -Wunrecognised-warning-flags
+
   -- Modules included in this executable, other than Main.
   other-modules:       Utils
                      , AddCLI

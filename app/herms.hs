@@ -76,13 +76,13 @@ saveOrDiscard input oldRecp = do
 
 add :: HermsReader IO ()
 add = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   input <- liftIO $ getAddInput (translator config)
   saveOrDiscard input Nothing
 
 doEdit :: Recipe -> Maybe Recipe -> HermsReader IO ()
 doEdit recp origRecp = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   input <- liftIO $ getEdit (translator config) (recipeName recp) (description recp) serving amounts units ingrs attrs dirs tag
   saveOrDiscard input origRecp
   where serving  = show $ servingSize recp
@@ -163,7 +163,7 @@ viewByStep targets serv convName = do
 
 viewRecipeByStep :: Recipe -> Maybe Int -> HermsReader IO ()
 viewRecipeByStep recp servings = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   let t = translator config
   liftIO $ putText $ showRecipeHeader t recp servings
   let steps = showRecipeSteps recp
@@ -174,7 +174,7 @@ viewRecipeByStep recp servings = do
 
 list :: [String] -> Bool -> Bool -> HermsReader IO ()
 list inputTags groupByTags nameOnly = do
-  (config,recipes) <- ask
+  (_, recipes) <- ask
   let recipesWithIndex = zip [1..] recipes
   let targetRecipes    = filterByTags inputTags recipesWithIndex
   if groupByTags
@@ -189,7 +189,7 @@ filterByTags inputTags = filter (inTags . tags . snd)
 
 listDefault :: Bool -> [(Int, Recipe)] -> HermsReader IO ()
 listDefault nameOnly (unzip -> (indices, recipes)) = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   let recipeList = map (showRecipeInfo (translator config)) recipes
       size       = length $ show $ length recipeList
       strIndices = map (padLeft size . show) indices
@@ -199,7 +199,7 @@ listDefault nameOnly (unzip -> (indices, recipes)) = do
 
 listByTags :: Bool -> [String] -> [(Int, Recipe)] -> HermsReader IO ()
 listByTags nameOnly inputTags recipesWithIdx = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   let tagsRecipes :: [[(String, (Int, Recipe))]]
       tagsRecipes =
         groupBy ((==) `on` fst) $ sortBy (compare `on` fst) $
@@ -276,7 +276,7 @@ removeSilent = removeWithVerbosity False
 
 shop :: [String] -> Int -> HermsReader IO ()
 shop targets serv = do
-  (config, recipeBook) <- ask
+  (_, recipeBook) <- ask
   let getFactor recp
         | serv == 0 = servingSize recp % 1
         | otherwise = serv % 1
@@ -340,7 +340,7 @@ data Command = List   [String] Bool Bool         -- ^ shows recipes
              | Shop   [String] Int               -- ^ generates the shopping list for given recipes
              | DataDir                           -- ^ prints the directory of recipe file and config.hs
 
-listP, addP, viewP, editP, importP, shopP, dataDirP :: Translator -> Parser Command
+listP, addP, viewP, editP, importP, removeP, shopP, dataDirP :: Translator -> Parser Command
 listP    t = List   <$> (words <$> (tagsP t)) <*> (groupByTagsP t) <*> (nameOnlyP t)
 addP     _ = pure Add
 editP    t = Edit   <$> (recipeNameP t)

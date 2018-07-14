@@ -3,7 +3,6 @@
 {-# LANGUAGE RankNTypes #-}
 module AddCLI where
 
-import Control.Monad
 import Lens.Micro
 import Lens.Micro.TH
 import qualified Graphics.Vty as V
