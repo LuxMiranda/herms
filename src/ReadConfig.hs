@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 module ReadConfig where
 
 import UnitConversions
@@ -8,7 +9,8 @@ import Data.Char (toLower)
 import Data.List.Split
 import Lang.Pirate
 import Lang.French
-import Paths_herms
+import System.FilePath ((</>))
+import System.Directory
 
 ------------------------------
 ------- Config Types ---------
@@ -26,6 +28,8 @@ data ConfigInfo = ConfigInfo
 data Config = Config
   { defaultUnit'        :: Conversion
   , defaultServingSize' :: Int
+  , dataDir             :: String
+  , configDir           :: String
   , recipesFile'        :: String
   , translator          :: String -> String
   } 
@@ -103,19 +107,44 @@ getTranslator lang = case lang of
 dropComments :: String -> String
 dropComments = unlines . map (head . splitOn "--") . lines
 
-processConfig :: ConfigInfo -> Config
-processConfig raw = Config
+processConfig :: FilePath -> FilePath -> ConfigInfo -> Config
+processConfig dataDir configDir raw = Config
   { defaultUnit'        = defaultUnit raw
   , defaultServingSize' = defaultServingSize raw
-  , recipesFile'        = recipesFile raw
+  , recipesFile'        = dataDir </> recipesFile raw
   , translator          = getTranslator $ getLang raw
+  , dataDir             = dataDir
+  , configDir           = configDir
   }
+
+-- | The directory of the config.hs file. Its location is dictated by
+--   <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html XDG
+--   Base Directory Specification>.
+getConfigDir :: IO FilePath
+getConfigDir = getXdgDirectory XdgConfig "herms"
+
+-- | The directory of the recipes.herms file.
+getDataDir :: IO FilePath
+getDataDir = getXdgDirectory XdgData "herms"
+
+-- | Create a directory if it doesn't exist, ensure it is readable,
+-- writable, and executable.
+directoryWithPermissions :: FilePath -> IO ()
+directoryWithPermissions dir = do
+  createDirectoryIfMissing True dir
+  setPermissions dir $
+    setOwnerReadable True $
+    setOwnerWritable True $
+    setOwnerExecutable True $
+    emptyPermissions
 
 getConfig :: IO Config
 getConfig = do
-  fileName <- getDataFileName "config.hs"
-  contents <- readFile fileName
+  configDir <- getConfigDir
+  dataDir   <- getDataDir
+  mapM_ (directoryWithPermissions) [configDir, dataDir]
+  contents  <- readFile (configDir </> "config.hs")
   let result = TR.readEither (dropComments contents) :: Either String ConfigInfo
   case result of
     Left str -> throw ConfigParseError
-    Right r  -> return (processConfig r)
+    Right r -> return (processConfig configDir dataDir r)

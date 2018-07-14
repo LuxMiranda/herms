@@ -24,6 +24,8 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 ### What's new:
 - Bonjour! Herm's now has language support for Français (French), English, and Pirate. Set your language preferences in ``config.hs``!
 - These are but the first languages that Herm's is now capable of supporting. We need your help to translate it into others! Currently in progress: Português (Portuguese), Español (Spanish)
+- Herm's now conforms to the [XDG Base Directory Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html). In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms` and `~/.local/share/herms` respectively on most Linux systems.
+
 
 ### Installation
 
@@ -93,7 +95,7 @@ Usage:
 
         herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
 
-        herms datadir                                  print location of recipe and config files
+        herms datadir                                  show locations of recipe and config files
 
 Available options:
 
@@ -123,7 +125,15 @@ Available options:
 
 #### Configuring Herm's and managing recipe files
 
-Herm's stores its recipes file, ``recipes.herms``,  and configuration file, ``config.hs``, in the same directory. Herm's keeps track of its location! Run ``herms datadir`` to see the full directory path.
+Herm's stores files in the following locations:
+
+- The configuration file, `config.hs` in the XDG configuration directory,
+  typically `~/.config/herms` on most Linux systems
+
+- The recipes file, `recipes.herms` in the XDG data directory,
+  typically `~/.local/share/herms` on most Linux systems
+
+To see where these are stored on your system, run ``herms datadir``.
 
 ``config.hs`` is a pseudo-Haskell-source-code file with several options for configuring the behaviour of Herm's. It currently supports the following options:
 
