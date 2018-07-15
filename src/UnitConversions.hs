@@ -3,7 +3,7 @@ module UnitConversions where
 import Data.List
 import Data.Ratio
 import Data.Char (toLower)
-import Types 
+import Types
 
 data Conversion = Metric | Imperial | None deriving (Show, Read, Eq)
 

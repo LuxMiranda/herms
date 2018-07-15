@@ -1,5 +1,5 @@
 {-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE LambdaCase #-}
+
 
 module Main where
 
@@ -49,22 +49,22 @@ saveOrDiscard input oldRecp = do
   let newRecipe = readRecipe input
   liftIO $ putTextLn $ showRecipe t newRecipe Nothing
   liftIO $ putStrLn (t Str.saveRecipeYesNoEdit)
-  response <- liftIO $ getLine
-  if response == (t Str.y) || response == (t Str.yCap)
+  response <- liftIO getLine
+  if response == t Str.y || response == t Str.yCap
     then do
     let recpName = maybe (recipeName newRecipe) recipeName oldRecp
     unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
     liftIO $ appendFile (recipesFile' config) (show newRecipe ++ "\n")
     liftIO $ putStrLn (t Str.recipeSaved)
-  else if response == (t Str.n) || response == (t Str.nCap)
+  else if response == t Str.n || response == t Str.nCap
     then
     liftIO $ putStrLn (t Str.changesDiscarded)
-  else if response == (t Str.e) || response == (t Str.eCap)
+  else if response == t Str.e || response == t Str.eCap
     then
     doEdit newRecipe oldRecp
   else
     do
-    liftIO $ putStrLn ("\n" ++ (t Str.badEntry) ++ "\n")
+    liftIO $ putStrLn ("\n" ++ t Str.badEntry ++ "\n")
     saveOrDiscard input oldRecp
 
 add :: HermsReader IO ()
@@ -93,7 +93,7 @@ edit target = do
   (config, recipeBook) <- ask
   let t = translator config
   case readRecipeRef target recipeBook of
-    Nothing   -> liftIO $ putStrLn $ target ++ (t Str.doesNotExist)
+    Nothing   -> liftIO $ putStrLn $ target ++ t Str.doesNotExist
     Just recp -> doEdit recp (Just recp)
   -- Only supports editing one recipe per command
 
@@ -130,8 +130,8 @@ getServingsAndConv serv convName config = (servings, conv)
                    i -> Just i
         t = translator config
         conv
-          | convName  == (t Str.metric)   =  Metric
-          | convName  == (t Str.imperial) =  Imperial
+          | convName  == t Str.metric   =  Metric
+          | convName  == t Str.imperial =  Imperial
           | otherwise = defaultUnit' config
 
 view :: [String] -> Int -> String -> HermsReader IO ()
@@ -141,7 +141,7 @@ view targets serv convName = do
   let (servings, conv) = getServingsAndConv serv convName config
   liftIO $ forM_ targets $ \ target ->
     putText $ case readRecipeRef target recipeBook of
-      Nothing   -> target ~~ (t Str.doesNotExist)
+      Nothing   -> target ~~ t Str.doesNotExist
       Just recp -> showRecipe t (convertRecipeUnits conv recp) servings
 
 viewByStep :: [String] -> Int -> String -> HermsReader IO ()
@@ -151,7 +151,7 @@ viewByStep targets serv convName = do
   let (servings, conv) = getServingsAndConv serv convName config
   liftIO $ hSetBuffering stdout NoBuffering
   forM_ targets $ \ target -> case readRecipeRef target recipeBook of
-    Nothing   -> liftIO $ putStr $ target ++ (t Str.doesNotExist)
+    Nothing   -> liftIO $ putStr $ target ++ t Str.doesNotExist
     Just recp -> viewRecipeByStep (convertRecipeUnits conv recp) servings
 
 viewRecipeByStep :: Recipe -> Maybe Int -> HermsReader IO ()
@@ -161,7 +161,7 @@ viewRecipeByStep recp servings = do
   liftIO $ putText $ showRecipeHeader t recp servings
   let steps = showRecipeSteps recp
   liftIO $ forM_ (init steps) $ \ step -> do
-    putStr $ step ++ (t Str.more)
+    putStr $ step ++ t Str.more
     getLine
   liftIO $ putStr $ last steps ++ "\n"
 
@@ -211,7 +211,7 @@ showRecipeInfo t recipe = name ~~ "\n\t" ~~ desc ~~ "\n\t[" ~~ tagsStr ~~ ": " ~
   where name     = fontColor Blue $ recipeName recipe
         desc     = (takeFullWords . description) recipe
         showTags = fontColor Green $ (intercalate ", " . tags) recipe
-        tagsStr  = fontColor White $ (t Str.capTags)
+        tagsStr  = fontColor White (t Str.capTags)
 
 takeFullWords :: String -> String
 takeFullWords = unwords . takeFullWords' 0 . words
@@ -253,8 +253,8 @@ removeWithVerbosity v targets = do
     -- remove anything
     let mrecp = readRecipeRef target recipeBook
     () <- putStr $ case mrecp of
-       Nothing -> target ++ (t Str.doesNotExist)
-       Just r  -> guard v *> (t Str.removingRecipe) ++ recipeName r ++ "...\n"
+       Nothing -> target ++ t Str.doesNotExist
+       Just r  -> guard v *> t Str.removingRecipe ++ recipeName r ++ "...\n"
     return mrecp
   -- Remove all the resolved recipes at once
   let newRecipeBook = recipeBook \\ catMaybes mrecipes
@@ -301,9 +301,9 @@ runWithOpts Add                                     = add
 runWithOpts (Edit target)                           = edit target
 runWithOpts (Import target)                         = importFile target
 runWithOpts (Remove targets)                        = remove targets
-runWithOpts (View targets serving step conversion)  = if step 
+runWithOpts (View targets serving step conversion)  = if step
                                                       then viewByStep targets serving conversion
-                                                      else view targets serving conversion 
+                                                      else view targets serving conversion
 runWithOpts (Shop targets serving)                  = shop targets serving
 runWithOpts DataDir                                 = printDataDir
 
@@ -323,13 +323,13 @@ data Command = List   [String] Bool Bool         -- ^ shows recipes
              | DataDir                           -- ^ prints the directories of recipe file and config.hs
 
 listP, addP, viewP, editP, importP, shopP, dataDirP :: Translator -> Parser Command
-listP    t = List   <$> (words <$> (tagsP t)) <*> (groupByTagsP t) <*> (nameOnlyP t)
+listP    t = List   <$> (words <$> tagsP t) <*> groupByTagsP t <*> nameOnlyP t
 addP     _ = pure Add
-editP    t = Edit   <$> (recipeNameP t)
-importP  t = Import <$> (fileNameP t)
-removeP  t = Remove <$> (severalRecipesP t)
-viewP    t = View   <$> (severalRecipesP t) <*> (servingP t) <*> (stepP t) <*> (conversionP t)
-shopP    t = Shop   <$> (severalRecipesP t) <*> (servingP t)
+editP    t = Edit   <$> recipeNameP t
+importP  t = Import <$> fileNameP t
+removeP  t = Remove <$> severalRecipesP t
+viewP    t = View   <$> severalRecipesP t <*> servingP t <*> stepP t <*> conversionP t
+shopP    t = Shop   <$> severalRecipesP t <*> servingP t
 dataDirP _ = pure DataDir
 
 
@@ -433,6 +433,6 @@ versionOption = infoOption versionStr
 
 -- @prsr is the main parser of all CLI arguments.
 commandPI :: Translator -> ParserInfo Command
-commandPI t = info ( helper <*> versionOption <*> (optP t))
+commandPI t = info ( helper <*> versionOption <*> optP t)
           $  fullDesc
           <> progDesc (t Str.progDesc)

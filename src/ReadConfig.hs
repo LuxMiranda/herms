@@ -1,4 +1,4 @@
-{-# LANGUAGE LambdaCase #-}
+
 module ReadConfig where
 
 import UnitConversions
@@ -15,7 +15,7 @@ import System.Directory
 ------------------------------
 ------- Config Types ---------
 ------------------------------
-  
+
 -- TODO Allow record synonyms with that fancy stuff
 
 data ConfigInfo = ConfigInfo
@@ -32,7 +32,7 @@ data Config = Config
   , configDir           :: String
   , recipesFile'        :: String
   , translator          :: String -> String
-  } 
+  }
 
 data Language = English
               | Pirate
@@ -45,7 +45,7 @@ type Translator = String -> String
 ---- Exception Handling ------
 ------------------------------
 
-data ConfigParseError = ConfigParseError 
+data ConfigParseError = ConfigParseError
   deriving Typeable
 
 instance Show ConfigParseError where
@@ -135,14 +135,14 @@ directoryWithPermissions dir = do
   setPermissions dir $
     setOwnerReadable True $
     setOwnerWritable True $
-    setOwnerExecutable True $
+    setOwnerExecutable True
     emptyPermissions
 
 getConfig :: IO Config
 getConfig = do
   configDir <- getConfigDir
   dataDir   <- getDataDir
-  mapM_ (directoryWithPermissions) [configDir, dataDir]
+  mapM_ directoryWithPermissions [configDir, dataDir]
   contents  <- readFile (configDir </> "config.hs")
   let result = TR.readEither (dropComments contents) :: Either String ConfigInfo
   case result of
