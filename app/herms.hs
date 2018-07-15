@@ -11,6 +11,7 @@ import Data.Function
 import Data.List
 import Data.Maybe
 import Data.Semigroup ((<>))
+import Data.String    (IsString(..))
 import Data.Ratio
 import Control.Applicative
 import Options.Applicative hiding (str)
@@ -127,6 +128,15 @@ importFile target = do
     putStrLn (t Str.importedRecipes)
     forM_ otherRecipeBook $ \recipe ->
       putStrLn $ "  " ++ recipeName recipe
+
+export :: [String] -> HermsReader IO ()
+export targets = do
+  (config, recipeBook) <- ask
+  let t = translator config
+  liftIO $ forM_ targets $ \ target ->
+    putText $ case readRecipeRef target recipeBook of
+      Nothing   -> target ~~ t Str.doesNotExist
+      Just recp -> fromString $ show recp
 
 getServingsAndConv :: Int -> String -> Config -> (Maybe Int, Conversion)
 getServingsAndConv serv convName config = (servings, conv)
@@ -318,6 +328,7 @@ runWithOpts (List tags group nameOnly)              = list tags group nameOnly
 runWithOpts Add                                     = add
 runWithOpts (Edit target)                           = edit target
 runWithOpts (Import target)                         = importFile target
+runWithOpts (Export targets)                        = export targets
 runWithOpts (Remove targets)                        = remove targets
 runWithOpts (View targets serving step conversion)  = if step
                                                       then viewByStep targets serving conversion
@@ -336,20 +347,21 @@ data Command = List   [String] Bool Bool         -- ^ shows recipes
              | Add                               -- ^ adds the recipe (interactively)
              | Edit    String                    -- ^ edits the recipe
              | Import  String                    -- ^ imports a recipe file
+             | Export  [String]                  -- ^ exports recipes to stdout
              | Remove [String]                   -- ^ removes specified recipes
              | Shop   [String] Int               -- ^ generates the shopping list for given recipes
              | DataDir                           -- ^ prints the directory of recipe file and config.hs
 
-listP, addP, viewP, editP, importP, removeP, shopP, dataDirP :: Translator -> Parser Command
+listP, addP, viewP, editP, importP, exportP, removeP, shopP, dataDirP :: Translator -> Parser Command
 listP    t = List   <$> (words <$> tagsP t) <*> groupByTagsP t <*> nameOnlyP t
 addP     _ = pure Add
 editP    t = Edit   <$> recipeNameP t
 importP  t = Import <$> fileNameP t
+exportP  t = Export <$> severalRecipesP t
 removeP  t = Remove <$> severalRecipesP t
 viewP    t = View   <$> severalRecipesP t <*> servingP t <*> stepP t <*> conversionP t
 shopP    t = Shop   <$> severalRecipesP t <*> servingP t
 dataDirP _ = pure DataDir
-
 
 -- | @groupByTagsP is flag for grouping recipes by tags
 groupByTagsP :: Translator -> Parser Bool
@@ -433,6 +445,9 @@ optP t = subparser
      <> command (t Str.import')
                 (info  (helper <*> importP t)
                        (progDesc (t Str.importDesc)))
+     <> command (t Str.export)
+                (info  (helper <*> exportP t)
+                       (progDesc (t Str.exportDesc)))
      <> command (t Str.remove)
                 (info  (helper <*> removeP t)
                        (progDesc (t Str.removeDesc)))
