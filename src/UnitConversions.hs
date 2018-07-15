@@ -1,9 +1,7 @@
 module UnitConversions where
 
-import Data.List
-import Data.Ratio
 import Data.Char (toLower)
-import Types 
+import Types
 
 data Conversion = Metric | Imperial | None deriving (Show, Read, Eq)
 
@@ -108,7 +106,7 @@ convertIngredientToMetric ingr =
         Just "pint"  -> ingr{quantity = qty * 473, unit = "mL"}
         Just "quart" -> ingr{quantity = qty * 946, unit = "mL"}
         Just "gallon"-> ingr{quantity = qty * 3.785, unit = "L"}
-        Nothing      -> ingr
+        _            -> ingr
     where
         units = unit ingr
         qty = quantity ingr

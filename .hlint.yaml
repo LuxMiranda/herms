@@ -1,0 +1,3 @@
+---
+- ignore: {name: "Reduce duplication"}
+- ignore: {name: "Parse error"}  # we trust the compiler over HLint

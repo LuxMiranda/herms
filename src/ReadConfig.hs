@@ -13,7 +13,7 @@ import Paths_herms
 ------------------------------
 ------- Config Types ---------
 ------------------------------
-  
+
 -- TODO Allow record synonyms with that fancy stuff
 
 data ConfigInfo = ConfigInfo
@@ -28,7 +28,7 @@ data Config = Config
   , defaultServingSize' :: Int
   , recipesFile'        :: String
   , translator          :: String -> String
-  } 
+  }
 
 data Language = English
               | Pirate
@@ -41,7 +41,7 @@ type Translator = String -> String
 ---- Exception Handling ------
 ------------------------------
 
-data ConfigParseError = ConfigParseError 
+data ConfigParseError = ConfigParseError
   deriving Typeable
 
 instance Show ConfigParseError where
@@ -87,18 +87,18 @@ frenchSyns = [ "french"
 
 getLang :: ConfigInfo -> Language
 getLang c
-  | isIn englishSyns = English
   -- | isIn portugueseSyns = Portuguese
   | isIn pirateSyns  = Pirate
   -- | isIn frenchSyns = French
   | isIn frenchSyns  = French
+  | otherwise        = English
   where isIn = elem (map toLower $ language c)
 
 getTranslator :: Language -> Translator
 getTranslator lang = case lang of
-                       English -> id :: String -> String
-                       Pirate  -> pirate
-                       French  -> french
+                       Pirate    -> pirate
+                       French    -> french
+                       _         -> id :: String -> String
 
 dropComments :: String -> String
 dropComments = unlines . map (head . splitOn "--") . lines
@@ -117,5 +117,5 @@ getConfig = do
   contents <- readFile fileName
   let result = TR.readEither (dropComments contents) :: Either String ConfigInfo
   case result of
-    Left str -> throw ConfigParseError
-    Right r  -> return (processConfig r)
+    Left  _ -> throw ConfigParseError
+    Right r -> return (processConfig r)

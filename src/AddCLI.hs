@@ -3,7 +3,6 @@
 {-# LANGUAGE RankNTypes #-}
 module AddCLI where
 
-import Control.Monad
 import Lens.Micro
 import Lens.Micro.TH
 import qualified Graphics.Vty as V
@@ -73,23 +72,23 @@ drawUI t st = [ui]
         ui = C.center $
             str (t Str.tuiTitle) <=>
             str " " <=>
-            (str (t Str.tuiName) <+> (hLimit 62 e1)) <=>
+            (str (t Str.tuiName) <+> hLimit 62 e1) <=>
             str " " <=>
-            (str (t Str.tuiDesc) <+> (hLimit 62 $ vLimit 4 e2)) <=>
+            (str (t Str.tuiDesc) <+> hLimit 62 (vLimit 4 e2)) <=>
             str " " <=>
-            (str (t Str.tuiServingSize) <+> (hLimit 3 e3)) <=>
+            (str (t Str.tuiServingSize) <+> hLimit 3 e3) <=>
             str " " <=>
             str (t Str.tuiHeaders) <=>
             (str (t Str.tuiIngrs)
-              <+> (hLimit 7 $ vLimit 7 e4)
-              <+> (hLimit 9 $ vLimit 7 e5)
-              <+> (hLimit 28 $ vLimit 7 e6)
-              <+> (hLimit 18 $ vLimit 7 e7))
+              <+> hLimit 7 (vLimit 7 e4)
+              <+> hLimit 9 (vLimit 7 e5)
+              <+> hLimit 28 (vLimit 7 e6)
+              <+> hLimit 18 (vLimit 7 e7))
               <=>
             str " " <=>
-            (str (t Str.tuiDirs) <+> (hLimit 62 $ vLimit 8 e8)) <=>
+            (str (t Str.tuiDirs) <+> hLimit 62 (vLimit 8 e8)) <=>
             str " " <=>
-            (str (t Str.tuiTags) <+> (hLimit 62 $ vLimit 1 e9)) <=>
+            (str (t Str.tuiTags) <+> hLimit 62 (vLimit 1 e9)) <=>
             str " " <=>
             str (t Str.tuiHelp1) <=>
             str (t Str.tuiHelp2) <=>
@@ -105,23 +104,23 @@ appEvent st (T.VtyEvent ev) =
 
         -- Ctrl + <Arrow Keys>
         V.EvKey V.KDown [V.MCtrl] ->
-          M.continue $ st & focusRing %~ (determineNextFocus FocusDown st)
+          M.continue $ st & focusRing %~ determineNextFocus FocusDown st
         V.EvKey V.KUp [V.MCtrl] ->
-          M.continue $ st & focusRing %~ (determineNextFocus FocusUp st)
+          M.continue $ st & focusRing %~ determineNextFocus FocusUp st
         V.EvKey V.KRight [V.MCtrl] ->
-          M.continue $ st & focusRing %~ (determineNextFocus FocusRight st)
+          M.continue $ st & focusRing %~ determineNextFocus FocusRight st
         V.EvKey V.KLeft [V.MCtrl] ->
-          M.continue $ st & focusRing %~ (determineNextFocus FocusLeft st)
+          M.continue $ st & focusRing %~ determineNextFocus FocusLeft st
 
         -- Meta + <h-j-k-l>
         V.EvKey (V.KChar 'h') [V.MMeta] ->
-          M.continue $ st & focusRing %~ (determineNextFocus FocusLeft st)
+          M.continue $ st & focusRing %~ determineNextFocus FocusLeft st
         V.EvKey (V.KChar 'j') [V.MMeta] ->
-          M.continue $ st & focusRing %~ (determineNextFocus FocusDown st)
+          M.continue $ st & focusRing %~ determineNextFocus FocusDown st
         V.EvKey (V.KChar 'k') [V.MMeta] ->
-          M.continue $ st & focusRing %~ (determineNextFocus FocusUp st)
+          M.continue $ st & focusRing %~ determineNextFocus FocusUp st
         V.EvKey (V.KChar 'l') [V.MMeta] ->
-          M.continue $ st & focusRing %~ (determineNextFocus FocusRight st)
+          M.continue $ st & focusRing %~ determineNextFocus FocusRight st
 
         _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
                Just RecipeName -> T.handleEventLensed st edit1 E.handleEditorEvent ev
@@ -140,49 +139,49 @@ determineNextFocus :: FocusChange -> St -> F.FocusRing n -> F.FocusRing n
 determineNextFocus action st =
   case action of
     FocusDown -> case currentFocus of
-        Just RecipeName -> (F.focusNext)
-        Just Description -> (F.focusNext)
-        Just ServingSize -> (F.focusNext)
-        Just IngrAmount -> (F.focusNext . F.focusNext . F.focusNext . F.focusNext)
-        Just IngrUnit -> (F.focusNext . F.focusNext . F.focusNext)
-        Just IngrName -> (F.focusNext . F.focusNext)
-        Just IngrAttr -> (F.focusNext)
-        Just Directions -> (F.focusNext)
-        Just Tags -> (F.focusNext)
-        Nothing -> (F.focusNext)
+        Just RecipeName -> F.focusNext
+        Just Description -> F.focusNext
+        Just ServingSize -> F.focusNext
+        Just IngrAmount -> F.focusNext . F.focusNext . F.focusNext . F.focusNext
+        Just IngrUnit -> F.focusNext . F.focusNext . F.focusNext
+        Just IngrName -> F.focusNext . F.focusNext
+        Just IngrAttr -> F.focusNext
+        Just Directions -> F.focusNext
+        Just Tags -> F.focusNext
+        Nothing -> F.focusNext
     FocusUp -> case currentFocus of
-        Just RecipeName -> (F.focusPrev)
-        Just Description -> (F.focusPrev)
-        Just ServingSize -> (F.focusPrev)
-        Just IngrAttr -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-        Just IngrName -> (F.focusPrev . F.focusPrev . F.focusPrev)
-        Just IngrUnit -> (F.focusPrev . F.focusPrev)
-        Just IngrAmount -> (F.focusPrev)
-        Just Directions -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-        Just Tags -> (F.focusPrev)
-        Nothing -> (F.focusPrev)
+        Just RecipeName -> F.focusPrev
+        Just Description -> F.focusPrev
+        Just ServingSize -> F.focusPrev
+        Just IngrAttr -> F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev
+        Just IngrName -> F.focusPrev . F.focusPrev . F.focusPrev
+        Just IngrUnit -> F.focusPrev . F.focusPrev
+        Just IngrAmount -> F.focusPrev
+        Just Directions -> F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev
+        Just Tags -> F.focusPrev
+        Nothing -> F.focusPrev
     FocusLeft -> case currentFocus of
-        Just RecipeName -> (F.focusNext . F.focusNext)
-        Just Description -> (F.focusNext)
-        Just ServingSize -> (F.focusNext)
-        Just IngrAmount -> (F.focusNext . F.focusNext . F.focusNext)
-        Just IngrUnit -> (F.focusPrev)
-        Just IngrName -> (F.focusPrev)
-        Just IngrAttr -> (F.focusPrev)
-        Just Directions -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-        Just Tags -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-        Nothing -> (F.focusNext)
+        Just RecipeName -> F.focusNext . F.focusNext
+        Just Description -> F.focusNext
+        Just ServingSize -> F.focusNext
+        Just IngrAmount -> F.focusNext . F.focusNext . F.focusNext
+        Just IngrUnit -> F.focusPrev
+        Just IngrName -> F.focusPrev
+        Just IngrAttr -> F.focusPrev
+        Just Directions -> F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev
+        Just Tags -> F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev
+        Nothing -> F.focusNext
     FocusRight -> case currentFocus of
-        Just RecipeName -> (F.focusNext . F.focusNext)
-        Just Description -> (F.focusNext)
-        Just ServingSize -> (F.focusNext)
-        Just IngrAmount -> (F.focusNext)
-        Just IngrUnit -> (F.focusNext)
-        Just IngrName -> (F.focusNext)
-        Just IngrAttr -> (F.focusPrev . F.focusPrev . F.focusPrev)
-        Just Directions -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-        Just Tags -> (F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev)
-        Nothing -> (F.focusNext)
+        Just RecipeName -> F.focusNext . F.focusNext
+        Just Description -> F.focusNext
+        Just ServingSize -> F.focusNext
+        Just IngrAmount -> F.focusNext
+        Just IngrUnit -> F.focusNext
+        Just IngrName -> F.focusNext
+        Just IngrAttr -> F.focusPrev . F.focusPrev . F.focusPrev
+        Just Directions -> F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev
+        Just Tags -> F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev . F.focusPrev
+        Nothing -> F.focusNext
   where currentFocus = F.focusGetCurrent $ st^.focusRing
 
 
@@ -217,10 +216,10 @@ theApp t =
           , M.appAttrMap = const theMap
           }
 
-getEdit :: Translator -> String -> String -> String -> String -> String -> String -> String -> String -> String -> IO ([[String]])
+getEdit :: Translator -> String -> String -> String -> String -> String -> String -> String -> String -> String -> IO [[String]]
 getEdit t name desc serving amounts units ingrs attrs dirs tags = do
   st <- M.defaultMain (theApp t) (initialState name desc serving amounts units ingrs attrs dirs tags)
-  return $ [ E.getEditContents $ st^.edit1
+  return [ E.getEditContents $ st^.edit1
              , E.getEditContents $ st^.edit2
              , E.getEditContents $ st^.edit3
              , E.getEditContents $ st^.edit4
@@ -231,10 +230,10 @@ getEdit t name desc serving amounts units ingrs attrs dirs tags = do
              , E.getEditContents $ st^.edit9
              ]
 
-getAddInput :: Translator -> IO ([[String]])
-getAddInput t = do 
+getAddInput :: Translator -> IO [[String]]
+getAddInput t = do
   st <- M.defaultMain (theApp t) (initialState "" "" "" "" "" "" "" "" "")
-  return $ [ E.getEditContents $ st^.edit1
+  return [ E.getEditContents $ st^.edit1
              , E.getEditContents $ st^.edit2
              , E.getEditContents $ st^.edit3
              , E.getEditContents $ st^.edit4
