@@ -91,18 +91,18 @@ frenchSyns = [ "french"
 
 getLang :: ConfigInfo -> Language
 getLang c
-  | isIn englishSyns = English
   -- | isIn portugueseSyns = Portuguese
   | isIn pirateSyns  = Pirate
   -- | isIn frenchSyns = French
   | isIn frenchSyns  = French
+  | otherwise        = English
   where isIn = elem (map toLower $ language c)
 
 getTranslator :: Language -> Translator
 getTranslator lang = case lang of
-                       English -> id :: String -> String
-                       Pirate  -> pirate
-                       French  -> french
+                       Pirate    -> pirate
+                       French    -> french
+                       _         -> id :: String -> String
 
 dropComments :: String -> String
 dropComments = unlines . map (head . splitOn "--") . lines
@@ -146,5 +146,5 @@ getConfig = do
   contents  <- readFile (configDir </> "config.hs")
   let result = TR.readEither (dropComments contents) :: Either String ConfigInfo
   case result of
-    Left str -> throw ConfigParseError
-    Right r -> return (processConfig configDir dataDir r)
+    Left  _ -> throw ConfigParseError
+    Right r -> return (processConfig dataDir configDir r)

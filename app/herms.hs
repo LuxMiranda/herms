@@ -12,6 +12,7 @@ import Data.Function
 import Data.List
 import Data.Maybe
 import Data.Semigroup ((<>))
+import Data.String    (IsString(..))
 import Data.Ratio
 import Control.Applicative
 import Options.Applicative hiding (str)
@@ -69,13 +70,13 @@ saveOrDiscard input oldRecp = do
 
 add :: HermsReader IO ()
 add = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   input <- liftIO $ getAddInput (translator config)
   saveOrDiscard input Nothing
 
 doEdit :: Recipe -> Maybe Recipe -> HermsReader IO ()
 doEdit recp origRecp = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   input <- liftIO $ getEdit (translator config) (recipeName recp) (description recp) serving amounts units ingrs attrs dirs tag
   saveOrDiscard input origRecp
   where serving  = show $ servingSize recp
@@ -121,6 +122,15 @@ importFile target = do
     forM_ otherRecipeBook $ \recipe ->
       putStrLn $ "  " ++ recipeName recipe
 
+export :: [String] -> HermsReader IO ()
+export targets = do
+  (config, recipeBook) <- ask
+  let t = translator config
+  liftIO $ forM_ targets $ \ target ->
+    putText $ case readRecipeRef target recipeBook of
+      Nothing   -> target ~~ t Str.doesNotExist
+      Just recp -> fromString $ show recp
+
 getServingsAndConv :: Int -> String -> Config -> (Maybe Int, Conversion)
 getServingsAndConv serv convName config = (servings, conv)
   where servings = case serv of
@@ -136,7 +146,7 @@ getServingsAndConv serv convName config = (servings, conv)
 
 view :: [String] -> Int -> String -> HermsReader IO ()
 view targets serv convName = do
-  (config,recipeBook) <- ask
+  (config, recipeBook) <- ask
   let t = translator config
   let (servings, conv) = getServingsAndConv serv convName config
   liftIO $ forM_ targets $ \ target ->
@@ -156,7 +166,7 @@ viewByStep targets serv convName = do
 
 viewRecipeByStep :: Recipe -> Maybe Int -> HermsReader IO ()
 viewRecipeByStep recp servings = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   let t = translator config
   liftIO $ putText $ showRecipeHeader t recp servings
   let steps = showRecipeSteps recp
@@ -167,7 +177,7 @@ viewRecipeByStep recp servings = do
 
 list :: [String] -> Bool -> Bool -> HermsReader IO ()
 list inputTags groupByTags nameOnly = do
-  (config,recipes) <- ask
+  (_, recipes) <- ask
   let recipesWithIndex = zip [1..] recipes
   let targetRecipes    = filterByTags inputTags recipesWithIndex
   if groupByTags
@@ -182,7 +192,7 @@ filterByTags inputTags = filter (inTags . tags . snd)
 
 listDefault :: Bool -> [(Int, Recipe)] -> HermsReader IO ()
 listDefault nameOnly (unzip -> (indices, recipes)) = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   let recipeList = map (showRecipeInfo (translator config)) recipes
       size       = length $ show $ length recipeList
       strIndices = map (padLeft size . show) indices
@@ -192,7 +202,7 @@ listDefault nameOnly (unzip -> (indices, recipes)) = do
 
 listByTags :: Bool -> [String] -> [(Int, Recipe)] -> HermsReader IO ()
 listByTags nameOnly inputTags recipesWithIdx = do
-  (config, recipeBook) <- ask
+  (config, _) <- ask
   let tagsRecipes :: [[(String, (Int, Recipe))]]
       tagsRecipes =
         groupBy ((==) `on` fst) $ sortBy (compare `on` fst) $
@@ -268,7 +278,7 @@ removeSilent = removeWithVerbosity False
 
 shop :: [String] -> Int -> HermsReader IO ()
 shop targets serv = do
-  (config, recipeBook) <- ask
+  (_, recipeBook) <- ask
   let getFactor recp
         | serv == 0 = servingSize recp % 1
         | otherwise = serv % 1
@@ -300,6 +310,7 @@ runWithOpts (List tags group nameOnly)              = list tags group nameOnly
 runWithOpts Add                                     = add
 runWithOpts (Edit target)                           = edit target
 runWithOpts (Import target)                         = importFile target
+runWithOpts (Export targets)                        = export targets
 runWithOpts (Remove targets)                        = remove targets
 runWithOpts (View targets serving step conversion)  = if step
                                                       then viewByStep targets serving conversion
@@ -318,20 +329,21 @@ data Command = List   [String] Bool Bool         -- ^ shows recipes
              | Add                               -- ^ adds the recipe (interactively)
              | Edit    String                    -- ^ edits the recipe
              | Import  String                    -- ^ imports a recipe file
+             | Export  [String]                  -- ^ exports recipes to stdout
              | Remove [String]                   -- ^ removes specified recipes
              | Shop   [String] Int               -- ^ generates the shopping list for given recipes
              | DataDir                           -- ^ prints the directories of recipe file and config.hs
 
-listP, addP, viewP, editP, importP, shopP, dataDirP :: Translator -> Parser Command
+listP, addP, viewP, editP, importP, exportP, removeP, shopP, dataDirP :: Translator -> Parser Command
 listP    t = List   <$> (words <$> tagsP t) <*> groupByTagsP t <*> nameOnlyP t
 addP     _ = pure Add
 editP    t = Edit   <$> recipeNameP t
 importP  t = Import <$> fileNameP t
+exportP  t = Export <$> severalRecipesP t
 removeP  t = Remove <$> severalRecipesP t
 viewP    t = View   <$> severalRecipesP t <*> servingP t <*> stepP t <*> conversionP t
 shopP    t = Shop   <$> severalRecipesP t <*> servingP t
 dataDirP _ = pure DataDir
-
 
 -- | @groupByTagsP is flag for grouping recipes by tags
 groupByTagsP :: Translator -> Parser Bool
@@ -415,6 +427,9 @@ optP t = subparser
      <> command (t Str.import')
                 (info  (helper <*> importP t)
                        (progDesc (t Str.importDesc)))
+     <> command (t Str.export)
+                (info  (helper <*> exportP t)
+                       (progDesc (t Str.exportDesc)))
      <> command (t Str.remove)
                 (info  (helper <*> removeP t)
                        (progDesc (t Str.removeDesc)))
