@@ -36,7 +36,9 @@ type HermsReader = ReaderT (Config, RecipeBook)
 
 -- | @getRecipeBookWith reads in recipe book with already read-in config
 getRecipeBookWith :: Config -> IO [Recipe]
-getRecipeBookWith = fmap (map read . lines) . readFile . recipesFile'
+getRecipeBookWith config =
+  fmap (map read . lines) $
+    readFileOrDefault "recipes.herms" (recipesFile' config)
 
 getRecipe :: String -> [Recipe] -> Maybe Recipe
 getRecipe target = listToMaybe . filter ((target ==) . recipeName)
