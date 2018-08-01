@@ -130,7 +130,7 @@ shopping     = "shopping"
 shoppingDesc = "generate a shopping list for given recipes"
 
 datadir     = "datadir"
-datadirDesc = "show location of recipe and config files"
+datadirDesc = "show locations of recipe and config files"
 
 version      = "version"
 versionShort = 'v'

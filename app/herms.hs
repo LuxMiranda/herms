@@ -1,9 +1,10 @@
 {-# LANGUAGE ViewPatterns #-}
 
+
 module Main where
 
-import System.Directory
 import System.IO
+import System.Directory
 import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Reader
@@ -22,7 +23,6 @@ import RichText
 import Types
 import UnitConversions
 import ReadConfig
-import Paths_herms
 import Control.Exception
 import GHC.IO.Exception
 import Foreign.C.Error
@@ -32,17 +32,13 @@ import qualified Lang.Strings as Str
 versionStr :: String
 versionStr = "1.9.0.4"
 
-configPath :: IO FilePath
-configPath = getDataFileName "config.hs"
-
 type HermsReader = ReaderT (Config, RecipeBook)
 
 -- | @getRecipeBookWith reads in recipe book with already read-in config
 getRecipeBookWith :: Config -> IO [Recipe]
-getRecipeBookWith config = do
-  fileName <- getDataFileName (recipesFile' config)
-  contents <- readFile fileName
-  return $ map read $ lines contents
+getRecipeBookWith config =
+  fmap (map read . lines) $
+    readFileOrDefault "recipes.herms" (recipesFile' config)
 
 getRecipe :: String -> [Recipe] -> Maybe Recipe
 getRecipe target = listToMaybe . filter ((target ==) . recipeName)
@@ -61,8 +57,7 @@ saveOrDiscard input oldRecp = do
     then do
     let recpName = maybe (recipeName newRecipe) recipeName oldRecp
     unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
-    fileName <- liftIO $ getDataFileName (recipesFile' config)
-    liftIO $ appendFile fileName (show newRecipe ++ "\n")
+    liftIO $ appendFile (recipesFile' config) (show newRecipe ++ "\n")
     liftIO $ putStrLn (t Str.recipeSaved)
   else if response == t Str.n || response == t Str.nCap
     then
@@ -245,11 +240,10 @@ takeFullWords = unwords . takeFullWords' 0 . words
 --   and finally moves the temporary file over to the target @fp@.
 
 replaceDataFile :: FilePath -> String -> IO ()
-replaceDataFile fp str = do
+replaceDataFile fileName str = do
   (tempName, tempHandle) <- openTempFile "." "herms_temp"
   hPutStr tempHandle str
   hClose tempHandle
-  fileName <- getDataFileName fp
   removeFile fileName
   let exdev e = if ioe_errno e == Just ((\(Errno a) -> a) eXDEV)
                     then copyFile tempName fileName >> removeFile tempName
@@ -301,19 +295,9 @@ shop targets serv = do
 
 printDataDir :: HermsReader IO ()
 printDataDir = do
-  dir <- liftIO getDataDir
-  liftIO $ putStrLn $ filter (/= '\"') (show dir) ++ "/"
-
--- Writes an empty recipes file if it doesn't exist
-checkFileExists :: IO ()
-checkFileExists = do
-  config   <- getConfig
-  fileName <- getDataFileName (recipesFile' config)
-  fileExists <- doesFileExist fileName
-  unless fileExists (do
-    dirName <- getDataDir
-    createDirectoryIfMissing True dirName
-    writeFile fileName "")
+  (config, _) <- ask
+  liftIO $ mapM_ (putStrLn . cleanDirPath) [dataDir config, configDir config]
+  where cleanDirPath = (++ "/") . filter (/= '\"')
 
 main :: IO ()
 main = do
@@ -350,7 +334,7 @@ data Command = List   [String] Bool Bool         -- ^ shows recipes
              | Export  [String]                  -- ^ exports recipes to stdout
              | Remove [String]                   -- ^ removes specified recipes
              | Shop   [String] Int               -- ^ generates the shopping list for given recipes
-             | DataDir                           -- ^ prints the directory of recipe file and config.hs
+             | DataDir                           -- ^ prints the directories of recipe file and config.hs
 
 listP, addP, viewP, editP, importP, exportP, removeP, shopP, dataDirP :: Translator -> Parser Command
 listP    t = List   <$> (words <$> tagsP t) <*> groupByTagsP t <*> nameOnlyP t
