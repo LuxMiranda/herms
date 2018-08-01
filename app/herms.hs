@@ -30,7 +30,7 @@ import qualified Lang.Strings as Str
 
 -- Global constants
 versionStr :: String
-versionStr = "1.9.0.0"
+versionStr = "1.9.0.4"
 
 configPath :: IO FilePath
 configPath = getDataFileName "config.hs"
