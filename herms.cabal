@@ -94,9 +94,9 @@ executable herms
   hs-source-dirs:      app
   main-is:             herms.hs
   default-language:    Haskell2010
-  Ghc-Options:         -W -Wcompat
+  ghc-options:         -W -Wcompat
                        -Wunrecognised-warning-flags
-  ghc-options:         -threaded
+                       -threaded
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
 
   -- Other library packages from which modules are imported.
@@ -122,9 +122,9 @@ test-suite herms-test
                     , Paths_herms
     hs-source-dirs: test
     default-language:    Haskell2010
-    Ghc-Options:         -W -Wcompat
+    ghc-options:         -W -Wcompat
                          -Wunrecognised-warning-flags
-    ghc-options:         -threaded
+                         -threaded
     other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
     build-depends: herms
                  , base -any
@@ -132,6 +132,18 @@ test-suite herms-test
                  , tasty-hunit >= 0.10
                  , tasty-quickcheck >= 0.8
                  , HUnit -any
+
+test-suite doctests
+  type:           exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is:        Doctest.hs
+  other-modules:  Paths_herms
+  default-language:    Haskell2010
+  ghc-options:         -W -Wcompat
+                       -Wunrecognised-warning-flags
+                       -threaded
+  build-depends: base
+               , doctest >= 0.8
 
 source-repository head
   type:     git

@@ -39,6 +39,14 @@ data Recipe = Recipe { recipeName :: String
 
 type RecipeBook = [Recipe]
 
+-- | @showFrac displays improper fractions
+--
+-- >>> showFrac (2 / 3)
+-- "2/3"
+--
+-- >>> showFrac (5 / 4)
+-- "1 1/4"
+--
 showFrac :: Ratio Int -> String
 showFrac x
   | numerator x == denominator x = show (numerator x)
