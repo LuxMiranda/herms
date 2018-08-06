@@ -118,6 +118,8 @@ test-suite herms-test
     type: exitcode-stdio-1.0
     main-is: Main.hs
     other-modules:   UnitConversions.Tests
+                    , ReadConfig.Tests
+                    , Paths_herms
     hs-source-dirs: test
     default-language:    Haskell2010
     Ghc-Options:         -W -Wcompat

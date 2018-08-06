@@ -151,7 +151,7 @@ writeDefaultFile name path = do
 -- doesn't exist, it copies a default version that was installed by cabal
 -- with @writeDefaultFile.
 readFileOrDefault :: String -> FilePath -> IO String
-readFileOrDefault name path = 
+readFileOrDefault name path =
   (try (readFile path) :: IO (Either IOError String)) >>=
     \case
       Left _ -> writeDefaultFile name path >> readFile path
