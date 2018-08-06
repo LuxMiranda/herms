@@ -1,5 +1,9 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Types where
 
+import GHC.Generics
+import Data.Char (toLower)
 import Data.List
 import Data.List.Split
 import Data.Maybe
@@ -9,11 +13,128 @@ import RichText
 import qualified Lang.Strings as Str
 import Text.Read (readMaybe)
 
-data Ingredient = Ingredient { quantity :: Ratio Int
-                             , unit :: String
+data Unit =
+  -- Imperial
+    Tsp
+  | Tbsp
+  | Cup
+  | Oz
+  | FlOz
+  | Lb
+  | Pint
+  | Quart
+  | Gallon
+  -- Metric
+  | Ml -- deceptively, this is milliliters (mL)
+  | L  -- liters (L)
+  | G  -- grams (g)
+  -- Other/unknown
+  | Other String
+  deriving (Eq, Generic, Read, Show, Ord)
+
+-- We don't make this the default "Show" implementation so that
+-- GHC can derive Show and Read instances such that
+-- (read (show u)) == u
+showUnit :: Unit -> String
+showUnit u =
+  case u of
+    -- Imperial
+    Tsp       -> "tsp"
+    Tbsp      -> "Tbsp"
+    Cup       -> "cup"
+    Oz        -> "oz"
+    FlOz      -> "fl oz"
+    Lb        -> "lb"
+    Pint      -> "pint"
+    Quart     -> "quart"
+    Gallon    -> "gallon"
+    -- Metric
+    Ml        -> "mL"
+    L         -> "L"
+    G         -> "g"
+    Other str -> str
+
+parseUnit :: String -> Unit
+parseUnit units
+  | u `elem` tspSyns  = Tsp
+  | u `elem` tbspSyns = Tbsp
+  | u `elem` cupSyns  = Cup
+  | u `elem` ozSyns   = Oz
+  | u `elem` flOzSyns = FlOz
+  | u `elem` lbsSyns  = Lb
+  | u `elem` pintSyns = Pint
+  | u `elem` quartSyns= Quart
+  | u `elem` galSyns  = Gallon
+  | otherwise         = Other u
+  where u = map toLower units
+        tspSyns  = [ "tsp",
+                     "tsp.",
+                     "teaspoon",
+                     "teaspoons" ]
+
+        tbspSyns = [ "tbsp",
+                     "tbsp.",
+                     "tablespoon",
+                     "tablespoons" ]
+
+        cupSyns  = [ "cup",
+                     "cups",
+                     "cp",
+                     "cps",
+                     "cp." ,
+                     "cps." ]
+
+        ozSyns   = [ "oz",
+                     "oz.",
+                     "ounce",
+                     "ounces" ]
+
+        flOzSyns = [ "fl oz",
+                     "fl. oz.",
+                     "fl oz.",
+                     "fl. oz",
+                     "fluid ounce",
+                     "fluid ounces",
+                     "fluid oz",
+                     "fluid oz.",
+                     "fl ounce",
+                     "fl ounces",
+                     "fl. ounce",
+                     "fl. ounces" ]
+
+        lbsSyns =  [ "lb.",
+                     "lbs.",
+                     "lb",
+                     "lbs",
+                     "pound",
+                     "pounds" ]
+
+        pintSyns = [ "pt",
+                     "pt.",
+                     "pts",
+                     "pts.",
+                     "pint",
+                     "pints" ]
+
+        quartSyns = ["qt",
+                     "qt.",
+                     "qts",
+                     "qts.",
+                     "quart",
+                     "quarts" ]
+
+        galSyns  = [ "gal",
+                     "gal.",
+                     "gals",
+                     "gals.",
+                     "gallon",
+                     "gallons" ]
+
+data Ingredient = Ingredient { quantity       :: Ratio Int
+                             , unit           :: Unit
                              , ingredientName :: String
-                             , attribute :: String
-                             } deriving (Show, Read)
+                             , attribute      :: String
+                             } deriving (Generic, Show, Read)
 
 instance Eq Ingredient where
   ingr1 == ingr2 =  ingredientName ingr1 == ingredientName ingr2
@@ -35,7 +156,7 @@ data Recipe = Recipe { recipeName :: String
                      , ingredients :: [Ingredient]
                      , directions :: [String]
                      , tags :: [String]
-                     } deriving (Eq, Show, Read)
+                     } deriving (Eq, Generic, Show, Read)
 
 type RecipeBook = [Recipe]
 
@@ -63,19 +184,19 @@ readFrac x
   where read' = read :: String -> Int
 
 showIngredient :: Int -> Ingredient -> String
-showIngredient servings i = qty ++ u ++ ingredientName i ++ att
+showIngredient servings i = qty ++ show (unit i) ++ ingredientName i ++ att
   where qty = if quantity i == 0
-                then ""
-                else showFrac (quantity i * (servings % 1)) ++ " "
-        u   = if null (unit i) then "" else unit i ++ " "
+              then ""
+              else showFrac (quantity i * (servings % 1)) ++ " "
         att = if null (attribute i) then "" else ", " ++ attribute i
 
+-- TODO: rewrite as a `fold`
 makeIngredients :: [[String]] -> [Ingredient]
 makeIngredients [] = []
-makeIngredients (i:is) = Ingredient { quantity = q
-                                    , unit = i !! 1
+makeIngredients (i:is) = Ingredient { quantity       = q
+                                    , unit           = parseUnit (i !! 1)
                                     , ingredientName = i !! 2
-                                    , attribute = i !! 3
+                                    , attribute      = i !! 3
                                     } : makeIngredients is
                                     where q = if null (head i) then 0 % 1 else readFrac (head i)
 

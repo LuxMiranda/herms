@@ -1,6 +1,5 @@
 {-# LANGUAGE ViewPatterns #-}
 
-
 module Main where
 
 import System.IO
@@ -85,7 +84,7 @@ doEdit recp origRecp = do
         ingrList = adjustIngredients (servingSize recp % 1) $ ingredients recp
         toStr f  = unlines (map f ingrList)
         amounts  = toStr (showFrac . quantity)
-        units    = toStr unit
+        units    = toStr (show . unit)
         ingrs    = toStr ingredientName
         dirs     = unlines (directions recp)
         attrs    = toStr attribute

@@ -1,5 +1,7 @@
 module Utils where
 
+import Types (Ingredient)
+
 safeLookup :: [a] -> Int -> Maybe a
 safeLookup []       _ = Nothing
 safeLookup (a : _)  0 = Just a
@@ -18,3 +20,5 @@ padRight n xs =
   if d > 0 then xs ++ replicate d ' '
   else xs
 
+-- | @combineIngredients combines ingredients with identical units
+-- combineIngredients :: [Ingredient] -> [Ingredient]

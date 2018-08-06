@@ -1,125 +1,56 @@
 module UnitConversions where
 
-import Data.Char (toLower)
 import Types
+
+-- NOTE: Here, "imperial" means "U.S. Customary". Conversion to British,
+-- Australian, Canadian, etc. imperial units is not yet implemented.
 
 data Conversion = Metric | Imperial | None deriving (Show, Read, Eq)
 
-
---- NOTE: Here, "imperial" means "U.S. Customary". 
---- Conversion to British, Australian, Canadian, etc. imperial units is not yet implemented
-
 convertRecipeUnits :: Conversion -> Recipe -> Recipe
 convertRecipeUnits unit recp =
-    case unit of
-        None        -> recp
-        Metric      -> recp{ingredients = map convertIngredientToMetric (ingredients recp)}
-        Imperial    -> recp{ingredients = map convertIngredientToImperial (ingredients recp)}
-
-
-getSynonym :: String -> Maybe String
-getSynonym units
-  | u `elem` tspSyns  = Just "tsp"
-  | u `elem` tbspSyns = Just "Tbsp"
-  | u `elem` cupSyns  = Just "cups"
-  | u `elem` ozSyns   = Just "oz"
-  | u `elem` flOzSyns = Just "fl oz"
-  | u `elem` lbsSyns  = Just "lbs"
-  | u `elem` pintSyns = Just "pint"
-  | u `elem` quartSyns= Just "quart"
-  | u `elem` galSyns  = Just "gallon"
-  | otherwise = Nothing
-  where u = map toLower units
-        tspSyns  = [ "tsp",
-                     "tsp.",
-                     "teaspoon",
-                     "teaspoons" ]
-
-        tbspSyns = [ "tbsp",
-                     "tbsp.",
-                     "tablespoon",
-                     "tablespoons" ]
-
-        cupSyns  = [ "cup",
-                     "cups",
-                     "cp",
-                     "cps",
-                     "cp." ,
-                     "cps." ]
-
-        ozSyns   = [ "oz",
-                     "oz.",
-                     "ounce",
-                     "ounces" ]
-
-        flOzSyns = [ "fl oz",
-                     "fl. oz.",
-                     "fl oz.",
-                     "fl. oz",
-                     "fluid ounce",
-                     "fluid ounces",
-                     "fluid oz",
-                     "fluid oz.",
-                     "fl ounce",
-                     "fl ounces",
-                     "fl. ounce",
-                     "fl. ounces" ]
-
-        lbsSyns =  [ "lb.",
-                     "lbs.",
-                     "lb",
-                     "lbs",
-                     "pound",
-                     "pounds" ]
-
-        pintSyns = [ "pt",
-                     "pt.",
-                     "pts",
-                     "pts.",
-                     "pint",
-                     "pints" ]
-
-        quartSyns = ["qt",
-                     "qt.",
-                     "qts",
-                     "qts.",
-                     "quart",
-                     "quarts" ]
-
-        galSyns  = [ "gal",
-                     "gal.",
-                     "gals",
-                     "gals.",
-                     "gallon",
-                     "gallons" ]
-
+  case unit of
+    None        -> recp
+    Metric      -> recp{ingredients = map convertIngredientToMetric (ingredients recp)}
+    Imperial    -> recp{ingredients = map convertIngredientToImperial (ingredients recp)}
 
 convertIngredientToMetric :: Ingredient -> Ingredient
 convertIngredientToMetric ingr =
-    case getSynonym units of
-        Just "tsp"   -> ingr{quantity = qty * 5, unit = "mL"}
-        Just "Tbsp"  -> ingr{quantity = qty * 15, unit = "mL"}
-        Just "fl oz" -> ingr{quantity = qty * 30, unit = "mL"}
-        Just "cups"  -> ingr{quantity = qty * 237, unit = "mL"}
-        Just "oz"    -> ingr{quantity = qty * 28, unit = "g"}
-        Just "lbs"   -> ingr{quantity = qty * 454, unit = "g"}
-        Just "pint"  -> ingr{quantity = qty * 473, unit = "mL"}
-        Just "quart" -> ingr{quantity = qty * 946, unit = "mL"}
-        Just "gallon"-> ingr{quantity = qty * 3.785, unit = "L"}
-        _            -> ingr
-    where
-        units = unit ingr
-        qty = quantity ingr
+  case unit ingr of
+    Tsp     -> ingr{quantity = quantity ingr * 5, unit = Ml}
+    Tbsp    -> ingr{quantity = quantity ingr * 15, unit = Ml}
+    Cup     -> ingr{quantity = quantity ingr * 30, unit = Ml}
+    Oz      -> ingr{quantity = quantity ingr * 237, unit = Ml}
+    FlOz    -> ingr{quantity = quantity ingr * 28, unit = G}
+    Lb      -> ingr{quantity = quantity ingr * 454, unit = G}
+    Pint    -> ingr{quantity = quantity ingr * 473, unit = Ml}
+    Quart   -> ingr{quantity = quantity ingr * 946, unit = Ml}
+    Gallon  -> ingr{quantity = quantity ingr * 3.785, unit = L}
+    -- These cases are here so that if we add other units, the compiler will force us
+    -- to add appropriate cases here.
+    Ml      -> ingr
+    L       -> ingr
+    G       -> ingr
+    Other _ -> ingr
 
 convertIngredientToImperial :: Ingredient -> Ingredient
 convertIngredientToImperial ingr =
-    case un of
-        "mL" | qty < 15  -> ingr{quantity = qty / 5, unit = "tsp"}
-             | qty < 250 -> ingr{quantity = qty / 15, unit = "Tbsp"}
-             | otherwise ->  ingr{quantity = qty / 250, unit = "cup(s)"}
-
-        "g"    -> ingr{quantity = qty / 28, unit = "oz"}
-        _      -> ingr
-    where
-        un = unit ingr
-        qty = quantity ingr
+  case unit ingr of
+    Ml | quantity ingr < 15  -> ingr{quantity = quantity ingr / 5, unit = Tsp}
+       | quantity ingr < 250 -> ingr{quantity = quantity ingr / 15, unit = Tbsp}
+       | otherwise           -> ingr{quantity = quantity ingr / 250, unit = Cup}
+    L  | quantity ingr < 4   -> ingr{quantity = quantity ingr * 4.23, unit = Cup}
+       | otherwise           -> ingr{quantity = quantity ingr * 0.26, unit = Gallon}
+    G                        -> ingr{quantity = quantity ingr / 28, unit = Oz}
+    -- These cases are here so that if we add other units, the compiler will force us
+    -- to add appropriate cases here.
+    Tsp     -> ingr
+    Tbsp    -> ingr
+    Cup     -> ingr
+    Oz      -> ingr
+    FlOz    -> ingr
+    Lb      -> ingr
+    Pint    -> ingr
+    Quart   -> ingr
+    Gallon  -> ingr
+    Other _ -> ingr
