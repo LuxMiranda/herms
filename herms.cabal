@@ -40,9 +40,6 @@ author:              Jack Kiefer
 -- patches.
 maintainer:          jack.c.kiefer@gmail.com
 
--- A copyright notice.
--- copyright:
-
 category:            Culinary, CLI, Command Line Tool
 
 build-type:          Simple
@@ -57,19 +54,12 @@ cabal-version:       >=1.10
 -- Files available to the program at runtime
 data-files:          recipes.herms, config.hs
 
--- The directory name for the aboce files
+-- The directory name for the above files
 data-dir:            data
 
-executable herms
-  hs-source-dirs:      app, src
-  -- .hs or .lhs file containing the Main module.
-  main-is:             herms.hs
-
-  Ghc-Options:         -W -Wcompat
-                       -Wunrecognised-warning-flags
-
-  -- Modules included in this executable, other than Main.
-  other-modules:       Utils
+library
+  hs-source-dirs:      src
+  exposed-modules:     Utils
                      , AddCLI
                      , RichText
                      , ReadConfig
@@ -81,7 +71,9 @@ executable herms
                      , Lang.Portuguese
                      , Lang.French
 
-  -- LANGUAGE extensions used by modules in this package.
+  default-language:    Haskell2010
+  Ghc-Options:         -W -Wcompat
+                       -Wunrecognised-warning-flags
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
 
   -- Other library packages from which modules are imported.
@@ -98,25 +90,60 @@ executable herms
                      , split >=0.2 && <0.3
                      , vty >=5.15 && <= 5.23
 
-
-  -- Directories containing source files.
-  -- hs-source-dirs:
-
-  -- Base language which the package is written in.
+executable herms
+  hs-source-dirs:      app
+  main-is:             herms.hs
   default-language:    Haskell2010
+  ghc-options:         -W -Wcompat
+                       -Wunrecognised-warning-flags
+                       -threaded
+  other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
 
-  -- Compiler flags
-  ghc-options: -threaded
+  -- Other library packages from which modules are imported.
+  build-depends:       herms
+                     , ansi-terminal >= 0.7.0 && <= 0.8.1
+                     , base >=4.8 && <5
+                     , brick >= 0.19 && <= 0.39
+                     , directory >= 0.0
+                     , filepath >= 1.4 && < 1.5
+                     , microlens >=0.4 && <0.5
+                     , microlens-th >=0.4 && <0.5
+                     , mtl >= 2.2.1 && < 2.3
+                     , optparse-applicative >=0.14 && <0.15
+                     , semigroups >= 0.18.3 && < 0.19
+                     , split >=0.2 && <0.3
+                     , vty >=5.15 && <= 5.23
 
--- no test suite so far
---test-suite herms-test
---  type:                exitcode-stdio-1.0
---  hs-source-dirs:      test
---  main-is:             Spec.hs
---  build-depends:       base
---                     , herms
---  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
---  default-language:    Haskell2010
+test-suite herms-test
+    type: exitcode-stdio-1.0
+    main-is: Main.hs
+    other-modules:   UnitConversions.Tests
+                    , ReadConfig.Tests
+                    , Paths_herms
+    hs-source-dirs: test
+    default-language:    Haskell2010
+    ghc-options:         -W -Wcompat
+                         -Wunrecognised-warning-flags
+                         -threaded
+    other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
+    build-depends: herms
+                 , base -any
+                 , tasty >= 1.1
+                 , tasty-hunit >= 0.10
+                 , tasty-quickcheck >= 0.8
+                 , HUnit -any
+
+test-suite doctests
+  type:           exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is:        Doctest.hs
+  other-modules:  Paths_herms
+  default-language:    Haskell2010
+  ghc-options:         -W -Wcompat
+                       -Wunrecognised-warning-flags
+                       -threaded
+  build-depends: base
+               , doctest >= 0.8
 
 source-repository head
   type:     git
