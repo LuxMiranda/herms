@@ -60,7 +60,6 @@ data-dir:            data
 library
   hs-source-dirs:      src
   exposed-modules:     Utils
-                     , AddCLI
                      , RichText
                      , ReadConfig
                      , Types
@@ -79,20 +78,17 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       ansi-terminal >= 0.7.0 && <= 0.8.1
                      , base >=4.8 && <5
-                     , brick >= 0.19 && <= 0.39
                      , directory >= 0.0
                      , filepath >= 1.4 && < 1.5
-                     , microlens >=0.4 && <0.5
-                     , microlens-th >=0.4 && <0.5
                      , mtl >= 2.2.1 && < 2.3
                      , optparse-applicative >=0.14 && <0.15
                      , semigroups >= 0.18.3 && < 0.19
                      , split >=0.2 && <0.3
-                     , vty >=5.15 && <= 5.23
 
 executable herms
   hs-source-dirs:      app
   main-is:             herms.hs
+  other-modules:       AddCLI
   default-language:    Haskell2010
   ghc-options:         -W -Wcompat
                        -Wunrecognised-warning-flags
@@ -119,7 +115,9 @@ test-suite herms-test
     main-is: Main.hs
     other-modules: UnitConversions.Tests
                  , ReadConfig.Tests
+                 , Instances
                  , Types.Tests
+                 , Utils.Tests
                  , Paths_herms
     hs-source-dirs: test
     default-language:    Haskell2010
@@ -129,39 +127,12 @@ test-suite herms-test
     other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
     build-depends: herms
                  , base -any
-                 , generic-random >= 1.2 && <= 2.0
-                 , tasty >= 1.1
-                 , tasty-hunit >= 0.10
-                 , tasty-quickcheck >= 0.8
+                 , generic-random -any
+                 , tasty -any
+                 , tasty-hunit -any
+                 , tasty-quickcheck -any
                  , HUnit -any
                  , QuickCheck -any
-
-test-suite doctests
-  type:           exitcode-stdio-1.0
-  hs-source-dirs: test
-  main-is:        Doctest.hs
-  other-modules:  Paths_herms
-  default-language:    Haskell2010
-  ghc-options:         -W -Wcompat
-                       -Wunrecognised-warning-flags
-                       -threaded
-
-  -- Other library packages from which modules are imported.
-  build-depends:       herms
-                     , ansi-terminal >= 0.7.0 && <= 0.8.1
-                     , base >=4.8 && <5
-                     , brick >= 0.19 && <= 0.39
-                     , directory >= 0.0
-                     , filepath >= 1.4 && < 1.5
-                     , microlens >=0.4 && <0.5
-                     , microlens-th >=0.4 && <0.5
-                     , mtl >= 2.2.1 && < 2.3
-                     , optparse-applicative >=0.14 && <0.15
-                     , semigroups >= 0.18.3 && < 0.19
-                     , split >=0.2 && <0.3
-                     , vty >=5.15 && <= 5.23
-                     --
-                     , doctest >= 0.8
 
 source-repository head
   type:     git
