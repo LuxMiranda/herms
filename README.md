@@ -16,7 +16,7 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 - Serving size adjustment! :DDD
 - Remove recipes :(
 - View metric recipes in imperial units and vice-versa
-- Import recipe files
+- Import and export recipe files
 - Generate shopping lists
 - Keep track of recipes with tags
 - Set default unit systems, serving sizes, language, and recipe file path in ``config.hs``
