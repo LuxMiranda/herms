@@ -134,11 +134,7 @@ data Ingredient = Ingredient { quantity       :: Ratio Int
                              , unit           :: Unit
                              , ingredientName :: String
                              , attribute      :: String
-                             } deriving (Generic, Show, Read)
-
-instance Eq Ingredient where
-  ingr1 == ingr2 =  ingredientName ingr1 == ingredientName ingr2
-                 && unit ingr1 == unit ingr2
+                             } deriving (Generic, Eq, Show, Read)
 
 instance Ord Ingredient where
   ingr1 `compare` ingr2 =
@@ -183,8 +179,14 @@ readFrac x
   | otherwise = (read x :: Int) % 1
   where read' = read :: String -> Int
 
+-- | @showIngredient is for user-friendly printing
+--
+-- >>> showIngredient (Ingredient (1 % 2) Cup "ingr" "attr")
+-- "1/2 Cup ingr, attr"
+--
 showIngredient :: Int -> Ingredient -> String
-showIngredient servings i = qty ++ show (unit i) ++ ingredientName i ++ att
+showIngredient servings i =
+  qty ++ showUnit (unit i) ++ " " ++ ingredientName i ++ att
   where qty = if quantity i == 0
               then ""
               else showFrac (quantity i * (servings % 1)) ++ " "
@@ -205,9 +207,8 @@ readIngredients :: [[String]] -> [Ingredient]
 readIngredients is = makeIngredients $ transpose $ fillVoid is (length (maximumBy (comparing length) is))
 
 adjustIngredients :: Ratio Int -> [Ingredient] -> [Ingredient]
-adjustIngredients factor = map adjustIngredient
-  where adjustIngredient ingredient =
-          ingredient{ quantity = quantity ingredient * factor }
+adjustIngredients factor =
+  map (\ingr -> ingr { quantity = quantity ingr * factor })
 
 showRecipe :: (String -> String) -> Recipe -> Maybe Int -> RichText
 showRecipe t r maybeServings =  showRecipeHeader t r maybeServings

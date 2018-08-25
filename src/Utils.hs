@@ -1,6 +1,7 @@
 module Utils where
 
-import Types (Ingredient)
+import Data.List (partition)
+import Types (Ingredient(..), showFrac, showUnit)
 
 safeLookup :: [a] -> Int -> Maybe a
 safeLookup []       _ = Nothing
@@ -20,5 +21,34 @@ padRight n xs =
   if d > 0 then xs ++ replicate d ' '
   else xs
 
--- | @combineIngredients combines ingredients with identical units
--- combineIngredients :: [Ingredient] -> [Ingredient]
+combineIngredientsByFilter ::
+     (Ingredient -> Bool)                      -- ^ The predicate to filter on
+  -> (Ingredient -> Ingredient -> Ingredient)  -- ^ How to combine ingredients
+  -> [Ingredient]                              -- ^ The list to combine
+  -> [Ingredient]
+combineIngredientsByFilter pred comb lst =
+  case partition pred lst of
+    ([]    , rest) -> rest
+    (x : xs, rest) -> foldl comb x xs : rest
+
+-- | @combineIngredientsByName combines all the ingredients with the same
+--   name and unit as the @key@.
+combineIngredientsByName :: Ingredient -> [Ingredient] -> [Ingredient]
+combineIngredientsByName key =
+  combineIngredientsByFilter
+    (\x -> ingredientName key == ingredientName x && unit key == unit x)
+    addQuantities
+  where addQuantities :: Ingredient -> Ingredient -> Ingredient
+        addQuantities (Ingredient q1 u1 n1 a1) (Ingredient q2 u2 _ a2) =
+          -- Show which attributes apply to what amount
+          let attrs =
+                if a1 /= a2
+                then showFrac q1 ++ " " ++ showUnit u1 ++ ": " ++ a1 ++
+                       ", " ++ showFrac q2 ++ " " ++ showUnit u2 ++ ": " ++ a2
+                else a1
+          in Ingredient (q1 + q2) u1 n1 attrs
+
+-- | @combineIngredients combines ingredients with identical names and units.
+--   This is currently O(n^2), it could probably be better.
+combineIngredients :: [Ingredient] -> [Ingredient]
+combineIngredients lst = foldl (\acc x -> combineIngredientsByName x acc) lst lst

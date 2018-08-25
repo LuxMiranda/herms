@@ -280,17 +280,14 @@ removeSilent = removeWithVerbosity False
 shop :: [String] -> Int -> HermsReader IO ()
 shop targets serv = do
   (_, recipeBook) <- ask
-  let getFactor recp
-        | serv == 0 = servingSize recp % 1
-        | otherwise = serv % 1
   let ingrts =
         concatMap (\target ->
           case readRecipeRef target recipeBook of
             Nothing   -> []
-            Just recp -> adjustIngredients (getFactor recp) $ ingredients recp)
-                  targets
-  liftIO $ forM_ (sort ingrts) $ \ingr ->
-    putStrLn $ showIngredient 1 ingr
+            Just recp -> adjustIngredients (serv % 1) $ ingredients recp)
+          targets
+  liftIO $
+    (forM_ (sort (combineIngredients ingrts)) $ (putStrLn . showIngredient 1))
 
 printDataDir :: HermsReader IO ()
 printDataDir = do
@@ -377,7 +374,7 @@ servingP t =  option auto
          <> short Str.servingShort
          <> help  (t Str.servingDesc)
          <> showDefault
-         <> value 0
+         <> value 1
          <> metavar (t Str.servingMetavar) )
 
 stepP :: Translator -> Parser Bool

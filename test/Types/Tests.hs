@@ -1,40 +1,28 @@
 module Types.Tests where
 
 import           Test.Tasty              (TestTree, testGroup)
-import           Test.Tasty.HUnit        (testCase)
+import           Test.Tasty.HUnit        (testCase, (@=?))
 -- import           Test.Tasty.QuickCheck   (testProperty)
-import           Test.HUnit              ((@?=))
-
--- New Arbitrary instances
-import           Generic.Random hiding ((%))
-import           Test.QuickCheck.Arbitrary (Arbitrary(..))
 
 import           Data.Ratio              ((%))
+import           Instances()
 import           Types
-
-instance Arbitrary Unit where
-  arbitrary = genericArbitrary uniform
-
-instance Arbitrary Ingredient where
-  arbitrary = genericArbitrary uniform
 
 tests :: TestTree
 tests = testGroup "Types"
     [ testCase "testParseUnitTbsp" $
-        parseUnit "tbsp." @?= Tbsp
+        Tbsp @=? parseUnit "tbsp."
     , testCase "testParseUnitOther" $
-        parseUnit "foo" @?= Other "foo"
+        Other "foo" @=? parseUnit "foo"
     , testCase "testReadCup" $
-        read "Cup" @?= Cup
+        Cup @=? read "Cup"
     , testCase "testReadGals" $
-        read "Gallon" @?= Gallon
+        Gallon @=? read "Gallon"
     -- , testProperty "testReadIngredient" $
     --     (\i -> read (show (i :: Ingredient)) == i)
     , testCase "testParseIngredient" $
-        read "Ingredient {quantity = 1 % 1, unit = Cup, ingredientName = \"\", attribute = \"\"}" @?=
-        Ingredient { quantity = (1 % 1)
-                   , unit = Cup
-                   , ingredientName = ""
-                   , attribute = ""
-                   }
+        Ingredient (1 % 1) Cup "" "" @=?
+          read "Ingredient {quantity = 1 % 1, unit = Cup, ingredientName = \"\", attribute = \"\"}"
+    , testCase "testShowIngredient" $
+        "1/2 cup in, at" @=? showIngredient 1 (Ingredient (1 % 2) Cup "in" "at")
     ]
