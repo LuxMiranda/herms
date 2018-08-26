@@ -9,6 +9,21 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 
 ![Herm's Interface](https://i.imgur.com/u9fPapw.jpg)
 
+**Table of Contents**
+
+- [Herm's](#herms)
+    - [Features](#features)
+        - [What's new](#whats-new)
+    - [Contributing](#contributing)
+    - [Installation](#installation)
+        - [Manually cloning and installing from source with Stack](#manually-cloning-and-installing-from-source-with-stack)
+        - [Via Hackage and Cabal](#via-hackage-and-cabal)
+        - [Manually with Cabal](#manually-with-cabal)
+        - [Manually with Nix](#manually-with-nix)
+        - [Usage](#usage)
+            - [Command-line interface](#command-line-interface)
+            - [Configuring Herm's and managing recipe files](#configuring-herms-and-managing-recipe-files)
+
 ### Features
 - Add recipes! :)
 - Look at recipes! :D
@@ -21,11 +36,16 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 - Keep track of recipes with tags
 - Set default unit systems, serving sizes, language, and recipe file path in ``config.hs``
 
-### What's new:
+#### What's new
 - Bonjour! Herm's now has language support for Français (French), English, and Pirate. Set your language preferences in ``config.hs``!
 - These are but the first languages that Herm's is now capable of supporting. We need your help to translate it into others! Currently in progress: Português (Portuguese), Español (Spanish)
 - Herm's now conforms to the [XDG Base Directory Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html). In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms` and `~/.local/share/herms` respectively on most Linux systems.
 
+### Contributing
+
+Herms is very actively maintained and welcomes new contributions, whether in code, issues, documentation, or feature suggestions!
+
+Please see [Contributing.md](./Contributing.md) for more information.
 
 ### Installation
 
@@ -33,7 +53,7 @@ At the moment, Herm's can only be installed via [stack](https://docs.haskellstac
 
 If you're interested developing/hacking Herm's instead of just using it, see [Contributing.md](Contibuting.md) instead.
 
-##### Via Stack _(recommended)_:
+##### Via Stack _(recommended)_
 
 ```
 stack update
@@ -49,7 +69,7 @@ stack update
 stack install
 ```
 
-##### Via Hackage and Cabal:
+##### Via Hackage and Cabal
 
 _Note_: Your mileage may vary with dependency resolution
 
@@ -58,13 +78,25 @@ cabal update
 cabal install herms
 ```
 
-##### Manually with Cabal:
+##### Manually with Cabal
 
 ```
 git clone https://github.com/JackKiefer/herms
 cd herms
 cabal update
 cabal install
+```
+
+##### Manually with Nix
+
+Herms works well with [cabal2nix](https://github.com/NixOS/cabal2nix). Put this in `default.nix`:
+```nix
+{ pkgs ? import <nixpkgs> { } }: 
+pkgs.haskellPackages.callCabal2nix "herms" ./. { }
+```
+and build Herms with
+```
+nix build
 ```
 
 ### Usage
