@@ -34,12 +34,25 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 - Import and export recipe files
 - Generate shopping lists
 - Keep track of recipes with tags
-- Set default unit systems, serving sizes, language, and recipe file path in ``config.hs``
+- Set default unit systems, serving sizes, language, and recipe (see
+  [the section on configuration](#configuring-herms-and-managing-recipe-files))
 
-#### What's new
-- Bonjour! Herm's now has language support for Français (French), English, and Pirate. Set your language preferences in ``config.hs``!
-- These are but the first languages that Herm's is now capable of supporting. We need your help to translate it into others! Currently in progress: Português (Portuguese), Español (Spanish)
-- Herm's now conforms to the [XDG Base Directory Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html). In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms` and `~/.local/share/herms` respectively on most Linux systems.
+#### What's new:
+- *Breaking change*: Units now have a different internal representation.
+  Recipes written for old versions of Herm's will have to be converted (see
+  [#71](https://github.com/JackKiefer/herms/pull/71) to see how the example
+  recipes were changed). More breaking changes are expected as Herm's begins to
+  use YAML as its representation format (see
+  [#37](https://github.com/JackKiefer/herms/issues/37)).
+- Herm's now conforms to the [XDG Base Directory
+  Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html).
+  In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms`
+  and `~/.local/share/herms` respectively on most Linux systems.
+- Bonjour! Herm's now has language support for Français (French), English, and
+  Pirate. Set your language preferences in ``config.hs``! These are but the
+  first languages that Herm's is now capable of supporting. We need your help to
+  translate it into others! Currently in progress: Português (Portuguese),
+  Español (Spanish)
 
 ### Contributing
 
