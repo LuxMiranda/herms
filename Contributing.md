@@ -17,6 +17,7 @@ Whim-bam!
 ## Feature/Improvement Ideas
 
 A lot of these are quite independent from each other. If one looks pretty fun to you, you could probably jump right in!
+Also take a look at the [Github issues](https://github.com/JackKiefer/herms/issues).
 
 - Optional caloric / nutritional information
 - Translation into languages other than English
