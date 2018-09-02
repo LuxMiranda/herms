@@ -377,7 +377,7 @@ servingP t =  option auto
          <> short Str.servingShort
          <> help  (t Str.servingDesc)
          <> showDefault
-         <> value 1
+         <> value 0
          <> metavar (t Str.servingMetavar) )
 
 stepP :: Translator -> Parser Bool
