@@ -1,0 +1,74 @@
+---
+- name: Undergrad Pad Thai
+  description: >
+    Actually tasty and super cheap ramen that tastes a bit like Pad Thai but not
+    really.
+  serving size: 1
+  ingredients:
+    - quantity: 1/1
+      unit: package
+      name: oriental-flavor instant ramen
+      attribute: ""
+    - quantity: 1/1
+      unit: Cup
+      name: frozen stir-fry vegetables
+      attribute: ""
+    - quantity: 1/1
+      unit: Tbsp
+      name: peanut butter
+      attribute: chunky or creamy
+    - quantity: 0/1
+      unit: ""
+      name: Your favorite hot sauce
+      attribute: (optional)
+  directions:
+    - Place the dry noodles in a bowl. Add frozen veggies.
+    - Add enough water to cover the noodles without overflowing your bowl. It's
+      okay if the veggies aren't covered.
+    - Microwave for approximately 5 minutes. You ideally want the water to boil a bit.
+    - Drain about 3/4 of the water from the bowl.
+    - Add peanut butter about 3/5 of the flavor packet and hot sauce.
+    - Stir until the peanut butter has become one with the ramen. Enjoy!
+  tags:
+    - vegan
+
+- name: Black Bean and Butternut Squash Tacos
+  description: >
+    Delicious authentic tacos with a savoriness complemented by the light
+    sweetness of the squash.
+  serving size: 1
+  ingredients:
+    - quantity: 1 / 1
+      unit: Cup
+      name: butternut squash
+      attribute: cubed
+    - quantity: 1 / 2
+      unit: Cup
+      name: black beans
+      attribute: ""
+    - quantity: 1 / 2
+      unit: tsp
+      name: cumin cayenne and paprika
+      attribute: ""
+    - quantity: 1 / 6
+      unit: ""
+      name: avocado
+      attribute: cubed or sliced
+    - quantity: 1 / 1
+      unit: Tbsp
+      name: hatch valley salsa
+      attribute: ""
+    - quantity: 0 / 1
+      unit: ""
+      name: lime juice
+      attribute: to garnish
+  directions:
+    - Place butternut squash in a microwave-safe bowl and heat on high until tender
+    - Transfer squash to a small un-oiled pan or skillet. Add salsa.
+    - Add beans and season with spices. Heat over medium heat and toss with a spoon until the mixture is evenly heated.
+    - Fill corn tortillas with squash and bean mixture. Add avocado.
+    - Garnish with lime juice and additional salsa if desired
+  tags:
+    - vegan
+    - mexican
+    - easy"

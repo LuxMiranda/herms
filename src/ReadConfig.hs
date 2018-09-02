@@ -2,9 +2,12 @@
 
 module ReadConfig where
 
+import Prelude hiding (readFile)
 import UnitConversions
 import qualified Text.Read as TR
 import Control.Exception
+import qualified Data.ByteString as BS
+import Data.ByteString.Char8 (unpack)
 import Data.Typeable
 import Data.Char (toLower)
 import Data.List.Split
@@ -150,11 +153,11 @@ writeDefaultFile name path = do
 -- | @readFileOrDefault attempts to read a file from a path. If that file
 -- doesn't exist, it copies a default version that was installed by cabal
 -- with @writeDefaultFile.
-readFileOrDefault :: String -> FilePath -> IO String
+readFileOrDefault :: String -> FilePath -> IO BS.ByteString
 readFileOrDefault name path =
-  (try (readFile path) :: IO (Either IOError String)) >>=
+  (try (BS.readFile path) :: IO (Either IOError BS.ByteString)) >>=
     \case
-      Left _ -> writeDefaultFile name path >> readFile path
+      Left _ -> writeDefaultFile name path >> BS.readFile path
       Right content -> return content
 
 getConfig :: IO Config
@@ -166,7 +169,8 @@ getConfig = do
   mapM_ directoryWithPermissions [configDir, dataDir]
 
   -- Try to read configuration file
-  contents  <- readFileOrDefault "config.hs" (configDir </> "config.hs")
+  contents  <- unpack <$>
+    readFileOrDefault "config.hs" (configDir </> "config.hs")
 
   -- Parse the configuration
   let result = TR.readEither (dropComments contents) :: Either String ConfigInfo

@@ -16,15 +16,17 @@ import Data.Ratio
 import Control.Applicative
 import Options.Applicative hiding (str)
 import Text.Read
+import Control.Exception
+import GHC.IO.Exception
+import Foreign.C.Error
+import qualified Data.Yaml    as Yaml
+
 import Utils
 import AddCLI
 import RichText
 import Types
 import UnitConversions
 import ReadConfig
-import Control.Exception
-import GHC.IO.Exception
-import Foreign.C.Error
 import qualified Lang.Strings as Str
 
 -- Global constants
@@ -34,9 +36,9 @@ versionStr = "1.9.0.4"
 type HermsReader = ReaderT (Config, RecipeBook)
 
 -- | @getRecipeBookWith reads in recipe book with already read-in config
-getRecipeBookWith :: Config -> IO [Recipe]
+getRecipeBookWith :: Config -> IO (Either Yaml.ParseException [Recipe])
 getRecipeBookWith config =
-  fmap (map read . lines) $
+  Yaml.decodeEither' <$>
     readFileOrDefault "recipes.herms" (recipesFile' config)
 
 getRecipe :: String -> [Recipe] -> Maybe Recipe
@@ -303,7 +305,10 @@ main = do
   config     <- getConfig
   recipeBook <- getRecipeBookWith config
   command    <- execParser (commandPI (translator config))
-  runReaderT (runWithOpts command) (config, recipeBook)
+  case recipeBook of
+    Left e -> putStrLn $ "Couldn't read recipes: " ++ (show e)
+    Right recipeBook' ->
+      runReaderT (runWithOpts command) (config, recipeBook')
 
 -- @runWithOpts runs the action of selected command.
 runWithOpts :: Command -> HermsReader IO ()

@@ -78,12 +78,15 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       ansi-terminal >= 0.7.0 && <= 0.8.1
                      , base >=4.8 && <5
+                     , bytestring >= 0.9 && <0.11
                      , directory >= 0.0
                      , filepath >= 1.4 && < 1.5
                      , mtl >= 2.2.1 && < 2.3
                      , optparse-applicative >=0.14 && <0.15
                      , semigroups >= 0.18.3 && < 0.19
                      , split >=0.2 && <0.3
+                     , text >= 1.1 && <1.3
+                     , yaml >=0.08 && <0.11
 
 executable herms
   hs-source-dirs:      app
@@ -109,6 +112,7 @@ executable herms
                      , semigroups >= 0.18.3 && < 0.19
                      , split >=0.2 && <0.3
                      , vty >=5.15 && <= 5.23
+                     , yaml >=0.08 && <0.11
 
 test-suite herms-test
     type: exitcode-stdio-1.0
@@ -127,12 +131,14 @@ test-suite herms-test
     other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
     build-depends: herms
                  , base -any
+                 , bytestring -any
                  , generic-random -any
                  , tasty -any
                  , tasty-hunit -any
                  , tasty-quickcheck -any
                  , HUnit -any
                  , QuickCheck -any
+                 , yaml >=0.08 && <0.11
 
 source-repository head
   type:     git
