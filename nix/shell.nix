@@ -14,7 +14,7 @@ in stdenv.mkDerivation {
   src = lib.sourceFilesBySuffices ../. [ ".cabal" ".hs" ];
   buildInputs =  [
 
-    (haskell.packages.ghc843.ghcWithPackages (hpkgs: with hpkgs; [
+    (haskell.packages.ghc822.ghcWithPackages (hpkgs: with hpkgs; [
 
       # Nice for development
       hoogle
@@ -30,5 +30,6 @@ in stdenv.mkDerivation {
 
     # General development
     git
+    less
   ];
 }
