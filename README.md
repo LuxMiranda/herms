@@ -38,25 +38,19 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
   [the section on configuration](#configuring-herms-and-managing-recipe-files))
 
 #### What's new:
+
+See [the changelog](./CHANGELOG.md) for migration support and more detailed discussion.
+
+- Herm's supports YAML! Recipe files are now stored in YAML format by default
+  (the old format is deprecated, see [the changelog](./CHANGELOG.md)).
+  Furthermore, recipes can be imported and exported in JSON and YAML formats.
 - *Breaking change*: Units now have a different internal representation.
-  Recipes written for old versions of Herm's will have to be converted (see
-  [#71](https://github.com/JackKiefer/herms/pull/71) to see how the example
-  recipes were changed). More breaking changes are expected as Herm's begins to
-  use YAML as its representation format (see
-  [#37](https://github.com/JackKiefer/herms/issues/37)).
-- Herm's now conforms to the [XDG Base Directory
-  Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html).
-  In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms`
-  and `~/.local/share/herms` respectively on most Linux systems.
-- Bonjour! Herm's now has language support for Français (French), English, and
-  Pirate. Set your language preferences in ``config.hs``! These are but the
-  first languages that Herm's is now capable of supporting. We need your help to
-  translate it into others! Currently in progress: Português (Portuguese),
-  Español (Spanish)
+  See [the changelog](./CHANGELOG.md) for migration instructions.
 
 ### Contributing
 
-Herms is very actively maintained and welcomes new contributions, whether in code, issues, documentation, or feature suggestions!
+Herms is very actively maintained and welcomes new contributions, whether in
+code, issues, documentation, translations, or feature suggestions!
 
 Please see [Contributing.md](./Contributing.md) for more information.
 

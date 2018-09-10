@@ -17,6 +17,10 @@ import qualified Data.Yaml       as Yaml
 import qualified Lang.Strings    as Str
 import           RichText
 
+data Format =
+    JSON
+  | YAML
+
 data Unit =
   -- Imperial
     Tsp
@@ -184,7 +188,7 @@ instance Yaml.ToJSON Recipe where
   toJSON r = Yaml.object $
     [ Text.pack "name"         .= (Text.pack $ recipeName r)
     , Text.pack "description"  .= (Text.pack $ description r)
-    , Text.pack "serving size" .= (Text.pack $ show $ servingSize r)
+    , Text.pack "serving size" .= servingSize r
     , Text.pack "ingredients"  .= (Yaml.toJSON $ ingredients r)
     , Text.pack "directions"   .= (map Text.pack $ directions r)
     , Text.pack "tags"         .= (map Text.pack $ tags r)

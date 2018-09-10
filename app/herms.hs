@@ -1,4 +1,5 @@
 {-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Main where
 
@@ -7,6 +8,8 @@ import System.Directory
 import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Reader
+import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString.Lazy.Char8 as BSL
 import Data.Function
 import Data.List
 import Data.Maybe
@@ -20,6 +23,8 @@ import Control.Exception
 import GHC.IO.Exception
 import Foreign.C.Error
 import qualified Data.Yaml    as Yaml
+import qualified Data.Aeson   as Json
+import System.Exit (exitFailure)
 
 import Utils
 import AddCLI
@@ -36,10 +41,22 @@ versionStr = "1.9.0.4"
 type HermsReader = ReaderT (Config, RecipeBook)
 
 -- | @getRecipeBookWith reads in recipe book with already read-in config
+--
+-- It first attempts to read the new YAML recipe format, and then the
+-- deprecated one. If reading the YAML fails but the older format works, then
+-- it warns the user about deprecation of the old format.
 getRecipeBookWith :: Config -> IO (Either Yaml.ParseException [Recipe])
-getRecipeBookWith config =
-  Yaml.decodeEither' <$>
-    readFileOrDefault "recipes.herms" (recipesFile' config)
+getRecipeBookWith config = do
+  content <- readFileOrDefault "recipes.yaml" (recipesFile' config)
+  case Yaml.decodeEither' content of
+    Right recipes -> pure (Right recipes)
+    Left err ->
+      case traverse readEither $ lines (BS.unpack content) of
+        Left _ -> pure (Left err)
+        Right recipes ->
+          let u = "https://github.com/JackKiefer/herms/tree/master/CHANGELOG.md"
+          in putStrLn ("You are using a deprecated recipe format. See " ++ u) >>
+             pure (Right recipes)
 
 getRecipe :: String -> [Recipe] -> Maybe Recipe
 getRecipe target = listToMaybe . filter ((target ==) . recipeName)
@@ -109,15 +126,33 @@ readRecipeRef target recipeBook =
   (safeLookup recipeBook . pred =<< readMaybe target)
   <|> getRecipe target recipeBook
 
-importFile :: String -> HermsReader IO ()
-importFile target = do
+importFile :: String -> String -> HermsReader IO ()
+importFile target format = do
   (config, recipeBook) <- ask
   let t = translator config
-  otherRecipeBook <- liftIO $ map read . lines <$> readFile target
+
+  -- Read the new recipe book from the filesystem
+  fmt <- liftIO $ readFormat t format
+  otherRecipeBook <- (liftIO :: IO [Recipe] -> HermsReader IO [Recipe]) $
+    case fmt of
+      JSON ->
+        ((Json.eitherDecodeStrict' <$> (BS.readFile target)) :: IO (Either String [Recipe])) >>=
+          \case
+            Right book -> pure (book :: [Recipe])
+            Left  err  -> putStrLn err >> exitFailure
+      YAML ->
+        (Yaml.decodeFileEither target :: IO (Either Yaml.ParseException [Recipe])) >>=
+          \case
+            Right book -> pure (book :: [Recipe])
+            Left  err  -> putStrLn (show err) >> exitFailure
+
+  -- Combine the new recipes with the old
   let recipeEq = (==) `on` recipeName
-  let newRecipeBook = deleteFirstsBy recipeEq recipeBook otherRecipeBook
-                        ++ otherRecipeBook
-  liftIO $ replaceDataFile (recipesFile' config) $ unlines $ show <$> newRecipeBook
+
+  -- Overwrite the old recipe file
+  replaceRecipeBook $
+    deleteFirstsBy recipeEq recipeBook otherRecipeBook ++ otherRecipeBook
+
   liftIO $ if null otherRecipeBook
   then putStrLn (t Str.nothingToImport)
   else do
@@ -125,14 +160,28 @@ importFile target = do
     forM_ otherRecipeBook $ \recipe ->
       putStrLn $ "  " ++ recipeName recipe
 
-export :: [String] -> HermsReader IO ()
-export targets = do
+-- | @readFormat attempts to parse the user-provided import or export format.
+readFormat :: Translator -> String -> IO Format
+readFormat _ "json" = pure JSON
+readFormat _ "yaml" = pure YAML
+readFormat t other  =
+  putStrLn (t Str.unsupportedFormat ++ other) >>
+  putStrLn (t Str.supportedFormats) >>
+  exitFailure
+
+export :: [String] -> String -> HermsReader IO ()
+export targets format = do
   (config, recipeBook) <- ask
   let t = translator config
-  liftIO $ forM_ targets $ \ target ->
-    putText $ case readRecipeRef target recipeBook of
-      Nothing   -> target ~~ t Str.doesNotExist
-      Just recp -> fromString $ show recp
+  fmt <- liftIO $ readFormat t format
+  -- TODO: error message should say /which/ recipe doesn't exist
+  liftIO . putText $
+    case traverse (flip readRecipeRef recipeBook) targets of
+        Nothing      -> t Str.doesNotExist
+        Just recipes -> fromString $
+          case fmt of
+            JSON -> BSL.unpack $ Json.encode recipes
+            YAML -> BS.unpack  $ Yaml.encode recipes
 
 getServingsAndConv :: Int -> String -> Config -> (Maybe Int, Conversion)
 getServingsAndConv serv convName config = (servings, conv)
@@ -240,16 +289,21 @@ takeFullWords = unwords . takeFullWords' 0 . words
 --   first, writes to it, closes the handle, removes the target,
 --   and finally moves the temporary file over to the target @fp@.
 
-replaceDataFile :: FilePath -> String -> IO ()
+replaceDataFile :: FilePath -> BS.ByteString -> IO ()
 replaceDataFile fileName str = do
   (tempName, tempHandle) <- openTempFile "." "herms_temp"
-  hPutStr tempHandle str
+  BS.hPut tempHandle str
   hClose tempHandle
   removeFile fileName
   let exdev e = if ioe_errno e == Just ((\(Errno a) -> a) eXDEV)
                     then copyFile tempName fileName >> removeFile tempName
                     else throw e
   renameFile tempName fileName `catch` exdev
+
+replaceRecipeBook :: RecipeBook -> HermsReader IO ()
+replaceRecipeBook newBook = do
+  (config, _) <- ask
+  liftIO $ replaceDataFile (recipesFile' config) (Yaml.encode newBook)
 
 -- | @removeWithVerbosity v recipes@ deletes the @recipes@ from the
 --   book, listing its work only if @v@ is set to @True@.
@@ -270,8 +324,7 @@ removeWithVerbosity v targets = do
        Just r  -> guard v *> t Str.removingRecipe ++ recipeName r ++ "...\n"
     return mrecp
   -- Remove all the resolved recipes at once
-  let newRecipeBook = recipeBook \\ catMaybes mrecipes
-  liftIO $ replaceDataFile (recipesFile' config) $ unlines $ show <$> newRecipeBook
+  replaceRecipeBook (recipeBook \\ catMaybes mrecipes)
 
 remove :: [String] -> HermsReader IO ()
 remove = removeWithVerbosity True
@@ -315,8 +368,8 @@ runWithOpts :: Command -> HermsReader IO ()
 runWithOpts (List tags group nameOnly)              = list tags group nameOnly
 runWithOpts Add                                     = add
 runWithOpts (Edit target)                           = edit target
-runWithOpts (Import target)                         = importFile target
-runWithOpts (Export targets)                        = export targets
+runWithOpts (Import target format)                  = importFile target format
+runWithOpts (Export targets format)                 = export targets format
 runWithOpts (Remove targets)                        = remove targets
 runWithOpts (View targets serving step conversion)  = if step
                                                       then viewByStep targets serving conversion
@@ -333,9 +386,9 @@ runWithOpts DataDir                                 = printDataDir
 data Command = List   [String] Bool Bool         -- ^ shows recipes
              | View   [String] Int Bool String   -- ^ shows specified recipes with given serving
              | Add                               -- ^ adds the recipe (interactively)
-             | Edit    String                    -- ^ edits the recipe
-             | Import  String                    -- ^ imports a recipe file
-             | Export  [String]                  -- ^ exports recipes to stdout
+             | Edit   String                     -- ^ edits the recipe
+             | Import String String              -- ^ imports a recipe file
+             | Export [String] String            -- ^ exports recipes to stdout
              | Remove [String]                   -- ^ removes specified recipes
              | Shop   [String] Int               -- ^ generates the shopping list for given recipes
              | DataDir                           -- ^ prints the directories of recipe file and config.hs
@@ -344,8 +397,8 @@ listP, addP, viewP, editP, importP, exportP, removeP, shopP, dataDirP :: Transla
 listP    t = List   <$> (words <$> tagsP t) <*> groupByTagsP t <*> nameOnlyP t
 addP     _ = pure Add
 editP    t = Edit   <$> recipeNameP t
-importP  t = Import <$> fileNameP t
-exportP  t = Export <$> severalRecipesP t
+importP  t = Import <$> fileNameP t <*> formatP t
+exportP  t = Export <$> severalRecipesP t <*> formatP t
 removeP  t = Remove <$> severalRecipesP t
 viewP    t = View   <$> severalRecipesP t <*> servingP t <*> stepP t <*> conversionP t
 shopP    t = Shop   <$> severalRecipesP t <*> servingP t
@@ -384,6 +437,16 @@ servingP t =  option auto
          <> showDefault
          <> value 0
          <> metavar (t Str.servingMetavar) )
+
+-- | @formatP parses import/export formats.
+formatP :: Translator -> Parser String
+formatP t =  option auto
+         (  long  (t Str.format)
+         <> short Str.formatShort
+         <> help  (t Str.formatDesc)
+         <> showDefault
+         <> value "yaml"
+         <> metavar (t Str.formatMetavar) )
 
 stepP :: Translator -> Parser Bool
 stepP t = switch

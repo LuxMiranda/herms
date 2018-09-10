@@ -84,6 +84,11 @@ servingShort   = 's'
 servingDesc    = "specify serving size when viewing"
 servingMetavar = "INT"
 
+format        = "format"
+formatShort   = 'f'
+formatDesc    = "format for export"
+formatMetavar = "FORMAT"
+
 step      = "step"
 stepShort = 't'
 stepDesc  = "Whether to show one step at a time"
@@ -141,3 +146,5 @@ versionDesc  = "Show version"
 --------------------------
 
 progDesc = "HeRM's: a Haskell-based Recipe Manager. Type \"herms --help\" for options"
+unsupportedFormat = "Unsupported format: "
+supportedFormats  = "Supported formats are: json yaml"
