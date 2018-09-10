@@ -31,7 +31,7 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 - Serving size adjustment! :DDD
 - Remove recipes :(
 - View metric recipes in imperial units and vice-versa
-- Import and export recipe files
+- Import and export recipes as JSON or YAML
 - Generate shopping lists
 - Keep track of recipes with tags
 - Set default unit systems, serving sizes, language, and recipe (see
@@ -56,9 +56,13 @@ Please see [Contributing.md](./Contributing.md) for more information.
 
 ### Installation
 
-At the moment, Herm's can only be installed via [stack](https://docs.haskellstack.org/en/stable/README/) or [cabal](https://www.haskell.org/cabal/), but standalone binaries are in the works!
+At the moment, Herm's can only be installed via
+[stack](https://docs.haskellstack.org/en/stable/README/) or
+[cabal](https://www.haskell.org/cabal/), but standalone binaries are in the
+works!
 
-If you're interested developing/hacking Herm's instead of just using it, see [Contributing.md](Contibuting.md) instead.
+If you're interested developing/hacking Herm's instead of just using it, see
+[Contributing.md](./Contibuting.md) instead.
 
 ##### Via Stack _(recommended)_
 
@@ -171,17 +175,28 @@ Herm's stores files in the following locations:
 - The configuration file, `config.hs` in the XDG configuration directory,
   typically `~/.config/herms` on most Linux systems
 
-- The recipes file, `recipes.herms` in the XDG data directory,
+- The recipes file, `recipes.yaml` in the XDG data directory,
   typically `~/.local/share/herms` on most Linux systems
 
 To see where these are stored on your system, run ``herms datadir``.
 
-``config.hs`` is a pseudo-Haskell-source-code file with several options for configuring the behaviour of Herm's. It currently supports the following options:
+``config.hs`` is a pseudo-Haskell-source-code file with several options for
+configuring the behaviour of Herm's. It currently supports the following
+options:
 
-- `defaultUnit` : The default unit system to show recipes in. Options: `Imperial`, `Metric`, `None`. Setting to `None` will simply show recipes in whatever unit system they're stored in.
-- `defaultServingSize` : Default serving size to calculate when showing recipes. Can be any non-negative integer; set to `0` for no default. This can be useful when you're always cooking for the same number of people!
-- `recipesFile` : The recipes file to use. This option currently supports relative (but not absolute) location, as well; if your data directory is `~/herms/data`, for example, and you want a recipe file in your home directory called `~/GrandmasHugeCookbook.herms`, set this option to `"../../GrandmasHugeCookbook.herms"`.
-- `language` : Human language to use. Currently supported: ``"Français"``, ``"English"``, ``"Pirate"``
+- `defaultUnit` : The default unit system to show recipes in. Options:
+  `Imperial`, `Metric`, `None`. Setting to `None` will simply show recipes in
+  whatever unit system they're stored in.
+- `defaultServingSize` : Default serving size to calculate when showing recipes.
+  Can be any non-negative integer; set to `0` for no default. This can be useful
+  when you're always cooking for the same number of people!
+- `recipesFile` : The recipes file to use. This option currently supports
+  relative (but not absolute) location, as well; if your data directory is
+  `~/herms/data`, for example, and you want a recipe file in your home directory
+  called `~/GrandmasHugeCookbook.yaml`, set this option to
+  `"../../GrandmasHugeCookbook.yaml"`.
+- `language` : Human language to use. Currently supported: ``"Français"``,
+  ``"English"``, ``"Pirate"``
 
 
 ---
