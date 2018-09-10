@@ -4,6 +4,7 @@
  - Be loving for someone today and have fun!
 
 ## Development
+
 We use stack around here to develop. Uhh, refer to [stack documentation.](https://docs.haskellstack.org/en/stable/GUIDE/)
 #### TL;DR
 [Install stack](https://docs.haskellstack.org/en/stable/install_and_upgrade/). In the `herms` directory:
@@ -13,6 +14,16 @@ stack build
 stack exec herms
 ```
 Whim-bam!
+
+### Emacs, Dante, and Nix
+
+If you're using Emacs with Dante and Nix, you'll probably want to put the
+following in your `.dir-locals.el`:
+```elisp
+; Help Dante find the dependencies
+((haskell-mode
+  (dante-repl-command-line . ("nix-shell" "nix/shell.nix" "--pure" "--run" "cabal repl exe:herms --builddir=dist/dante"))))
+```
 
 ## Feature/Improvement Ideas
 

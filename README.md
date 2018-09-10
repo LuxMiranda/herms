@@ -102,15 +102,7 @@ cabal install
 
 ##### Manually with Nix
 
-Herms works well with [cabal2nix](https://github.com/NixOS/cabal2nix). Put this in `default.nix`:
-```nix
-{ pkgs ? import <nixpkgs> { } }: 
-pkgs.haskellPackages.callCabal2nix "herms" ./. { }
-```
-and build Herms with
-```
-nix build
-```
+See [./nix/README.md](./nix/README.md).
 
 ### Usage
 
