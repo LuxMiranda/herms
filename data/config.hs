@@ -11,5 +11,5 @@ ConfigInfo
 -- Recipes file name relative to the user's XDG data dir, generally
 -- ~/.local/share/herms on Linux systems. Default is "recipes.herms".
 , recipesFile = "recipes.herms"
-, language = "Português"
+, language = "english"
 }
