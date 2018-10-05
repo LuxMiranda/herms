@@ -48,11 +48,10 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
   Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html).
   In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms`
   and `~/.local/share/herms` respectively on most Linux systems.
-- Bonjour! Herm's now has language support for Français (French), English, and
-  Pirate. Set your language preferences in ``config.hs``! These are but the
+- Bonjour! Herm's now has language support for Français (French), English,
+  Pirate and Portuguese. Set your language preferences in ``config.hs``! These are but the
   first languages that Herm's is now capable of supporting. We need your help to
-  translate it into others! Currently in progress: Português (Portuguese),
-  Español (Spanish)
+  translate it into others! Currently in progress: Español (Spanish)
 
 ### Contributing
 
@@ -123,7 +122,7 @@ Usage:
         herms edit RECIPE_NAME                          edit a recipe
 
         herms import FILE_NAME                          import a recipe file
-        
+
         herms export DESTINATION                        export recipes to DESTINATION
 
         herms remove RECIPE_NAMES                       remove the particular recipes
