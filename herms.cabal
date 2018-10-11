@@ -68,6 +68,7 @@ library
                      , Lang.Strings
                      , Lang.Pirate
                      , Lang.Portuguese
+                     , Lang.Spanish
                      , Lang.French
 
   default-language:    Haskell2010
