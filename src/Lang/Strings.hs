@@ -77,7 +77,7 @@ nameOnlyDesc  = "show only recipe names"
 
 tags        = "tags"
 tagsMetavar = "TAGS"
-tagsDesc    = "show recipws with particular tags"
+tagsDesc    = "show recipes with particular tags"
 
 serving        = "serving"
 servingShort   = 's'
