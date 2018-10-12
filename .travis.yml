@@ -63,7 +63,7 @@ install:
   - "sed -i.bak 's/^jobs:/-- jobs:/' ${HOME}/.cabal/config"
   - rm -fv cabal.project cabal.project.local
   - grep -Ev -- '^\s*--' ${HOME}/.cabal/config | grep -Ev '^\s*$'
-  - if [ $HCNUMVER -eq 80403 ]; then cabal new-install -w ${HC} -j1 --symlink-bindir=$HOME/.local/bin hlint --constraint='hlint ==2.1.*'; fi
+  - if [ $HCNUMVER -eq 80403 ]; then cabal new-install -w ${HC} -j2 --symlink-bindir=$HOME/.local/bin hlint --constraint='hlint ==2.1.*'; fi
   - "printf 'packages: \".\"\\n' > cabal.project"
   - touch cabal.project.local
   - "if ! $NOINSTALLEDCONSTRAINTS; then for pkg in $($HCPKG list --simple-output); do echo $pkg  | grep -vw -- herms | sed 's/^/constraints: /' | sed 's/-[^-]*$/ installed/' >> cabal.project.local; done; fi"
@@ -73,8 +73,8 @@ install:
       (cd "." && autoreconf -i);
     fi
   - rm -f cabal.project.freeze
-  - cabal new-build -w ${HC} ${TEST} ${BENCH} --project-file="cabal.project" --dep -j1 all
-  - cabal new-build -w ${HC} --disable-tests --disable-benchmarks --project-file="cabal.project" --dep -j1 all
+  - cabal new-build -w ${HC} ${TEST} ${BENCH} --project-file="cabal.project" --dep -j2 all
+  - cabal new-build -w ${HC} --disable-tests --disable-benchmarks --project-file="cabal.project" --dep -j2 all
   - rm -rf .ghc.environment.* "."/dist
   - DISTDIR=$(mktemp -d /tmp/dist-test.XXXX)
 
