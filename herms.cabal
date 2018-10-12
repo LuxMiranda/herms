@@ -99,7 +99,7 @@ executable herms
   build-depends:       herms
                      , ansi-terminal >= 0.7.0 && <= 0.8.1
                      , base >=4.8 && <5
-                     , brick >= 0.19 && <= 0.39
+                     , brick >= 0.41.2 && <= 0.41.2
                      , directory >= 0.0
                      , filepath >= 1.4 && < 1.5
                      , microlens >=0.4 && <0.5
@@ -108,7 +108,7 @@ executable herms
                      , optparse-applicative >=0.14 && <0.15
                      , semigroups >= 0.18.3 && < 0.19
                      , split >=0.2 && <0.3
-                     , vty >=5.15 && <= 5.23
+                     , vty >=5.24 && <= 5.24
 
 test-suite herms-test
     type: exitcode-stdio-1.0
