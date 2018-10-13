@@ -49,7 +49,7 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
   Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html).
   In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms`
   and `~/.local/share/herms` respectively on most Linux systems.
-- Hola! Herm's now has language support for Español (Spanish)! Check out the rest of our supported laangauges in
+- Hola! Herm's now has language support for Español (Spanish)! Check out the rest of our supported languages in
   our [supported languages section](#supported-languages). Set your language preferences in ``config.hs``!
   These are  but the first languages that Herm's is now capable of supporting. We need your help to
   translate it into others!
