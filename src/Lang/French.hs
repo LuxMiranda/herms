@@ -69,6 +69,8 @@ french str
   | is addDesc        = "ajouter une nouvelle recette (interactivement)"
   | is edit           = "éditer"
   | is editDesc       = "éditer une recette"
+  | is export         = "exporter"
+  | is exportDesc     = "exporter les recettes sur la sortie standard"
   | is import'        = "importer"
   | is importDesc     = "importer un ficher de recette"
   | is remove         = "retirer"
