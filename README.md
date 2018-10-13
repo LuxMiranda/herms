@@ -14,15 +14,16 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 - [Herm's](#herms)
     - [Features](#features)
         - [What's new](#whats-new)
+        - [Supported languages](#supported-languages)
     - [Contributing](#contributing)
     - [Installation](#installation)
         - [Manually cloning and installing from source with Stack](#manually-cloning-and-installing-from-source-with-stack)
         - [Via Hackage and Cabal](#via-hackage-and-cabal)
         - [Manually with Cabal](#manually-with-cabal)
         - [Manually with Nix](#manually-with-nix)
-        - [Usage](#usage)
-            - [Command-line interface](#command-line-interface)
-            - [Configuring Herm's and managing recipe files](#configuring-herms-and-managing-recipe-files)
+    - [Usage](#usage)
+        - [Command-line interface](#command-line-interface)
+        - [Configuring Herm's and managing recipe files](#configuring-herms-and-managing-recipe-files)
 
 ### Features
 - Add recipes! :)
@@ -48,10 +49,17 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
   Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html).
   In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms`
   and `~/.local/share/herms` respectively on most Linux systems.
-- Bonjour! Herm's now has language support for Français (French), English,
-  Pirate and Portuguese. Set your language preferences in ``config.hs``! These are but the
-  first languages that Herm's is now capable of supporting. We need your help to
-  translate it into others! Currently in progress: Español (Spanish)
+- Hola! Herm's now has language support for Español (Spanish)! Check out the rest of our supported languages in
+  our [supported languages section](#supported-languages). Set your language preferences in ``config.hs``!
+  These are  but the first languages that Herm's is now capable of supporting. We need your help to
+  translate it into others!
+
+#### Supported languages
+- English
+- Español (Spanish)
+- Français (French)
+- Pirate
+- Portuguese
 
 ### Contributing
 
