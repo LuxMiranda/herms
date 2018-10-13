@@ -10,7 +10,7 @@ french str
   | is tuiServingSize = "       Portion: "
   | is tuiHeaders     = "                  qté.   unité              nom                 attribut"
   | is tuiIngrs       = "  Ingrédients: \n(un par ligne)  "
-  | is tuiDirs        = "   Directions: \n(un par ligne)  "
+  | is tuiDirs        = " Instructions: \n(un par ligne)  "
   | is tuiTags        = "     Mots-clés: "
   | is tuiHelp1       = "                      Tab / Shift+Tab           - Champ suivant / précédent"
   | is tuiHelp2       = "                      Ctrl + <flèches>          - Parcourir les champs"
