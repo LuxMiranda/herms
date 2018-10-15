@@ -1,5 +1,5 @@
 ConfigInfo
-{ 
+{
 -- Default unit system to show recipes in.
 -- OPTIONS: Imperial, Metric, None
   defaultUnit = None

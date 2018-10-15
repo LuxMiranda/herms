@@ -14,15 +14,16 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 - [Herm's](#herms)
     - [Features](#features)
         - [What's new](#whats-new)
+        - [Supported languages](#supported-languages)
     - [Contributing](#contributing)
     - [Installation](#installation)
         - [Manually cloning and installing from source with Stack](#manually-cloning-and-installing-from-source-with-stack)
         - [Via Hackage and Cabal](#via-hackage-and-cabal)
         - [Manually with Cabal](#manually-with-cabal)
         - [Manually with Nix](#manually-with-nix)
-        - [Usage](#usage)
-            - [Command-line interface](#command-line-interface)
-            - [Configuring Herm's and managing recipe files](#configuring-herms-and-managing-recipe-files)
+    - [Usage](#usage)
+        - [Command-line interface](#command-line-interface)
+        - [Configuring Herm's and managing recipe files](#configuring-herms-and-managing-recipe-files)
 
 ### Features
 - Add recipes! :)
@@ -45,7 +46,26 @@ See [the changelog](./CHANGELOG.md) for migration support and more detailed disc
   (the old format is deprecated, see [the changelog](./CHANGELOG.md)).
   Furthermore, recipes can be imported and exported in JSON and YAML formats.
 - *Breaking change*: Units now have a different internal representation.
-  See [the changelog](./CHANGELOG.md) for migration instructions.
+  Recipes written for old versions of Herm's will have to be converted (see
+  [#71](https://github.com/JackKiefer/herms/pull/71) to see how the example
+  recipes were changed). More breaking changes are expected as Herm's begins to
+  use YAML as its representation format (see
+  [#37](https://github.com/JackKiefer/herms/issues/37)).
+- Herm's now conforms to the [XDG Base Directory
+  Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html).
+  In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms`
+  and `~/.local/share/herms` respectively on most Linux systems.
+- Hola! Herm's now has language support for Español (Spanish)! Check out the rest of our supported languages in
+  our [supported languages section](#supported-languages). Set your language preferences in ``config.hs``!
+  These are  but the first languages that Herm's is now capable of supporting. We need your help to
+  translate it into others!
+
+#### Supported languages
+- English
+- Español (Spanish)
+- Français (French)
+- Pirate
+- Portuguese
 
 ### Contributing
 
@@ -100,15 +120,7 @@ cabal install
 
 ##### Manually with Nix
 
-Herms works well with [cabal2nix](https://github.com/NixOS/cabal2nix). Put this in `default.nix`:
-```nix
-{ pkgs ? import <nixpkgs> { } }: 
-pkgs.haskellPackages.callCabal2nix "herms" ./. { }
-```
-and build Herms with
-```
-nix build
-```
+See [./nix/README.md](./nix/README.md).
 
 ### Usage
 
@@ -129,7 +141,7 @@ Usage:
         herms edit RECIPE_NAME                          edit a recipe
 
         herms import FILE_NAME                          import a recipe file
-        
+
         herms export DESTINATION                        export recipes to DESTINATION
 
         herms remove RECIPE_NAMES                       remove the particular recipes

@@ -6,7 +6,8 @@ name:               herms
 
 -- The package description
 description:        HeRM's: a Haskell-based Recipe Manager for delicious kitchen recipes
-tested-with:        GHC == 8.4.1
+tested-with:        GHC == 8.6.1
+                    GHC == 8.4.1
                     GHC == 8.2.2
                     GHC == 8.0.2
 
@@ -68,6 +69,7 @@ library
                      , Lang.Strings
                      , Lang.Pirate
                      , Lang.Portuguese
+                     , Lang.Spanish
                      , Lang.French
 
   default-language:    Haskell2010
@@ -103,7 +105,7 @@ executable herms
                      , aeson -any
                      , ansi-terminal >= 0.7.0 && <= 0.8.1
                      , base >=4.8 && <5
-                     , brick >= 0.19 && <= 0.39
+                     , brick >= 0.41.2 && <= 0.41.2
                      , bytestring -any
                      , directory >= 0.0
                      , filepath >= 1.4 && < 1.5
@@ -113,7 +115,7 @@ executable herms
                      , optparse-applicative >=0.14 && <0.15
                      , semigroups >= 0.18.3 && < 0.19
                      , split >=0.2 && <0.3
-                     , vty >=5.15 && <= 5.23
+                     , vty >=5.24 && <= 5.24
                      , yaml >=0.08 && <0.11
 
 test-suite herms-test
