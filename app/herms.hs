@@ -75,7 +75,7 @@ saveOrDiscard input oldRecp = do
     then do
     let recpName = maybe (recipeName newRecipe) recipeName oldRecp
     unless (isNothing (readRecipeRef recpName recipeBook)) $ removeSilent [recpName]
-    liftIO $ appendFile (recipesFile' config) (show newRecipe ++ "\n")
+    liftIO $ BS.appendFile (recipesFile' config) (Yaml.encode [newRecipe] `BS.snoc` '\n')
     liftIO $ putStrLn (t Str.recipeSaved)
   else if response == t Str.n || response == t Str.nCap
     then
