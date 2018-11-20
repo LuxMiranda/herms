@@ -57,12 +57,15 @@ convertIngredientToImperial ingr =
     Gallon  -> ingr
     Other _ -> ingr
 
-    
-convertTemperatureToMetric :: String -> String
-convertTemperatureToMetric s = unpack $ foldl replaceTemperature (pack s) (fmap packText $ fmap convertReplacement (findReplacements s))
+
+convertTemperatureToMetric = convertTemperature C
+convertTemperatureToImperial = convertTemperature F
+
+convertTemperature :: TempUnit -> String -> String
+convertTemperature u s = unpack $ foldl replaceTemperature (pack s) (fmap packText $ fmap convertReplacement (findReplacements s))
   where packText (s1, s2) = (pack s1, pack s2)
         replaceTemperature text (old, new) = replace old new text
-        convertReplacement = fmap $ show . toTempUnit C
+        convertReplacement = fmap $ show . toTempUnit u
 
 findReplacements :: String -> [(String, Temperature)]
 findReplacements = map parseRegexResult . findTemperatures
