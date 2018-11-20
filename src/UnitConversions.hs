@@ -1,6 +1,8 @@
 module UnitConversions where
 
 import Types
+import Data.Text (replace, pack, unpack)
+import Text.Regex.Posix ((=~))
 
 -- NOTE: Here, "imperial" means "U.S. Customary". Conversion to British,
 -- Australian, Canadian, etc. imperial units is not yet implemented.
@@ -54,3 +56,41 @@ convertIngredientToImperial ingr =
     Quart   -> ingr
     Gallon  -> ingr
     Other _ -> ingr
+
+    
+convertTemperatureToMetric :: String -> String
+convertTemperatureToMetric s = unpack $ foldl (\text (n,r) -> replace n r text) (pack s) (fmap packText $ findReplacements s)
+      where packText (s1, s2) = (pack s1, pack s2)
+
+findReplacements :: String -> [(String, String)]
+findReplacements = (map ((fmap translateTemperature) . parseRegexResult)) . findTemperatures
+parseRegexResult l = (l!!0, Temperature (read (l!!1)) (parseTempUnit (l!!2)))
+
+findTemperatures :: String -> [[String]]
+findTemperatures s = s =~  "([0-9]*) *°(C|F)"
+
+translateTemperature :: Temperature -> String
+translateTemperature temperature = show $ toTempUnit C temperature
+
+parseTempUnit :: String -> TempUnit
+parseTempUnit "C" = C
+parseTempUnit "F" = F
+parseTempUnit x = error $ "couldn't parse tempUnit: " ++ x
+
+data Temperature = Temperature Int TempUnit
+instance Show Temperature where
+    show (Temperature value unit) = show value ++ show unit
+data TempUnit = C | F
+instance Show TempUnit where
+    show C = "°C"
+    show F = "°F"
+toTempUnit :: TempUnit -> Temperature -> Temperature
+toTempUnit C (Temperature x F) = Temperature (fahrenheitToCelsius x) C
+toTempUnit F (Temperature x C) = Temperature (celsiusToFahrenheit x) F
+toTempUnit C (Temperature x C) = (Temperature x C)
+toTempUnit F (Temperature x F) = (Temperature x F)
+
+fahrenheitToCelsius :: Int -> Int
+fahrenheitToCelsius = round . (/1.8) . (+(-32)) . fromIntegral
+celsiusToFahrenheit :: Int -> Int
+celsiusToFahrenheit = round . (+32) . (*1.8) . fromIntegral
