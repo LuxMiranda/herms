@@ -59,8 +59,9 @@ convertIngredientToImperial ingr =
 
     
 convertTemperatureToMetric :: String -> String
-convertTemperatureToMetric s = unpack $ foldl (\text (n,r) -> replace n r text) (pack s) (fmap packText $ findReplacements s)
+convertTemperatureToMetric s = unpack $ foldl replaceTemperature (pack s) (fmap packText $ findReplacements s)
       where packText (s1, s2) = (pack s1, pack s2)
+            replaceTemperature text (old, new) = replace old new text
 
 findReplacements :: String -> [(String, String)]
 findReplacements = (map ((fmap translateTemperature) . parseRegexResult)) . findTemperatures
