@@ -13,8 +13,12 @@ convertRecipeUnits :: Conversion -> Recipe -> Recipe
 convertRecipeUnits unit recp =
   case unit of
     None        -> recp
-    Metric      -> recp{ingredients = map convertIngredientToMetric (ingredients recp)}
-    Imperial    -> recp{ingredients = map convertIngredientToImperial (ingredients recp)}
+    Metric      -> recp{
+      ingredients = map convertIngredientToMetric (ingredients recp),
+      directions = map convertTemperatureToMetric (directions recp)}
+    Imperial    -> recp{
+      ingredients = map convertIngredientToImperial (ingredients recp),
+      directions = map convertTemperatureToImperial (directions recp)}
 
 convertIngredientToMetric :: Ingredient -> Ingredient
 convertIngredientToMetric ingr =
