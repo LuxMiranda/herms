@@ -59,19 +59,17 @@ convertIngredientToImperial ingr =
 
     
 convertTemperatureToMetric :: String -> String
-convertTemperatureToMetric s = unpack $ foldl replaceTemperature (pack s) (fmap packText $ findReplacements s)
-      where packText (s1, s2) = (pack s1, pack s2)
-            replaceTemperature text (old, new) = replace old new text
+convertTemperatureToMetric s = unpack $ foldl replaceTemperature (pack s) (fmap packText $ fmap convertReplacement (findReplacements s))
+  where packText (s1, s2) = (pack s1, pack s2)
+        replaceTemperature text (old, new) = replace old new text
+        convertReplacement = fmap $ show . toTempUnit C
 
-findReplacements :: String -> [(String, String)]
-findReplacements = (map ((fmap translateTemperature) . parseRegexResult)) . findTemperatures
-parseRegexResult l = (l!!0, Temperature (read (l!!1)) (parseTempUnit (l!!2)))
+findReplacements :: String -> [(String, Temperature)]
+findReplacements = map parseRegexResult . findTemperatures
+  where parseRegexResult l = (l!!0, Temperature (read (l!!1)) (parseTempUnit (l!!2)))
 
 findTemperatures :: String -> [[String]]
 findTemperatures s = s =~  "([0-9]*) *°(C|F)"
-
-translateTemperature :: Temperature -> String
-translateTemperature temperature = show $ toTempUnit C temperature
 
 parseTempUnit :: String -> TempUnit
 parseTempUnit "C" = C
@@ -80,11 +78,11 @@ parseTempUnit x = error $ "couldn't parse tempUnit: " ++ x
 
 data Temperature = Temperature Int TempUnit
 instance Show Temperature where
-    show (Temperature value unit) = show value ++ show unit
+  show (Temperature value unit) = show value ++ show unit
 data TempUnit = C | F
 instance Show TempUnit where
-    show C = "°C"
-    show F = "°F"
+  show C = "°C"
+  show F = "°F"
 toTempUnit :: TempUnit -> Temperature -> Temperature
 toTempUnit C (Temperature x F) = Temperature (fahrenheitToCelsius x) C
 toTempUnit F (Temperature x C) = Temperature (celsiusToFahrenheit x) F
