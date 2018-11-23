@@ -93,8 +93,7 @@ instance Show TempUnit where
 toTempUnit :: TempUnit -> Temperature -> Temperature
 toTempUnit C (Temperature x F) = Temperature (fahrenheitToCelsius x) C
 toTempUnit F (Temperature x C) = Temperature (celsiusToFahrenheit x) F
-toTempUnit C (Temperature x C) = (Temperature x C)
-toTempUnit F (Temperature x F) = (Temperature x F)
+toTempUnit _ t = t
 
 fahrenheitToCelsius :: Int -> Int
 fahrenheitToCelsius = round . (/1.8) . (+(-32)) . fromIntegral
