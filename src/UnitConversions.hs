@@ -2,7 +2,7 @@ module UnitConversions where
 
 import Types
 import Data.Text (replace, pack, unpack)
-import Text.Regex.Posix ((=~))
+import Text.Regex.TDFA ((=~))
 
 -- NOTE: Here, "imperial" means "U.S. Customary". Conversion to British,
 -- Australian, Canadian, etc. imperial units is not yet implemented.
