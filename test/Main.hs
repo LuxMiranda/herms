@@ -12,4 +12,5 @@ main = T.defaultMain $ T.testGroup "Tests" [ ReadConfig.Tests.tests
                                            , Types.Tests.tests
                                            , Utils.Tests.tests
                                            , UnitConversions.Tests.tests
+                                           , UnitConversions.Tests.temperatureUnitTests
                                            ]
