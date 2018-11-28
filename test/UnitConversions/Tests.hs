@@ -40,4 +40,6 @@ temperatureUnitTests = testGroup "TemperatureConversions"
         (convertTemperatureToMetric "-20°F") @?= "-29°C"
     , testCase "Converting a temperature in a text with a space between the number and the unit" $
         (convertTemperatureToImperial "50 °C") @?= "122°F"
+    , testCase "Converting a temperature that doesn't have the degree sign" $
+        (convertTemperatureToImperial "50 C") @?= "122°F"
     ]

@@ -76,7 +76,7 @@ findReplacements = map parseRegexResult . findTemperatures
   where parseRegexResult l = (l!!0, Temperature (read (l!!1)) (parseTempUnit (l!!2)))
 
 findTemperatures :: String -> [[String]]
-findTemperatures s = s =~  "(-?[0-9]{1,3}) ?°(C|F)"
+findTemperatures s = s =~  "(-?[0-9]{1,3}) ?°?(C|F)"
 
 parseTempUnit :: String -> TempUnit
 parseTempUnit "C" = C
