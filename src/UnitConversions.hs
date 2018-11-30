@@ -84,12 +84,16 @@ parseTempUnit "F" = F
 parseTempUnit x = error $ "couldn't parse tempUnit: " ++ x
 
 data Temperature = Temperature Int TempUnit
+
 instance Show Temperature where
   show (Temperature value unit) = show value ++ show unit
+
 data TempUnit = C | F
+
 instance Show TempUnit where
   show C = "°C"
   show F = "°F"
+
 toTempUnit :: TempUnit -> Temperature -> Temperature
 toTempUnit C (Temperature x F) = Temperature (fahrenheitToCelsius x) C
 toTempUnit F (Temperature x C) = Temperature (celsiusToFahrenheit x) F
@@ -97,5 +101,6 @@ toTempUnit _ t = t
 
 fahrenheitToCelsius :: Int -> Int
 fahrenheitToCelsius = round . (/1.8) . (+(-32)) . fromIntegral
+
 celsiusToFahrenheit :: Int -> Int
 celsiusToFahrenheit = round . (+32) . (*1.8) . fromIntegral
