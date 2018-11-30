@@ -3,6 +3,9 @@ module UnitConversions where
 import Types
 import Data.Text (replace, pack, unpack)
 import Text.Regex.TDFA ((=~))
+import Lens.Micro ((^?), ix)
+import Text.Read (readMaybe)
+import Data.Maybe (isJust,fromJust)
 
 -- NOTE: Here, "imperial" means "U.S. Customary". Conversion to British,
 -- Australian, Canadian, etc. imperial units is not yet implemented.
@@ -72,16 +75,39 @@ convertTemperature u s = unpack $ foldl replaceTemperature (pack s) (fmap packTe
         convertReplacement = fmap $ show . toTempUnit u
 
 findReplacements :: String -> [(String, Temperature)]
-findReplacements = map parseRegexResult . findTemperatures
-  where parseRegexResult l = (l!!0, Temperature (read (l!!1)) (parseTempUnit (l!!2)))
+findReplacements = map fromJust . filter isJust . map parseRegexResult . findTemperatures
+  where parseRegexResult r = to3Tuple r >>= parseTemperature
+
+to3Tuple :: [a] -> Maybe (a, a, a)
+to3Tuple [a,b,c] = return (a,b,c)
+to3Tuple _ = fail $ "can't convert non 3-element list to 3-Tuple"
+
+parseTemperature :: (String,String,String) -> Maybe (String, Temperature)
+parseTemperature (s,v,u) = case isJust maybeValue && isJust maybeUnit of
+  True -> return (s, Temperature (fromJust maybeValue) (fromJust maybeUnit))
+  False -> Nothing
+  where maybeValue = readMaybe v
+        maybeUnit = parseTempUnit u
+
+regexResultToTuple :: [String] -> Maybe (String, String, String)
+regexResultToTuple l =
+  case isJust s && isJust v && isJust u of
+    True -> Just (fromJust s, fromJust v, fromJust u)
+    False -> Nothing
+  where s = at 1 l
+        v = at 2 l
+        u = at 3 l
+
+at :: Int -> [a] -> Maybe a
+at i l = (l ^? ix i)
 
 findTemperatures :: String -> [[String]]
 findTemperatures s = s =~  "(-?[0-9]{1,3}) ?°?(C|F)"
 
-parseTempUnit :: String -> TempUnit
-parseTempUnit "C" = C
-parseTempUnit "F" = F
-parseTempUnit x = error $ "couldn't parse tempUnit: " ++ x
+parseTempUnit :: String -> Maybe TempUnit
+parseTempUnit "C" = return C
+parseTempUnit "F" = return F
+parseTempUnit x = fail $ "couldn't parse tempUnit: " ++ x
 
 data Temperature = Temperature Int TempUnit
 
