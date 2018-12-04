@@ -3,7 +3,6 @@ module UnitConversions where
 import Types
 import Data.Text (replace, pack, unpack)
 import Text.Regex.TDFA ((=~))
-import Lens.Micro ((^?), ix)
 import Text.Read (readMaybe)
 import Data.Maybe (isJust,fromJust)
 
@@ -99,7 +98,9 @@ regexResultToTuple l =
         u = at 3 l
 
 at :: Int -> [a] -> Maybe a
-at i l = (l ^? ix i)
+at _ [] = Nothing
+at 0 l = Just $ head l
+at i l = at (i-1) (tail l)
 
 findTemperatures :: String -> [[String]]
 findTemperatures s = s =~  "(-?[0-9]{1,3}) ?°?(C|F)"
