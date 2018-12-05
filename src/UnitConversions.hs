@@ -4,7 +4,7 @@ import Types
 import Data.Text (replace, pack, unpack)
 import Text.Regex.TDFA ((=~))
 import Text.Read (readMaybe)
-import Data.Maybe (isJust,fromJust)
+import Data.Maybe (mapMaybe)
 
 -- NOTE: Here, "imperial" means "U.S. Customary". Conversion to British,
 -- Australian, Canadian, etc. imperial units is not yet implemented.
@@ -74,28 +74,17 @@ convertTemperature u s = unpack $ foldl replaceTemperature (pack s) (fmap packTe
         convertReplacement = fmap $ show . toTempUnit u
 
 findReplacements :: String -> [(String, Temperature)]
-findReplacements = map fromJust . filter isJust . map parseRegexResult . findTemperatures
+findReplacements = mapMaybe parseRegexResult . findTemperatures
   where parseRegexResult r = to3Tuple r >>= parseTemperature
 
 to3Tuple :: [a] -> Maybe (a, a, a)
-to3Tuple [a,b,c] = Just (a,b,c)
+to3Tuple [a, b, c] = Just (a, b, c)
 to3Tuple _ = Nothing
 
-parseTemperature :: (String,String,String) -> Maybe (String, Temperature)
-parseTemperature (s,v,u) = case isJust maybeValue && isJust maybeUnit of
-  True -> Just (s, Temperature (fromJust maybeValue) (fromJust maybeUnit))
-  False -> Nothing
-  where maybeValue = readMaybe v
-        maybeUnit = parseTempUnit u
-
-regexResultToTuple :: [String] -> Maybe (String, String, String)
-regexResultToTuple l =
-  case isJust s && isJust v && isJust u of
-    True -> Just (fromJust s, fromJust v, fromJust u)
-    False -> Nothing
-  where s = at 1 l
-        v = at 2 l
-        u = at 3 l
+parseTemperature :: (String, String, String) -> Maybe (String, Temperature)
+parseTemperature (s, v, u) = case (readMaybe v, parseTempUnit u) of
+  (Just value, Just unit) -> Just (s, Temperature value unit)
+  _ -> Nothing
 
 at :: Int -> [a] -> Maybe a
 at _ [] = Nothing
