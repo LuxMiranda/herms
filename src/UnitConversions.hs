@@ -93,7 +93,7 @@ at i l = at (i-1) (tail l)
 
 -- returns a list of matches, where every match is a list of the regex groups
 findTemperatures :: String -> [[String]]
-findTemperatures s = s =~  "(-?[0-9]{1,3}) ?°?(C|F)( |$)"
+findTemperatures s = s =~  "(-?[0-9]{1,3}) ?°?(C|F)([ .!?]|$)"
 
 parseTempUnit :: String -> Maybe TempUnit
 parseTempUnit "C" = Just C
