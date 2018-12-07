@@ -78,7 +78,7 @@ findReplacements = mapMaybe parseRegexResult . findTemperatures
   where parseRegexResult r = to3Tuple r >>= parseTemperature
 
 to3Tuple :: [a] -> Maybe (a, a, a)
-to3Tuple [a, b, c] = Just (a, b, c)
+to3Tuple (a:b:c: _) = Just (a, b, c)
 to3Tuple _ = Nothing
 
 parseTemperature :: (String, String, String) -> Maybe (String, Temperature)
@@ -93,7 +93,7 @@ at i l = at (i-1) (tail l)
 
 -- returns a list of matches, where every match is a list of the regex groups
 findTemperatures :: String -> [[String]]
-findTemperatures s = s =~  "(-?[0-9]{1,3}) ?°?(C|F)"
+findTemperatures s = s =~  "(-?[0-9]{1,3}) ?°?(C|F)( |$)"
 
 parseTempUnit :: String -> Maybe TempUnit
 parseTempUnit "C" = Just C

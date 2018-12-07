@@ -42,4 +42,6 @@ temperatureUnitTests = testGroup "TemperatureConversions"
         (convertTemperatureToImperial "50 °C") @?= "122°F"
     , testCase "Converting a temperature that doesn't have the degree sign" $
         (convertTemperatureToImperial "50 C") @?= "122°F"
+    , testCase "Ignoring something that looks like a temperature but isn't" $
+        (convertTemperatureToImperial "50 Crabs") @?= "50 Crabs"
     ]
