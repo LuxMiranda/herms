@@ -4,7 +4,8 @@ import           Test.Tasty                (TestTree, testGroup)
 import           Test.Tasty.QuickCheck     (testProperty)
 import           Test.Tasty.HUnit          (testCase)
 import           Test.QuickCheck           ((==>), (===))
-import           Test.HUnit                ((@?=))
+import           Test.HUnit                ((@?=), (@=?))
+import           Data.Tuple                (swap)
 
 import           Types
 import           Instances()
@@ -33,17 +34,25 @@ temperatureUnitTests = testGroup "TemperatureConversions"
     [ testCase "Converting °F to °C in a text" $
         (convertTemperatureToMetric "preheat to 110°F") @?= "preheat to 43°C"
     , testCase "Converting °C to °F in a text" $
-        (convertTemperatureToImperial "preheat to 43°C") @?= "preheat to 109°F"
         -- because of rounding we get 109°F when converting 110° F -> °C -> °F
-
-    , testCase "Converting a negative temperature" $
-        (convertTemperatureToMetric "-20°F") @?= "-29°C"
-    , testCase "Converting a temperature in a text with a space between the number and the unit" $
-        (convertTemperatureToImperial "50 °C") @?= "122°F"
-    , testCase "Converting a temperature that doesn't have the degree sign" $
-        (convertTemperatureToImperial "50 C") @?= "122°F"
-    , testCase "Ignoring something that looks like a temperature but isn't" $
-        (convertTemperatureToImperial "50 Crabs") @?= "50 Crabs"
-    , testCase "Converting a temperature at the end of a sentence" $
-        (convertTemperatureToImperial "50 C. 50C? 50 C!") @?= "122°F 122°F 122°F"
+        (convertTemperatureToImperial "preheat to 43°C") @?= "preheat to 109°F"
+        
+    , testCase "Recognizing temperatures in a text" $
+        let getTemperatures = map snd . findReplacements
+            testCases = [ ("250°C", [Temperature 250 C])
+                        , ("10 °C", [Temperature 10 C])
+                        , ("-10 °C", [Temperature (-10) C])
+                        , ("abc 15 C def", [Temperature 15 C])
+                        , ("5 C", [Temperature 5 C])
+                        , ("250C", [Temperature 250 C])
+                        , ("999°F", [Temperature 999 F])
+                        , ("34F", [Temperature 34 F])
+                        , ("250°C.", [Temperature 250 C])
+                        , ("250°C!", [Temperature 250 C])
+                        , ("250°C?", [Temperature 250 C])
+                        , ("10C 15F", [Temperature 10 C, Temperature 15 F])
+                        , ("0 Frites", [])
+                        , ("250Crabs", [])
+                        , ("250 Crabs", [])] :: [(String, [Temperature])] in
+            sequence_ $ map (uncurry (@=?) . fmap getTemperatures . swap) testCases
     ]

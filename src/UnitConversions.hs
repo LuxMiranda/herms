@@ -100,12 +100,12 @@ parseTempUnit "C" = Just C
 parseTempUnit "F" = Just F
 parseTempUnit _ = Nothing
 
-data Temperature = Temperature Int TempUnit
+data Temperature = Temperature Int TempUnit deriving Eq
 
 instance Show Temperature where
   show (Temperature value unit) = show value ++ show unit
 
-data TempUnit = C | F
+data TempUnit = C | F deriving Eq
 
 instance Show TempUnit where
   show C = "°C"
