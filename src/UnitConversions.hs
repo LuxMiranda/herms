@@ -1,6 +1,10 @@
 module UnitConversions where
 
 import Types
+import Data.Text (replace, pack, unpack)
+import Text.Regex.TDFA ((=~))
+import Text.Read (readMaybe)
+import Data.Maybe (mapMaybe)
 
 -- NOTE: Here, "imperial" means "U.S. Customary". Conversion to British,
 -- Australian, Canadian, etc. imperial units is not yet implemented.
@@ -11,8 +15,12 @@ convertRecipeUnits :: Conversion -> Recipe -> Recipe
 convertRecipeUnits unit recp =
   case unit of
     None        -> recp
-    Metric      -> recp{ingredients = map convertIngredientToMetric (ingredients recp)}
-    Imperial    -> recp{ingredients = map convertIngredientToImperial (ingredients recp)}
+    Metric      -> recp{
+      ingredients = map convertIngredientToMetric (ingredients recp),
+      directions = map convertTemperatureToMetric (directions recp)}
+    Imperial    -> recp{
+      ingredients = map convertIngredientToImperial (ingredients recp),
+      directions = map convertTemperatureToImperial (directions recp)}
 
 convertIngredientToMetric :: Ingredient -> Ingredient
 convertIngredientToMetric ingr =
@@ -54,3 +62,57 @@ convertIngredientToImperial ingr =
     Quart   -> ingr
     Gallon  -> ingr
     Other _ -> ingr
+
+
+convertTemperatureToMetric = convertTemperature C
+convertTemperatureToImperial = convertTemperature F
+
+convertTemperature :: TempUnit -> String -> String
+convertTemperature u s = unpack $ foldl replaceTemperature (pack s) (fmap packText $ fmap convertReplacement (findReplacements s))
+  where packText (s1, s2) = (pack s1, pack s2)
+        replaceTemperature text (old, new) = replace old new text
+        convertReplacement = fmap $ show . toTempUnit u
+
+findReplacements :: String -> [(String, Temperature)]
+findReplacements = mapMaybe parseRegexResult . findTemperatures
+  where parseRegexResult r = to3Tuple r >>= parseTemperature
+
+to3Tuple :: [a] -> Maybe (a, a, a)
+to3Tuple (a:b:c: _) = Just (a, b, c)
+to3Tuple _ = Nothing
+
+parseTemperature :: (String, String, String) -> Maybe (String, Temperature)
+parseTemperature (s, v, u) = case (readMaybe v, parseTempUnit u) of
+  (Just value, Just unit) -> Just (s, Temperature value unit)
+  _ -> Nothing
+
+-- returns a list of matches, where every match is a list of the regex groups
+findTemperatures :: String -> [[String]]
+findTemperatures s = s =~  "(-?[0-9]{1,3}) ?°?(C|F)([ .!?]|$)"
+
+parseTempUnit :: String -> Maybe TempUnit
+parseTempUnit "C" = Just C
+parseTempUnit "F" = Just F
+parseTempUnit _ = Nothing
+
+data Temperature = Temperature Int TempUnit deriving Eq
+
+instance Show Temperature where
+  show (Temperature value unit) = show value ++ show unit
+
+data TempUnit = C | F deriving Eq
+
+instance Show TempUnit where
+  show C = "°C"
+  show F = "°F"
+
+toTempUnit :: TempUnit -> Temperature -> Temperature
+toTempUnit C (Temperature x F) = Temperature (fahrenheitToCelsius x) C
+toTempUnit F (Temperature x C) = Temperature (celsiusToFahrenheit x) F
+toTempUnit _ t = t
+
+fahrenheitToCelsius :: Int -> Int
+fahrenheitToCelsius = round . (/1.8) . (+(-32)) . fromIntegral
+
+celsiusToFahrenheit :: Int -> Int
+celsiusToFahrenheit = round . (+32) . (*1.8) . fromIntegral
