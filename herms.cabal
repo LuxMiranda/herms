@@ -71,6 +71,7 @@ library
                      , Lang.Portuguese
                      , Lang.Spanish
                      , Lang.French
+                     , Lang.German
 
   default-language:    Haskell2010
   Ghc-Options:         -W -Wcompat
