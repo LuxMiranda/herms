@@ -82,7 +82,7 @@ german str
     | is version        = "version"
     --  | is versionShort   = "v"
     | is versionDesc    = "Version anzeigen"
-    | is progDesc       = "HeRM's: Ein in Haskell geschribener Rezept-Manager. Für mehr Optionen \"herms --help\" eintippen"
+    | is progDesc       = "HeRM's: Ein in Haskell geschriebener Rezept-Manager. Für mehr Optionen \"herms --help\" eintippen"
     | otherwise         = str
   
     where is = (str ==)
