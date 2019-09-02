@@ -14,22 +14,13 @@ in stdenv.mkDerivation {
   src = lib.sourceFilesBySuffices ../. [ ".cabal" ".hs" ];
   buildInputs =  [
 
-    (haskell.packages.ghc822.ghcWithPackages (hpkgs: with hpkgs; [
-
-      # Nice for development
-      hoogle
-      hlint
-      hindent
-      ghcid
-      # ghc-mod # Doesn't build with GHC843
-      hasktags
-
-      # Necessary
-      cabal-install
+    (haskell.packages.ghc864.ghcWithHoogle (hpkgs: with hpkgs; [
+      # Add extra library dependencies here
     ] ++ herms.buildInputs ++ herms.propagatedBuildInputs))
+    hlint
+    cabal-install
 
     # General development
     git
-    less
   ];
 }

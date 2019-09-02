@@ -4,7 +4,7 @@ import           Test.Tasty              (TestTree, testGroup)
 import           Test.Tasty.HUnit        (testCase, (@=?), (@?=))
 import           Test.Tasty.QuickCheck   (testProperty)
 
-import           Data.Yaml               (decodeEither, encode)
+import           Data.Yaml               (encode)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Ratio              ((%))
 import           Instances()
@@ -34,9 +34,9 @@ yaml = testGroup "YAML"
   [ -- Decode inverts encode
     -- TODO: Many examples succeed in the REPL, why do these fail?
   --   testProperty "testUnitToFromJson" $
-  --   \u -> Right (u :: Unit)       == decodeEither (encode u)
+  --   \u -> Right (u :: Unit)       == decodeEither' (encode u)
   -- , testProperty "testIngredientToFromJson" $
-  --   \i -> Right (i :: Ingredient) == decodeEither (encode i)
+  --   \i -> Right (i :: Ingredient) == decodeEither' (encode i)
 
     testCase "testEncodeCup" $ BS.pack "cup\n" @=? encode Cup
   , testCase "testEncodeIngredient" $
