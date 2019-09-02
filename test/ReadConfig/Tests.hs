@@ -22,7 +22,7 @@ tests = testGroup "UnitConversions"
     , testCase "testParseRecipes" $ do
         path <- getDataFileName "recipes.yaml"
         contents <- BS.readFile path
-        (case (Yaml.decodeEither contents :: Either String [Recipe]) of
-                Left  err -> False @? "Couldn't parse recipes: " ++ err
+        (case (Yaml.decodeEither' contents :: Either Yaml.ParseException [Recipe]) of
+                Left  err -> False @? "Couldn't parse recipes: " ++ show err
                 Right _   -> True  @? "Success")
     ]
