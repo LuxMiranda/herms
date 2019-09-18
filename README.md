@@ -82,7 +82,7 @@ At the moment, Herm's can only be installed via
 works!
 
 If you're interested developing/hacking Herm's instead of just using it, see
-[Contributing.md](./Contibuting.md) instead.
+[Contributing.md](./Contributing.md) instead.
 
 ##### Via Stack _(recommended)_
 
