@@ -17,7 +17,7 @@ import Data.Semigroup ((<>))
 import Data.String    (IsString(..))
 import Data.Ratio
 import Control.Applicative
-import Options.Applicative hiding (str)
+import Options.Applicative
 import Text.Read
 import Control.Exception
 import GHC.IO.Exception
@@ -440,7 +440,7 @@ servingP t =  option auto
 
 -- | @formatP parses import/export formats.
 formatP :: Translator -> Parser String
-formatP t =  option auto
+formatP t =  option str
          (  long  (t Str.format)
          <> short Str.formatShort
          <> help  (t Str.formatDesc)
