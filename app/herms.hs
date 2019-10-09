@@ -186,11 +186,11 @@ export targets format = do
 
 getServingsAndConv :: Int -> String -> Config -> (Maybe Int, Conversion)
 getServingsAndConv serv convName config = (servings, conv)
-  where servings = case serv of
-                   0 -> case defaultServingSize' config of
-                           0 -> Nothing
-                           j -> Just j
-                   i -> Just i
+  where servings = if serv <= 0
+                    then case defaultServingSize' config of
+                            0 -> Nothing
+                            j -> Just j
+                    else Just serv
         t = translator config
         conv
           | convName  == t Str.metric   =  Metric
