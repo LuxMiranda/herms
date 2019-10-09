@@ -27,9 +27,9 @@ convertIngredientToMetric ingr =
   case unit ingr of
     Tsp     -> ingr{quantity = quantity ingr * 5, unit = Ml}
     Tbsp    -> ingr{quantity = quantity ingr * 15, unit = Ml}
-    Cup     -> ingr{quantity = quantity ingr * 30, unit = Ml}
-    Oz      -> ingr{quantity = quantity ingr * 237, unit = Ml}
+    Oz     -> ingr{quantity = quantity ingr * 30, unit = Ml}
     FlOz    -> ingr{quantity = quantity ingr * 28, unit = G}
+    Cup      -> ingr{quantity = quantity ingr * 237, unit = Ml}
     Lb      -> ingr{quantity = quantity ingr * 454, unit = G}
     Pint    -> ingr{quantity = quantity ingr * 473, unit = Ml}
     Quart   -> ingr{quantity = quantity ingr * 946, unit = Ml}
