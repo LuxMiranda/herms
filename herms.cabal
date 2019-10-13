@@ -99,8 +99,7 @@ executable herms
   ghc-options:         -W -Wcompat
                        -Wunrecognised-warning-flags
                        -threaded
-  extensions: MultiWayIf
-  other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
+  other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes, MultiWayIf
 
   -- Other library packages from which modules are imported.
   build-depends:       herms
