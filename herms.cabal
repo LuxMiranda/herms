@@ -96,9 +96,10 @@ executable herms
   main-is:             herms.hs
   other-modules:       AddCLI
   default-language:    Haskell2010
-  ghc-options:         -W -Wcompat -XMultiWayIf
+  ghc-options:         -W -Wcompat
                        -Wunrecognised-warning-flags
                        -threaded
+  extensions: MultiWayIf
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
 
   -- Other library packages from which modules are imported.
