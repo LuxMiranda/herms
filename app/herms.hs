@@ -185,9 +185,10 @@ export targets format = do
 
 getServingsAndConv :: Int -> String -> Config -> (Maybe Int, Conversion)
 getServingsAndConv serv convName config = (servings, conv)
-  where servings = if | serv <= 0 && defaultServingSize' config == 0 -> Nothing
-                      | serv <= 0                                    -> Just (defaultServingSize' config)
-                      | otherwise                                    -> Just serv
+  where servings =
+          if | serv <= 0 && defaultServingSize' config == 0 -> Nothing
+             | serv <= 0                                    -> Just (defaultServingSize' config)
+             | otherwise                                    -> Just serv
         t = translator config
         conv
           | convName  == t Str.metric   =  Metric
