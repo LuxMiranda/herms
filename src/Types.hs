@@ -265,8 +265,11 @@ adjustIngredients factor =
   List.map (\ingr -> ingr { quantity = quantity ingr * factor })
 
 showRecipe :: (String -> String) -> Recipe -> Maybe Int -> RichText
-showRecipe t r maybeServings =  showRecipeHeader t r maybeServings
-                ~~ "\n" ~~ List.unlines (showRecipeSteps r)
+showRecipe t r maybeServings =
+  if maybeServings == Nothing
+  then "Error: use a serving size greater than 0" ~~ "\n"
+  else showRecipeHeader t r maybeServings
+       ~~ "\n" ~~ List.unlines (showRecipeSteps r)
 
 showRecipeHeader :: (String -> String) -> Recipe -> Maybe Int -> RichText
 showRecipeHeader t r maybeServings = nameBox
