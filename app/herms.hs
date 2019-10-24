@@ -109,13 +109,14 @@ doEdit recp origRecp = do
         attrs    = toStr attribute
         tag      = unwords (tags recp)
 
-edit :: String -> HermsReader IO ()
-edit target = do
+edit :: String -> String -> HermsReader IO ()
+edit target convName = do
   (config, recipeBook) <- ask
   let t = translator config
+  let (_, conv) = getServingsAndConv 0 convName config
   case readRecipeRef target recipeBook of
     Nothing   -> liftIO $ putStrLn $ target ++ t Str.doesNotExist
-    Just recp -> doEdit recp (Just recp)
+    Just recp -> doEdit (convertRecipeUnits conv recp) (Just recp)
   -- Only supports editing one recipe per command
 
 -- | `readRecipeRef target book` interprets the string `target`
@@ -367,7 +368,7 @@ main = do
 runWithOpts :: Command -> HermsReader IO ()
 runWithOpts (List tags group nameOnly)              = list tags group nameOnly
 runWithOpts Add                                     = add
-runWithOpts (Edit target)                           = edit target
+runWithOpts (Edit target conversion)                = edit target conversion
 runWithOpts (Import target format)                  = importFile target format
 runWithOpts (Export targets format)                 = export targets format
 runWithOpts (Remove targets)                        = remove targets
@@ -386,7 +387,7 @@ runWithOpts DataDir                                 = printDataDir
 data Command = List   [String] Bool Bool         -- ^ shows recipes
              | View   [String] Int Bool String   -- ^ shows specified recipes with given serving
              | Add                               -- ^ adds the recipe (interactively)
-             | Edit   String                     -- ^ edits the recipe
+             | Edit   String String              -- ^ edits the recipe
              | Import String String              -- ^ imports a recipe file
              | Export [String] String            -- ^ exports recipes to stdout
              | Remove [String]                   -- ^ removes specified recipes
@@ -396,7 +397,7 @@ data Command = List   [String] Bool Bool         -- ^ shows recipes
 listP, addP, viewP, editP, importP, exportP, removeP, shopP, dataDirP :: Translator -> Parser Command
 listP    t = List   <$> (words <$> tagsP t) <*> groupByTagsP t <*> nameOnlyP t
 addP     _ = pure Add
-editP    t = Edit   <$> recipeNameP t
+editP    t = Edit   <$> recipeNameP t <*> conversionP t
 importP  t = Import <$> fileNameP t <*> formatP t
 exportP  t = Export <$> severalRecipesP t <*> formatP t
 removeP  t = Remove <$> severalRecipesP t
