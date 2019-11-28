@@ -75,7 +75,7 @@ portuguese str
   | is removeDesc     = "remover uma receita"
   | is shopping       = "compras"
   | is shoppingDesc   = "gerar uma lista de compras para as receitas"
-  -- | is datadir        = "datadir"
+  --  | is datadir        = "datadir"
   | is datadirDesc    = "mostrar local das receitas e arquivos de configuração"
   | is version        = "versão"
   --  | is versionShort   = "v"
