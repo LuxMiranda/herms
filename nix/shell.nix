@@ -14,7 +14,7 @@ in stdenv.mkDerivation {
   src = lib.sourceFilesBySuffices ../. [ ".cabal" ".hs" ];
   buildInputs =  [
 
-    (haskell.packages.ghc864.ghcWithHoogle (hpkgs: with hpkgs; [
+    (haskell.packages.ghc865.ghcWithHoogle (hpkgs: with hpkgs; [
       # Add extra library dependencies here
     ] ++ herms.buildInputs ++ herms.propagatedBuildInputs))
     hlint

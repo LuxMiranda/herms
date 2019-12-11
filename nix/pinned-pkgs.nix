@@ -1,6 +1,6 @@
 { pkgs ? import <nixpkgs> { } }:
 
-# We've pinned version 18.03 of nixpkgs for reproducible builds.
+# We've pinned nixpkgs for reproducible builds.
 
 # See this link for a tutorial:
 # https://github.com/Gabriel439/haskell-nix/tree/master/project0
@@ -8,6 +8,6 @@
 import (pkgs.fetchFromGitHub {
   owner  = "NixOS";
   repo   = "nixpkgs";
-  rev    = "19.03";
-  sha256 = "0q2m2qhyga9yq29yz90ywgjbn9hdahs7i8wwlq7b55rdbyiwa5dy";
+  rev    = "cc6cf0a96a627e678ffc996a8f9d1416200d6c81";
+  sha256 = "1srjikizp8ip4h42x7kr4qf00lxcp1l8zp6h0r1ddfdyw8gv9001";
 }) { }
