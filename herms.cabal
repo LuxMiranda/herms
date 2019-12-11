@@ -78,7 +78,7 @@ library
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
 
   -- Other library packages from which modules are imported.
-  build-depends:       ansi-terminal >= 0.7 && <0.9
+  build-depends:       ansi-terminal >= 0.7 && <0.10
                      , base >=4.8 && <5
                      , bytestring >= 0.9 && <0.11
                      , directory >= 0.0
@@ -104,9 +104,9 @@ executable herms
   -- Other library packages from which modules are imported.
   build-depends:       herms
                      , aeson -any
-                     , ansi-terminal >= 0.7 && <0.9
+                     , ansi-terminal >= 0.7 && <0.10
                      , base >=4.8 && <5
-                     , brick >= 0.41.2 && <0.47
+                     , brick >= 0.41.2 && <0.48
                      , bytestring -any
                      , directory >= 0.0
                      , filepath >= 1.4 && < 1.5
