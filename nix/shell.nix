@@ -1,7 +1,8 @@
 { pkgs ? import ./pinned-pkgs.nix { } }:
 
 with pkgs;
-let herms = with haskellPackages; callPackage ./default.nix { };
+let haskellPackages = haskell.packages.ghc881;
+    herms = with haskellPackages; callPackage ./default.nix { };
 in stdenv.mkDerivation {
   name = "herms-dev";
   version = "0.1";
@@ -14,7 +15,7 @@ in stdenv.mkDerivation {
   src = lib.sourceFilesBySuffices ../. [ ".cabal" ".hs" ];
   buildInputs =  [
 
-    (haskell.packages.ghc865.ghcWithHoogle (hpkgs: with hpkgs; [
+    (haskellPackages.ghcWithHoogle (hpkgs: with hpkgs; [
       # Add extra library dependencies here
     ] ++ herms.buildInputs ++ herms.propagatedBuildInputs))
     hlint
