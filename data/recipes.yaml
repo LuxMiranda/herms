@@ -8,17 +8,14 @@
     - quantity: 1/1
       unit: package
       name: oriental-flavor instant ramen
-      attribute: ""
     - quantity: 1/1
       unit: Cup
       name: frozen stir-fry vegetables
-      attribute: ""
     - quantity: 1/1
       unit: Tbsp
       name: peanut butter
       attribute: chunky or creamy
     - quantity: 0/1
-      unit: ""
       name: Your favorite hot sauce
       attribute: (optional)
   directions:
@@ -45,21 +42,17 @@
     - quantity: 1 / 2
       unit: Cup
       name: black beans
-      attribute: ""
     - quantity: 1 / 2
       unit: tsp
       name: cumin cayenne and paprika
       attribute: ""
     - quantity: 1 / 6
-      unit: ""
       name: avocado
       attribute: cubed or sliced
     - quantity: 1 / 1
       unit: Tbsp
       name: hatch valley salsa
-      attribute: ""
     - quantity: 0 / 1
-      unit: ""
       name: lime juice
       attribute: to garnish
   directions:
@@ -71,4 +64,4 @@
   tags:
     - vegan
     - mexican
-    - easy"
+    - easy
