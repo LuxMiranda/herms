@@ -6,7 +6,7 @@ import           Data.Char    (toLower)
 import           Data.Maybe
 import           Data.Ord
 import           Data.Ratio
-import           Data.Yaml    ((.=), (.:))
+import           Data.Yaml    ((.=), (.:), (.:?))
 import           GHC.Generics (Generic)
 import           Text.Read    (readMaybe)
 import qualified Data.List       as List
@@ -159,10 +159,13 @@ instance Yaml.ToJSON Ingredient where
 
 instance Yaml.FromJSON Ingredient where
   parseJSON = Yaml.withObject "Ingredient" $ \o -> Ingredient
-    <$> (readFrac  <$> o .: Text.pack "quantity")
-    <*> (parseUnit <$> o .: Text.pack "unit")
+    <$> (readFrac <$> o .: Text.pack "quantity")
+    <*> (parseUnit <$> withDefault o "" "unit")
     <*> (o .: Text.pack "name")
-    <*> (o .: Text.pack "attribute")
+    <*> withDefault o "" "attribute"
+    where withDefault o def name =
+            fromMaybe def <$> o .:? Text.pack name
+
 
 instance Ord Ingredient where
   ingr1 `compare` ingr2 =
@@ -197,11 +200,13 @@ instance Yaml.ToJSON Recipe where
 instance Yaml.FromJSON Recipe where
   parseJSON = Yaml.withObject "Recipe" $ \o -> Recipe
     <$> (o .: Text.pack "name")
-    <*> (o .: Text.pack "description")
-    <*> (o .: Text.pack "serving size")
+    <*> withDefault o "" "description"
+    <*> withDefault o 1 "serving size"
     <*> (o .: Text.pack "ingredients")
     <*> (o .: Text.pack "directions")
-    <*> (o .: Text.pack "tags")
+    <*> withDefault o [] "tags"
+    where withDefault o def name =
+            fromMaybe def <$> o .:? Text.pack name
 
 type RecipeBook = [Recipe]
 
