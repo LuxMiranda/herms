@@ -3,6 +3,8 @@
 {-# LANGUAGE RankNTypes #-}
 module AddCLI where
 
+import Data.Monoid
+import qualified Data.Text.Zipper as Z
 import Lens.Micro
 import Lens.Micro.TH
 import qualified Graphics.Vty as V
@@ -17,6 +19,7 @@ import Brick.Widgets.Core
   , str
   )
 import qualified Brick.Widgets.Center as C
+import qualified Brick.Widgets.Core as C
 import qualified Brick.Widgets.Edit as E
 import qualified Brick.AttrMap as A
 import qualified Brick.Focus as F
@@ -56,16 +59,39 @@ data St =
 
 makeLenses ''St
 
+-- | This is a modification of the default renderEditor implementation
+-- provided in Brick.Widgets.Edit
+renderIngrEditor :: Int -> ([String] -> T.Widget Name) -> Bool -> E.Editor String Name -> T.Widget Name
+renderIngrEditor row draw foc e =
+    let z = e^.E.editContentsL
+        (r,c) = Z.cursorPosition z
+        cursorLoc = T.Location $
+            if foc
+               then (C.textWidth (take c (Z.currentLine z)), r)
+               else (0, row)
+        cursorWid = C.textWidth . (:[]) $ Z.currentChar z ^. non ' '
+        contents = E.getEditContents e
+    in C.withAttr (if foc then E.editFocusedAttr else E.editAttr) $
+       C.viewport (E.editorName e) T.Both $
+       (if foc then C.showCursor (E.editorName e) cursorLoc else id) $
+       C.visibleRegion cursorLoc (cursorWid, 1) $
+       draw $
+       contents <> if foc then [] else replicate (row - length contents + 1) []
+
 drawUI :: Translator -> St -> [T.Widget Name]
 drawUI t st = [ui]
     where
         e1 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit1)
         e2 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit2)
         e3 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit3)
-        e4 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit4)
-        e5 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit5)
-        e6 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit6)
-        e7 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit7)
+        ingrFocusRow = (^. non 0) . (^? each . _Just)
+            $ F.withFocusRing (st^.focusRing) (\foc e ->
+                if foc then Just (fst . Z.cursorPosition $ e^.E.editContentsL) else Nothing)
+            <$> [st^.edit4, st^.edit5, st^.edit6, st^.edit7]
+        e4 = F.withFocusRing (st^.focusRing) (renderIngrEditor ingrFocusRow (str . unlines)) (st^.edit4)
+        e5 = F.withFocusRing (st^.focusRing) (renderIngrEditor ingrFocusRow (str . unlines)) (st^.edit5)
+        e6 = F.withFocusRing (st^.focusRing) (renderIngrEditor ingrFocusRow (str . unlines)) (st^.edit6)
+        e7 = F.withFocusRing (st^.focusRing) (renderIngrEditor ingrFocusRow (str . unlines)) (st^.edit7)
         e8 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit8)
         e9 = F.withFocusRing (st^.focusRing) (E.renderEditor (str . unlines)) (st^.edit9)
 

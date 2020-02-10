@@ -117,6 +117,7 @@ executable herms
                      , optparse-applicative >=0.14 && <0.16
                      , semigroups >= 0.18.3 && <= 0.19.1
                      , split >=0.2 && <0.3
+                     , text-zipper >= 0.7.1
                      , vty >=5.26 && <5.27
                      , yaml >=0.10 && <0.12
 
