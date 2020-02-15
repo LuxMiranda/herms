@@ -5,14 +5,14 @@ module Types where
 
 import           Brick.Widgets.Core  (TextWidth(..))
 import           Control.Applicative
-import           Data.Char    (toLower)
+import           Data.Char           (toLower)
 import           Data.Maybe
 import           Data.Monoid
 import           Data.Ord
 import           Data.Ratio
-import           Data.Yaml    ((.=), (.:), (.:?))
-import           GHC.Generics (Generic)
-import           Text.Read    (readMaybe)
+import           Data.Yaml           ((.=), (.:), (.:?))
+import           GHC.Generics        (Generic)
+import           Text.Read           (readMaybe)
 import qualified Data.List       as List
 import qualified Data.List.Split as List
 import qualified Data.Text       as Text hiding (toLower)
@@ -178,17 +178,17 @@ data Ingredient = Ingredient { quantity       :: Ratio Int
                              } deriving (Generic, Eq, Show, Read)
 
 instance Yaml.ToJSON Ingredient where
-  toJSON u = Yaml.object [ Text.pack "quantity"  .= (fracToValue $ quantity u)
-                         , Text.pack "unit"      .= (Text.pack $ showUnit $ unit u)
-                         , Text.pack "name"      .= (Text.pack $ ingredientName u)
-                         , Text.pack "attribute" .= (Text.pack $ attribute u)
+  toJSON u = Yaml.object [ "quantity"  .= fracToValue (quantity u)
+                         , "unit"      .= Text.pack (showUnit $ unit u)
+                         , "name"      .= Text.pack (ingredientName u)
+                         , "attribute" .= Text.pack (attribute u)
                          ]
 
 instance Yaml.FromJSON Ingredient where
   parseJSON = Yaml.withObject "Ingredient" $ \o -> Ingredient
-    <$> ((readFrac <$> o .: Text.pack "quantity") <|> (fromIntegral <$> (o .: Text.pack "quantity" :: Yaml.Parser Int)))
+    <$> ((readFrac <$> o .: "quantity") <|> (fromIntegral <$> (o .: "quantity" :: Yaml.Parser Int)))
     <*> (parseUnit <$> withDefault o "" "unit")
-    <*> (o .: Text.pack "name")
+    <*> (o .: "name")
     <*> withDefault o "" "attribute"
     where withDefault o def name =
             fromMaybe def <$> o .:? Text.pack name
@@ -215,22 +215,22 @@ data Recipe = Recipe { recipeName :: String
 -- instance Yaml.ToJSON [Ingredient] where
 
 instance Yaml.ToJSON Recipe where
-  toJSON r = Yaml.object $
-    [ Text.pack "name"         .= (Text.pack $ recipeName r)
-    , Text.pack "description"  .= (Text.pack $ description r)
-    , Text.pack "serving size" .= servingSize r
-    , Text.pack "ingredients"  .= (Yaml.toJSON $ ingredients r)
-    , Text.pack "directions"   .= (map Text.pack $ directions r)
-    , Text.pack "tags"         .= (map Text.pack $ tags r)
+  toJSON r = Yaml.object
+    [ "name"         .= Text.pack (recipeName r)
+    , "description"  .= Text.pack (description r)
+    , "serving size" .= servingSize r
+    , "ingredients"  .= Yaml.toJSON (ingredients r)
+    , "directions"   .= map Text.pack (directions r)
+    , "tags"         .= map Text.pack (tags r)
     ]
 
 instance Yaml.FromJSON Recipe where
   parseJSON = Yaml.withObject "Recipe" $ \o -> Recipe
-    <$> (o .: Text.pack "name")
+    <$> (o .: "name")
     <*> withDefault o "" "description"
     <*> withDefault o 1 "serving size"
-    <*> (o .: Text.pack "ingredients")
-    <*> (o .: Text.pack "directions")
+    <*> (o .: "ingredients")
+    <*> (o .: "directions")
     <*> withDefault o [] "tags"
     where withDefault o def name =
             fromMaybe def <$> o .:? Text.pack name
@@ -282,18 +282,15 @@ showIngredient servings i =
               else showFrac (quantity i * (servings % 1)) ++ " "
         att = if List.null (attribute i) then "" else ", " ++ attribute i
 
--- TODO: rewrite as a `fold`
-makeIngredients :: [[String]] -> [Ingredient]
-makeIngredients [] = []
-makeIngredients (i:is) =
-  Ingredient { quantity       = case i of
-                                  (xs@(_ : _) : _) -> readFrac xs
-                                  _                -> 0 % 1
-             , unit           = parseUnit (i !! 1)
-             , ingredientName = i !! 2
-             , attribute      = i !! 3
-             } : makeIngredients is
-
+makeIngredients :: Functor f => f [String] -> f Ingredient
+makeIngredients = fmap makeIngredients'
+  where makeIngredients' (q:u:i:a:_) =
+          Ingredient { quantity       = if null q then 0 else readFrac q
+                     , unit           = parseUnit u
+                     , ingredientName = i
+                     , attribute      = a
+                     }
+        makeIngredients' _ = error "length of input to makeIngredients' must be > 3"
 
 readIngredients :: [[String]] -> [Ingredient]
 readIngredients is =
