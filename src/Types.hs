@@ -1,7 +1,9 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Types where
 
+import           Brick.Widgets.Core  (TextWidth(..))
 import           Control.Applicative
 import           Data.Char    (toLower)
 import           Data.Maybe
@@ -302,24 +304,29 @@ adjustIngredients :: Ratio Int -> [Ingredient] -> [Ingredient]
 adjustIngredients factor =
   List.map (\ingr -> ingr { quantity = quantity ingr * factor })
 
+newline :: RichText
+newline = "\n"
+
 showRecipe :: (String -> String) -> Recipe -> Maybe Int -> RichText
 showRecipe t r maybeServings =
   case maybeServings of
-    Nothing       -> "Error: use a serving size greater than 0" ~~ "\n"
+    Nothing       -> "Error: use a serving size greater than 0\n"
     Just servings -> showRecipeHeader t r (Just servings)
-                    ~~ "\n" ~~ List.unlines (showRecipeSteps r)
+                    ~~ newline ~~ List.unlines (showRecipeSteps r)
 
 showRecipeHeader :: (String -> String) -> Recipe -> Maybe Int -> RichText
 showRecipeHeader t r maybeServings = nameBox
-                ~~ "\n" ~~ description r ~~ "\n"
-                ~~ bold (t Str.headerServs) ~~ show servings ~~ "\n"
+                ~~ newline ~~ description r ~~ newline
+                ~~ bold (t Str.headerServs) ~~ show servings ~~ newline
                 ~~ bold (t Str.headerIngrs)
                 ~~ List.unlines (List.map ((++) "* " . showIngredient servings) (ingredients r))
-                where filler = List.replicate (List.length (recipeName r) + 2) '-'
+                where filler = List.replicate (textWidth (recipeName r) + 2) '-'
                       servings = fromMaybe (servingSize r) maybeServings
-                      nameBox = fontColor Magenta $ bold $ "+--" ~~ filler ~~ "+\n"
-                                  ~~ "|  " ~~ recipeName r ~~ "  |\n"
-                                  ~~ "+--" ~~ filler ~~ "+\n"
+                      horizontalLine = ("+--" :: RichText) ~~ filler ~~ ("+" :: RichText) ~~ newline
+                      nameBox = fontColor Magenta $ bold
+                                  $  horizontalLine
+                                  ~~ ("|  " :: RichText) ~~ recipeName r ~~ ("  |" :: RichText) ~~ newline
+                                  ~~ horizontalLine
 
 showRecipeSteps :: Recipe -> [String]
 showRecipeSteps r =
