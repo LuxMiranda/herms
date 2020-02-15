@@ -2,8 +2,10 @@
 
 module Types where
 
+import           Control.Applicative
 import           Data.Char    (toLower)
 import           Data.Maybe
+import           Data.Monoid
 import           Data.Ord
 import           Data.Ratio
 import           Data.Yaml    ((.=), (.:), (.:?))
@@ -76,8 +78,31 @@ parseUnit units
   | u `elem` pintSyns = Pint
   | u `elem` quartSyns= Quart
   | u `elem` galSyns  = Gallon
-  | otherwise         = Other u
+  | u `elem` gSyns    = G
+  | u `elem` mlSyns   = Ml
+  | u `elem` lSyns    = L
+  | otherwise         = Other units
   where u = List.map toLower units
+        gSyns    = [ "g"
+                   , "grams"
+                   ]
+
+        lSyns    = [ "l"
+                   , "L"
+                   , "liter"
+                   , "litre"
+                   , "liters"
+                   , "litres"
+                   ]
+
+        mlSyns   = [ "ml"
+                   , "mL"
+                   , "milliliter"
+                   , "millilitre"
+                   , "milliliters"
+                   , "millilitres"
+                   ]
+
         tspSyns  = [ "tsp",
                      "tsp.",
                      "teaspoon",
@@ -151,7 +176,7 @@ data Ingredient = Ingredient { quantity       :: Ratio Int
                              } deriving (Generic, Eq, Show, Read)
 
 instance Yaml.ToJSON Ingredient where
-  toJSON u = Yaml.object [ Text.pack "quantity"  .= (Text.pack $ showFrac $ quantity u)
+  toJSON u = Yaml.object [ Text.pack "quantity"  .= (fracToValue $ quantity u)
                          , Text.pack "unit"      .= (Text.pack $ showUnit $ unit u)
                          , Text.pack "name"      .= (Text.pack $ ingredientName u)
                          , Text.pack "attribute" .= (Text.pack $ attribute u)
@@ -159,7 +184,7 @@ instance Yaml.ToJSON Ingredient where
 
 instance Yaml.FromJSON Ingredient where
   parseJSON = Yaml.withObject "Ingredient" $ \o -> Ingredient
-    <$> (readFrac <$> o .: Text.pack "quantity")
+    <$> ((readFrac <$> o .: Text.pack "quantity") <|> (fromIntegral <$> (o .: Text.pack "quantity" :: Yaml.Parser Int)))
     <*> (parseUnit <$> withDefault o "" "unit")
     <*> (o .: Text.pack "name")
     <*> withDefault o "" "attribute"
@@ -210,6 +235,7 @@ instance Yaml.FromJSON Recipe where
 
 type RecipeBook = [Recipe]
 
+
 -- | @showFrac displays improper fractions
 --
 -- >>> showFrac (2 / 3)
@@ -220,11 +246,18 @@ type RecipeBook = [Recipe]
 --
 showFrac :: Ratio Int -> String
 showFrac x
-  | numerator x == denominator x = show (numerator x)
-  | denominator x == 1 = show (numerator x)
-  | whole > 0 = show whole ++ " " ++  showFrac (x - fromIntegral whole)
-  | otherwise = show (numerator x) ++ "/" ++ show (denominator x)
-  where whole = floor $ fromIntegral (numerator x) / fromIntegral (denominator x)
+  | r == 0 = show q
+  | q > 0 = show q <> " " <> showFrac (r % d)
+  | otherwise = show n <> "/" <> show d
+  where (n,d) = (numerator x, denominator x)
+        (q,r) = n `quotRem` d
+
+fracToValue :: Ratio Int -> Yaml.Value
+fracToValue x
+  | r == 0 = Yaml.Number $ fromIntegral q
+  | otherwise = Yaml.String . Text.pack $ showFrac x
+  where (n,d) = (numerator x, denominator x)
+        (q,r) = n `quotRem` d
 
 readFrac :: String -> Ratio Int
 readFrac x

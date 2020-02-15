@@ -1,10 +1,12 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Types.Tests where
 
 import           Test.Tasty              (TestTree, testGroup)
-import           Test.Tasty.HUnit        (testCase, (@=?), (@?=))
-import           Test.Tasty.QuickCheck   (testProperty)
+import           Test.Tasty.HUnit        (assertFailure, testCase, (@=?), (@?=))
+import           Test.Tasty.QuickCheck   (property, testProperty, (===))
 
-import           Data.Yaml               (encode)
+import           Data.Yaml               (decodeEither', encode)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Ratio              ((%))
 import           Instances()
@@ -27,19 +29,36 @@ tests = testGroup "Types" $ yaml :
           read "Ingredient {quantity = 1 % 1, unit = Cup, ingredientName = \"\", attribute = \"\"}"
     , testCase "testShowIngredient" $
         "1/2 cup in, at" @=? showIngredient 1 (Ingredient (1 % 2) Cup "in" "at")
+    , testCase "showFrac (proper)" $
+        "4/7" @=? showFrac (4 % 7)
+    , testCase "showFrac (improper)" $
+        "1 3/13" @=? showFrac (16 % 13)
+    , testCase "showFrac (irreducible)" $
+        "2 1/4" @=? showFrac (81 % 36)
+    , testProperty "readFrac . showFrac = id" $
+        \x -> x === readFrac (showFrac x)
     ]
 
 yaml :: TestTree
 yaml = testGroup "YAML"
   [ -- Decode inverts encode
-    -- TODO: Many examples succeed in the REPL, why do these fail?
-  --   testProperty "testUnitToFromJson" $
-  --   \u -> Right (u :: Unit)       == decodeEither' (encode u)
-  -- , testProperty "testIngredientToFromJson" $
-  --   \i -> Right (i :: Ingredient) == decodeEither' (encode i)
-
-    testCase "testEncodeCup" $ BS.pack "cup\n" @=? encode Cup
+    testProperty "testUnitToFromJson" $
+     \i -> case decodeEither' (encode i) of
+                Left _ -> property False
+                Right decoded -> (i :: Unit) === decoded
+  , testProperty "testIngredientToFromJson" $
+     \i -> case decodeEither' (encode i) of
+                Left _ -> property False
+                Right decoded -> (i :: Ingredient) === decoded
+  , testCase "testEncodeCup" $ BS.pack "cup\n" @=? encode Cup
   , testCase "testEncodeIngredient" $
     encode (Ingredient (1 % 2) Quart "sugar" "brown") @?=
-    BS.pack "attribute: brown\nquantity: 1/2\nname: sugar\nunit: quart\n"
+    "attribute: brown\nquantity: 1/2\nname: sugar\nunit: quart\n"
+  , testCase "testEncodeIngredient (integer)" $
+    encode (Ingredient (2 % 2) Quart "sugar" "brown") @?=
+    "attribute: brown\nquantity: 1\nname: sugar\nunit: quart\n"
+  , testCase "testDecodeIngredient (integer)" $
+    case decodeEither' "attribute: brown\nquantity: 1\nname: sugar\nunit: quart\n" of
+         Left _ -> assertFailure "parse error"
+         Right i -> i @?= Ingredient 1 Quart "sugar" "brown"
   ]
