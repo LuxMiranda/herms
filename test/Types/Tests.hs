@@ -4,7 +4,7 @@ module Types.Tests where
 
 import           Test.Tasty              (TestTree, testGroup)
 import           Test.Tasty.HUnit        (assertFailure, testCase, (@=?), (@?=))
-import           Test.Tasty.QuickCheck   (property, testProperty, (===))
+import           Test.Tasty.QuickCheck   (NonNegative(..), property, testProperty, (===))
 
 import           Data.Yaml               (decodeEither', encode)
 import qualified Data.ByteString.Char8 as BS
@@ -35,8 +35,18 @@ tests = testGroup "Types" $ yaml :
         "1 3/13" @=? showFrac (16 % 13)
     , testCase "showFrac (irreducible)" $
         "2 1/4" @=? showFrac (81 % 36)
+    , testCase "showFrac (integer)" $
+        "9" @=? showFrac (81 % 9)
+    , testCase "readFrac (proper)" $
+        4 % 7 @=? readFrac "4/7"
+    , testCase "readFrac (improper)" $
+        16 % 13 @=? readFrac "1 3/13"
+    , testCase "readFrac (irreducible)" $
+        9 % 4 @=? readFrac "81/36"
+    , testCase "readFrac (integer)" $
+        9 % 1 @=? readFrac "9"
     , testProperty "readFrac . showFrac = id" $
-        \x -> x === readFrac (showFrac x)
+        \y -> let x = getNonNegative y in x === readFrac (showFrac x)
     ]
 
 yaml :: TestTree

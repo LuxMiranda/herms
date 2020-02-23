@@ -1,7 +1,7 @@
 module Instances where
 
 import           Generic.Random hiding ((%))
-import           Test.QuickCheck (oneof)
+import           Test.QuickCheck (NonNegative(..), oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary(..), genericShrink)
 
 import           Types
@@ -28,9 +28,11 @@ instance Arbitrary Unit where
     -- is a hacky fix for now to avoid flaky tests.
     , parseUnit <$> arbitrary
     ]
-  shrink = genericShrink
-
 
 instance Arbitrary Ingredient where
-  arbitrary = genericArbitrary uniform
+  arbitrary = Ingredient
+    <$> (getNonNegative <$> arbitrary)
+    <*> arbitrary
+    <*> arbitrary
+    <*> arbitrary
   shrink = genericShrink
