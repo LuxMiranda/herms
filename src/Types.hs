@@ -5,18 +5,21 @@ module Types where
 
 import           Brick.Widgets.Core  (TextWidth(..))
 import           Control.Applicative
-import           Data.Char           (toLower)
+import           Data.Char           (digitToInt, isDigit, toLower)
+import           Data.List
 import           Data.Maybe
 import           Data.Monoid
 import           Data.Ord
 import           Data.Ratio
 import           Data.Yaml           ((.=), (.:), (.:?))
 import           GHC.Generics        (Generic)
-import           Text.Read           (readMaybe)
-import qualified Data.List       as List
-import qualified Data.List.Split as List
-import qualified Data.Text       as Text hiding (toLower)
-import qualified Data.Yaml       as Yaml
+import           Text.Read           (Read(..), readMaybe)
+import qualified Data.List                       as List
+import qualified Data.List.Split                 as List
+import qualified Data.Text                       as Text hiding (toLower)
+import qualified Data.Yaml                       as Yaml
+import qualified Text.ParserCombinators.ReadP    as ReadP
+import qualified Text.ParserCombinators.ReadPrec as ReadPrec
 
 import qualified Lang.Strings    as Str
 import           RichText
@@ -261,13 +264,24 @@ fracToValue x
   where (n,d) = (numerator x, denominator x)
         (q,r) = n `quotRem` d
 
+newtype Fraction = Fraction { getFraction :: Ratio Int }
+    deriving (Eq, Ord, Show)
+
+instance Read Fraction where
+  readPrec = ReadPrec.lift $ Fraction <$> parser
+    where int = foldl' (\x -> ((x * 10) +) . digitToInt) 0 <$> ReadP.munch isDigit <* ReadP.skipSpaces
+          slash = ReadP.char '/' *> ReadP.skipSpaces
+          frac = (%) <$> int <*> (slash *> int)
+          parser = do
+              x <- int
+              r <- ReadP.look
+              case r of
+                [] -> pure (fromIntegral x)
+                ('/':_) -> (x %) <$> (slash *> int)
+                _ -> (fromIntegral x +) <$> frac
+
 readFrac :: String -> Ratio Int
-readFrac x
-  | ' ' `elem` x = let xs = List.splitOn " " x
-                   in (read' (List.head xs) % 1) + readFrac (List.last xs)
-  | '/' `elem` x = let xs = List.splitOn "/" x
-                   in read' (List.head xs) % read' (List.last xs) | otherwise = (read x :: Int) % 1
-  where read' = read :: String -> Int
+readFrac = getFraction . read
 
 -- | @showIngredient is for user-friendly printing
 --
