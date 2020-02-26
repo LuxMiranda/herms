@@ -80,7 +80,7 @@ library
 
   -- Other library packages from which modules are imported.
   build-depends:       ansi-terminal >= 0.8 && <=0.10.2
-                     , base >=4.8 && <5
+                     , base >=4.10 && <5
                      , brick >= 0.41.2 && <0.49
                      , bytestring >= 0.9 && <0.11
                      , directory >= 0.0
@@ -107,7 +107,7 @@ executable herms
   build-depends:       herms
                      , aeson -any
   build-depends:       ansi-terminal >= 0.8 && <=0.10.2
-                     , base >=4.8 && <5
+                     , base >=4.10 && <5
                      , brick >= 0.41.2 && <0.49
                      , bytestring -any
                      , directory >= 0.0
