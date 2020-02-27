@@ -1,12 +1,9 @@
 module Instances where
 
-import           Generic.Random hiding ((%))
 import           Test.QuickCheck (NonNegative(..), oneof)
 import           Test.QuickCheck.Arbitrary (Arbitrary(..), genericShrink)
 
 import           Types
-
--- New Arbitrary instances
 
 instance Arbitrary Unit where
   arbitrary = oneof
