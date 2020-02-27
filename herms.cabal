@@ -79,19 +79,18 @@ library
   other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
 
   -- Other library packages from which modules are imported.
-  build-depends:       ansi-terminal >= 0.8 && <=0.10.2
+  build-depends:       ansi-terminal >=0.8 && <0.11
                      , base >=4.10 && <5
-                     , brick >= 0.41.2 && <0.49
-                     , bytestring >= 0.9 && <0.11
-                     , directory >= 0.0
-                     , filepath >= 1.4 && < 1.5
-                     , mtl >= 2.2.1 && < 2.3
+                     , brick >=0.41.2 && <0.53
+                     , bytestring >=0.10 && <0.11
+                     , directory >=1.3 && <1.4
+                     , filepath >=1.4 && <1.5
+                     , mtl >=2.2.1 && <2.3
                      , optparse-applicative >=0.14 && <0.16
-                     , semigroups >= 0.18.3 && <= 0.19.1
+                     , regex-tdfa >=1.2.3 && <1.4
                      , split >=0.2 && <0.3
-                     , text >= 1.1 && <1.3
+                     , text >=1.1 && <1.3
                      , yaml >=0.10 && <0.12
-                     , regex-tdfa >= 1.2.3 && <1.4
 
 executable herms
   hs-source-dirs:      app
@@ -105,20 +104,18 @@ executable herms
 
   -- Other library packages from which modules are imported.
   build-depends:       herms
-                     , aeson -any
-  build-depends:       ansi-terminal >= 0.8 && <=0.10.2
+                     , aeson >=1.4 && <1.5
+                     , ansi-terminal >=0.8 && <0.11
                      , base >=4.10 && <5
-                     , brick >= 0.41.2 && <0.49
-                     , bytestring -any
-                     , directory >= 0.0
-                     , filepath >= 1.4 && < 1.5
+                     , brick >=0.41.2 && <0.53
+                     , bytestring >=0.10 && <0.11
+                     , directory >=1.3 && <1.4
+                     , filepath >=1.4 && <1.5
                      , microlens >=0.4 && <0.5
                      , microlens-th >=0.4 && <0.5
-                     , mtl >= 2.2.1 && < 2.3
+                     , mtl >=2.2.1 && <2.3
                      , optparse-applicative >=0.14 && <0.16
-                     , semigroups >= 0.18.3 && <= 0.19.1
-                     , split >=0.2 && <0.3
-                     , text-zipper >= 0.7.1
+                     , text-zipper >=0.10 && <0.11
                      , vty >=5.26 && <5.27
                      , yaml >=0.10 && <0.12
 
@@ -138,14 +135,13 @@ test-suite herms-test
                          -threaded
     other-extensions:    OverloadedStrings, TemplateHaskell, RankNTypes
     build-depends: herms
-                 , base -any
-                 , bytestring -any
-                 , generic-random -any
-                 , tasty -any
-                 , tasty-hunit -any
-                 , tasty-quickcheck -any
-                 , HUnit -any
-                 , QuickCheck -any
+                 , base >=4.10 && <5
+                 , bytestring >=0.10 && <0.11
+                 , tasty
+                 , tasty-hunit
+                 , tasty-quickcheck
+                 , HUnit
+                 , QuickCheck
                  , yaml >=0.10 && <0.12
 
 source-repository head
