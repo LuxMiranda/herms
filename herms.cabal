@@ -116,7 +116,7 @@ executable herms
                      , mtl >=2.2.1 && <2.3
                      , optparse-applicative >=0.14 && <0.16
                      , text-zipper >=0.10 && <0.11
-                     , vty >=5.26 && <5.27
+                     , vty >=5.25 && <5.27
                      , yaml >=0.10 && <0.12
 
 test-suite herms-test
