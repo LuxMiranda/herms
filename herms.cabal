@@ -104,19 +104,19 @@ executable herms
 
   -- Other library packages from which modules are imported.
   build-depends:       herms
-                     , aeson >=1.4 && <1.5
-                     , ansi-terminal >=0.8 && <0.11
+                     , aeson >=1.4 && < 1.5.4
+                     , ansi-terminal >=0.8 && <0.12
                      , base >=4.10 && <5
-                     , brick >=0.41.2 && <0.53
-                     , bytestring >=0.10 && <0.11
+                     , brick >=0.52 && <0.56
+                     , bytestring >=0.10 && <0.12
                      , directory >=1.3 && <1.4
                      , filepath >=1.4 && <1.5
                      , microlens >=0.4 && <0.5
                      , microlens-th >=0.4 && <0.5
                      , mtl >=2.2.1 && <2.3
-                     , optparse-applicative >=0.14 && <0.16
+                     , optparse-applicative >=0.15 && <0.17
                      , text-zipper >=0.10 && <0.11
-                     , vty >=5.25 && <5.27
+                     , vty >=5.28 && <5.30
                      , yaml >=0.10 && <0.12
 
 test-suite herms-test
