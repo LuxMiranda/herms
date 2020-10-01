@@ -83,6 +83,8 @@ spanish str
   | is [versionShort] = "v"
   | is versionDesc    = "Visualizar versión"
   | is progDesc       = "HeRM's: Un administrador de recetas en Haskell. Escribir \"herms --help\" para ver las opciones"
+  | is find           = "encontrar"
+  | is findDesc       = "imprime las recetas describen por una expresión regular (semejante a grep)"
   | otherwise         = str
 
   where is = (str ==)

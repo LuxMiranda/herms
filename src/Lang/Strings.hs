@@ -141,6 +141,10 @@ version      = "version"
 versionShort = 'v'
 versionDesc  = "Show version"
 
+find = "find"
+findShort = 'f'
+findDesc = "find all matching strings within recipe book (supports extended regex)"
+
 --------------------------
 --     Misc             --
 --------------------------
