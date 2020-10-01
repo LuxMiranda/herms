@@ -3,7 +3,6 @@
 {-# LANGUAGE RankNTypes #-}
 module AddCLI where
 
-import Data.Monoid
 import qualified Data.Text.Zipper as Z
 import Lens.Micro
 import Lens.Micro.TH

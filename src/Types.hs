@@ -8,7 +8,6 @@ import           Control.Applicative
 import           Data.Char           (digitToInt, isDigit, toLower)
 import           Data.List
 import           Data.Maybe
-import           Data.Monoid
 import           Data.Ord
 import           Data.Ratio
 import           Data.Yaml           ((.=), (.:), (.:?))

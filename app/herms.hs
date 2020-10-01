@@ -14,7 +14,6 @@ import qualified Data.ByteString.Lazy.Char8 as BSL
 import Data.Function
 import Data.List
 import Data.Maybe
-import Data.Monoid
 import Data.String    (IsString(..))
 import Data.Ratio
 import Control.Applicative
