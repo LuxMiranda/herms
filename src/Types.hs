@@ -318,7 +318,7 @@ newline :: RichText
 newline = "\n"
 
 showRecipe :: (String -> String) -> Recipe -> Maybe Int -> RichText
-showRecipe t r maybeServings = showRecipeHeader t r (serv)
+showRecipe t r maybeServings = showRecipeHeader t r serv
                                     ~~ newline ~~ List.unlines (showRecipeSteps r)
                                         where serv = case (maybeServings) of 
                                                        Nothing -> Just 1

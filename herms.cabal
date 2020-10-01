@@ -64,6 +64,7 @@ library
                      , RichText
                      , ReadConfig
                      , Types
+                     , Find
                      , UnitConversions
                      , Paths_herms
                      , Lang.Strings
