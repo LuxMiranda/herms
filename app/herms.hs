@@ -14,6 +14,7 @@ import qualified Data.ByteString.Lazy.Char8 as BSL
 import Data.Function
 import Data.List
 import Data.Maybe
+import Data.Monoid () -- silencing GHC warnings, and for compatibility with base < 4.9.0
 import Data.String    (IsString(..))
 import Data.Ratio
 import Control.Applicative
@@ -198,7 +199,7 @@ getServingsAndConv serv convName config = (servings, conv)
           | otherwise = defaultUnit' config
 
 findRecipes :: String -> HermsReader IO ()
-findRecipes rgx = do -- TODO: add colour option here, maybe modify findMatches to just return a list of tuples where we can colorify the first part?
+findRecipes rgx = do 
     (_, recipeBook) <- ask
     let matches = findMatches rgx recipeBook
     liftIO $ mapM_ putStrLn matches
@@ -384,7 +385,7 @@ runWithOpts (View targets serving step conversion)  = if step
                                                       else view targets serving conversion
 runWithOpts (Shop targets serving)                  = shop targets serving
 runWithOpts DataDir                                 = printDataDir
-runWithOpts (Find regexp)                             = findRecipes regexp
+runWithOpts (Find regexp)                           = findRecipes regexp
 
 
 ------------------------------
@@ -412,12 +413,12 @@ exportP  t = Export <$> severalRecipesP t <*> formatP t
 removeP  t = Remove <$> severalRecipesP t
 viewP    t = View   <$> severalRecipesP t <*> servingP t <*> stepP t <*> conversionP t
 shopP    t = Shop   <$> severalRecipesP t <*> servingP t
-findP    t = Find   <$> findRegxP t
+findP    t = Find   <$> findRegexP t
 dataDirP _ = pure DataDir
 
--- | @findRegxP returns a parser for a regex string
-findRegxP :: Translator -> Parser String
-findRegxP _ = argument str (metavar "regular expression")
+-- | @findRegexP@ returns a parser for a regex string
+findRegexP :: Translator -> Parser String
+findRegexP _ = argument str (metavar "regular expression")
 
 -- | @groupByTagsP is flag for grouping recipes by tags
 groupByTagsP :: Translator -> Parser Bool

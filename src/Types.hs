@@ -1,10 +1,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP #-}
 
 module Types where
 
 import           Brick.Widgets.Core  (TextWidth(..))
 import           Control.Applicative
+import           Data.Monoid ()
 import           Data.Char           (digitToInt, isDigit, toLower)
 import           Data.List
 import           Data.Maybe
