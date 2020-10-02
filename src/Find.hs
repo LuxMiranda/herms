@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Find where
+module Find (findMatches, recipeToString) where
 
 import Types
 import RichText (toStr)

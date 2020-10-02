@@ -142,7 +142,7 @@ versionShort = 'v'
 versionDesc  = "Show version"
 
 find = "find"
-findShort = 'f'
+findShort = 'r' -- since 'f' is already used. Think of it as "regex"
 findDesc = "find all matching strings within recipe book (supports extended regex)"
 
 --------------------------
