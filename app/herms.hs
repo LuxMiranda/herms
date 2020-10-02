@@ -198,7 +198,7 @@ getServingsAndConv serv convName config = (servings, conv)
           | otherwise = defaultUnit' config
 
 findRecipes :: String -> HermsReader IO ()
-findRecipes rgx = do
+findRecipes rgx = do -- TODO: add colour option here, maybe modify findMatches to just return a list of tuples where we can colorify the first part?
     (_, recipeBook) <- ask
     let matches = findMatches rgx recipeBook
     liftIO $ mapM_ putStrLn matches
@@ -417,11 +417,8 @@ dataDirP _ = pure DataDir
 
 -- | @findRegxP returns a parser for a regex string
 findRegxP :: Translator -> Parser String
-findRegxP t = strOption
-         (  long (t Str.find)
-         <> short Str.findShort
-         <> help (t Str.findDesc)
-         )
+findRegxP _ = argument str (metavar "regular expression")
+
 -- | @groupByTagsP is flag for grouping recipes by tags
 groupByTagsP :: Translator -> Parser Bool
 groupByTagsP t = switch
