@@ -320,15 +320,13 @@ newline :: RichText
 newline = "\n"
 
 showRecipe :: (String -> String) -> Recipe -> Maybe Int -> RichText
-showRecipe t r maybeServings = showRecipeHeader t r serv
-                                    ~~ newline ~~ List.unlines (showRecipeSteps r)
-                                        where serv = case (maybeServings) of 
-                                                       Nothing -> Just 1
-                                                       _       -> maybeServings
-
-  -- case maybeServings of
-  --   Nothing       -> "Error: use a serving size greater than 0\n"
-  -- Just servings -> 
+showRecipe t r maybeServings = 
+    showRecipeHeader t r serv
+        ~~ newline ~~ List.unlines (showRecipeSteps r)
+        where serv = case (maybeServings) of 
+  --                   Nothing       -> "Error: use a serving size greater than 0\n"
+                       Nothing -> Just 1 -- default to 1 if no servings specified
+                       _       -> maybeServings
         
 showRecipeHeader :: (String -> String) -> Recipe -> Maybe Int -> RichText
 showRecipeHeader t r maybeServings = nameBox
