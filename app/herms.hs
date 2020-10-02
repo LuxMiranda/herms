@@ -197,8 +197,8 @@ getServingsAndConv serv convName config = (servings, conv)
           | convName  == t Str.imperial =  Imperial
           | otherwise = defaultUnit' config
 
-findRec :: String -> HermsReader IO ()
-findRec rgx = do
+findRecipes :: String -> HermsReader IO ()
+findRecipes rgx = do
     (_, recipeBook) <- ask
     let matches = findMatches rgx recipeBook
     liftIO $ mapM_ putStrLn matches
@@ -384,7 +384,7 @@ runWithOpts (View targets serving step conversion)  = if step
                                                       else view targets serving conversion
 runWithOpts (Shop targets serving)                  = shop targets serving
 runWithOpts DataDir                                 = printDataDir
-runWithOpts Find regexp                             = findRec regexp
+runWithOpts (Find regexp)                             = findRecipes regexp
 
 
 ------------------------------
@@ -412,7 +412,7 @@ exportP  t = Export <$> severalRecipesP t <*> formatP t
 removeP  t = Remove <$> severalRecipesP t
 viewP    t = View   <$> severalRecipesP t <*> servingP t <*> stepP t <*> conversionP t
 shopP    t = Shop   <$> severalRecipesP t <*> servingP t
-findP    t = Find   <$> idm <*> findP t
+findP    t = Find   <$> findRegxP t
 dataDirP _ = pure DataDir
 
 -- | @findRegxP returns a parser for a regex string
