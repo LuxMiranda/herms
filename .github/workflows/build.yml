@@ -22,10 +22,18 @@ jobs:
 
       - name: Build
         shell: bash
-	run: stack build
+	run: stack build --copy-bins --local-bin-path .
 
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         env:
-	        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+	  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+	  body_path: changelog
+	  draft: true
+          files: |
+            herms
+            LICENSE
+            changelog
+            README.md
