@@ -2,9 +2,11 @@ name: Build Herms binaries
 
 on:
     push:
+        tags:
+          - '*'
         # Don't build when these change:
         paths-ignore:
-        - 'README.md'
+          - '*.md'
 
 jobs:
   build:
@@ -35,5 +37,8 @@ jobs:
           files: |
             herms
             LICENSE
-            changelog
             README.md
+            data/config.hs
+            data/recipes.yaml
+            data/recipes.herms
+            # herms needs an installer, for putting config.hs and recipes.yaml in their places.
