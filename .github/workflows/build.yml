@@ -2,7 +2,7 @@ name: Build Herms binaries
 
 on:
     push:
-	# For example...
+        # For example...
         paths-ignore:
         - 'README.md'
 
