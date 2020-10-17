@@ -11,13 +11,7 @@ tested-with:        GHC == 8.4.4
                     GHC == 8.8.1
                     GHC == 8.8.4
 
--- The package version.  See the Haskell package versioning policy (PVP)
--- for standards guiding when and how versions should be incremented.
--- http://www.haskell.org/haskellwiki/Package_versioning_policy
--- PVP summary:      +-+------- New features or improvements with significant API change
---                   | | +----- Bugfixes and improvements with minor change to API
---                   | | | +--- Bugfixes and improvements with no change to API
-version:             1.9.0.4
+version:            2.0.0
 
 -- A short (one-line) description of the package.
 synopsis:            A command-line manager for delicious kitchen recipes
@@ -26,7 +20,7 @@ synopsis:            A command-line manager for delicious kitchen recipes
 -- description:
 
 -- URL for the project homepage or repository.
-homepage:            https://github.com/JackKiefer/herms
+homepage:            https://github.com/LuxMiranda/herms
 
 -- The license under which the package is released.
 license:             GPL-3
@@ -35,11 +29,11 @@ license:             GPL-3
 license-file:        LICENSE
 
 -- The package author(s).
-author:              Jack Kiefer
+author:              Lux Miranda, Langston Barrett
 
 -- An email address to which users can send suggestions, bug reports, and
 -- patches.
-maintainer:          jack.c.kiefer@gmail.com
+maintainer:          langston.barrett@gmail.com
 
 category:            Culinary, CLI, Command Line Tool
 
@@ -47,7 +41,7 @@ build-type:          Simple
 
 -- Extra files to be distributed with the package, such as examples or a
 -- README.
-extra-source-files:  README.md, changelog
+extra-source-files:  README.md, CHANGELOG.md, LICENSE
 
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
@@ -147,4 +141,4 @@ test-suite herms-test
 
 source-repository head
   type:     git
-  location: https://github.com/JackKiefer/herms
+  location: https://github.com/LuxMiranda/herms

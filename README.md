@@ -40,27 +40,14 @@ HeRM's: a Haskell-based Recipe Manager (yes, food recipes) for the command line.
 
 #### What's new:
 
-See [the changelog](./CHANGELOG.md) for migration support and more detailed discussion.
+Version v2.0 is out! This is the first release for which pre-built binaries are
+available to download on Github. There were many, many great changes in 2.0, so
+thanks to everyone for the contributions!
 
-- Herm's supports YAML! Recipe files are now stored in YAML format by default
-  (the old format is deprecated, see [the changelog](./CHANGELOG.md)).
-  Furthermore, recipes can be imported and exported in JSON and YAML formats.
-- *Breaking change*: Units now have a different internal representation.
-  Recipes written for old versions of Herm's will have to be converted (see
-  [#71](https://github.com/JackKiefer/herms/pull/71) to see how the example
-  recipes were changed). More breaking changes are expected as Herm's begins to
-  use YAML as its representation format (see
-  [#37](https://github.com/JackKiefer/herms/issues/37)).
-- Herm's now conforms to the [XDG Base Directory
-  Specification](http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html).
-  In short, `config.hs` and `recipes.herms` are now stored in `~/.config/herms`
-  and `~/.local/share/herms` respectively on most Linux systems.
-- Hola! Herm's now has language support for Español (Spanish)! Check out the rest of our supported languages in
-  our [supported languages section](#supported-languages). Set your language preferences in ``config.hs``!
-  These are  but the first languages that Herm's is now capable of supporting. We need your help to
-  translate it into others!
+See [the changelog](./CHANGELOG.md) for more details.
 
 #### Supported languages
+
 - English
 - Español (Spanish)
 - Français (French)
@@ -84,7 +71,7 @@ works!
 If you're interested developing/hacking Herm's instead of just using it, see
 [Contributing.md](./Contributing.md) instead.
 
-##### Via Stack _(recommended)_
+##### Via Stack
 
 ```
 stack update
@@ -126,58 +113,30 @@ See [./nix/README.md](./nix/README.md).
 
 #### Command-line interface
 
-Herm's has a pretty intuitive interface for users familiar with other command-line programs!
+Herm's has a command-line interface!
 
 Below is the exhaustive list of all commands and their functionalities. Take a gander!
 
 ```
-Usage:
+Usage: herms [-v|--version] COMMAND
+  HeRM's: a Haskell-based Recipe Manager. Type "herms --help" for options
 
-        herms list [-g|--group] [--tags TAGS]           list recipes
-                   [--name-only ]
+  Available options:
+    -h,--help                Show this help text
+    -v,--version             Show version
 
-        herms add                                       add a new recipe (interactively)
-
-        herms edit RECIPE_NAME                          edit a recipe
-
-        herms import FILE_NAME                          import a recipe file
-
-        herms export DESTINATION                        export recipes to DESTINATION
-
-        herms remove RECIPE_NAMES                       remove the particular recipes
-
-        herms view RECIPE_NAMES [-s|--serving INT]      view the particular recipes
-                                [-t|--step]
-                                [-c|--convert CONV_UNIT]
-
-        herms shopping RECIPE_NAMES [-s|--serving INT] generate shopping list for particular recipes
-
-        herms datadir                                  show locations of recipe and config files
-
-Available options:
-
-        -h|--help                                      Show this help text
-
-        -v|--version                                   Show version
-
-        RECIPE_NAME                                    index or Recipe name
-
-        --sort SORT_ORDER                              'tags' to sort by tags
-
-        -s|--serving INT                               specify serving size when viewing.
-                                                       E.g., 'herms view -s 2 {recipe}' for two servings
-
-        -t|--step                                      View recipe in "one-step-at-a-time" mode
-                                                       (press enter between each direction)
-
-        -g|--group                                     group recipes by tags
-
-        --tags TAGS                                    show recipes with particular flags
-
-        --name-only                                    only list recipes by name
-
-        -c|--convert CONV_UNIT                         view the recipe converted to imperial or metric
-                                                       E.g., 'herms view 2 -c imperial'
+    Available commands:
+      list                     list recipes
+      view                     view the particular recipes
+      add                      add a new recipe (interactively)
+      edit                     edit a recipe
+      import                   import a recipe file
+      export                   export recipes to stdout
+      remove                   remove the particular recipes
+      shopping                 generate a shopping list for given recipes
+      datadir                  show locations of recipe and config files
+      find                     find all matching strings within recipe book
+                               (supports extended regex)
 ```
 
 #### Configuring Herm's and managing recipe files
