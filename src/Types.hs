@@ -1,14 +1,15 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP #-}
 
 module Types where
 
 import           Brick.Widgets.Core  (TextWidth(..))
 import           Control.Applicative
+import           Data.Monoid ()
 import           Data.Char           (digitToInt, isDigit, toLower)
 import           Data.List
 import           Data.Maybe
-import           Data.Monoid
 import           Data.Ord
 import           Data.Ratio
 import           Data.Yaml           ((.=), (.:), (.:?))
@@ -319,12 +320,14 @@ newline :: RichText
 newline = "\n"
 
 showRecipe :: (String -> String) -> Recipe -> Maybe Int -> RichText
-showRecipe t r maybeServings =
-  case maybeServings of
-    Nothing       -> "Error: use a serving size greater than 0\n"
-    Just servings -> showRecipeHeader t r (Just servings)
-                    ~~ newline ~~ List.unlines (showRecipeSteps r)
-
+showRecipe t r maybeServings = 
+    showRecipeHeader t r serv
+        ~~ newline ~~ List.unlines (showRecipeSteps r)
+        where serv = case (maybeServings) of 
+  --                   Nothing       -> "Error: use a serving size greater than 0\n"
+                       Nothing -> Just 1 -- default to 1 if no servings specified
+                       _       -> maybeServings
+        
 showRecipeHeader :: (String -> String) -> Recipe -> Maybe Int -> RichText
 showRecipeHeader t r maybeServings = nameBox
                 ~~ newline ~~ description r ~~ newline

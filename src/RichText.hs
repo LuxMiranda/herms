@@ -1,7 +1,7 @@
 {-# LANGUAGE ExistentialQuantification, FlexibleInstances #-}
 module RichText (
   Color(..), Text, RichText,
-  (~~), bgColor, bold, fontColor, putText, putTextLn
+  (~~), bgColor, bold, fontColor, putText, putTextLn, toStr
 ) where
 
 import Data.String

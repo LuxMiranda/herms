@@ -14,7 +14,7 @@ import qualified Data.ByteString.Lazy.Char8 as BSL
 import Data.Function
 import Data.List
 import Data.Maybe
-import Data.Monoid
+import Data.Monoid () -- silencing GHC warnings, and for compatibility with base < 4.9.0
 import Data.String    (IsString(..))
 import Data.Ratio
 import Control.Applicative
@@ -33,6 +33,7 @@ import RichText
 import Types
 import UnitConversions
 import ReadConfig
+import Find
 import qualified Lang.Strings as Str
 
 -- Global constants
@@ -196,6 +197,13 @@ getServingsAndConv serv convName config = (servings, conv)
           | convName  == t Str.metric   =  Metric
           | convName  == t Str.imperial =  Imperial
           | otherwise = defaultUnit' config
+
+findRecipes :: String -> HermsReader IO ()
+findRecipes rgx = do 
+    (_, recipeBook) <- ask
+    let matches = findMatches rgx recipeBook
+    liftIO $ mapM_ putStrLn matches
+        
 
 view :: [String] -> Int -> String -> HermsReader IO ()
 view targets serv convName = do
@@ -377,6 +385,7 @@ runWithOpts (View targets serving step conversion)  = if step
                                                       else view targets serving conversion
 runWithOpts (Shop targets serving)                  = shop targets serving
 runWithOpts DataDir                                 = printDataDir
+runWithOpts (Find regexp)                           = findRecipes regexp
 
 
 ------------------------------
@@ -392,9 +401,10 @@ data Command = List   [String] Bool Bool         -- ^ shows recipes
              | Export [String] String            -- ^ exports recipes to stdout
              | Remove [String]                   -- ^ removes specified recipes
              | Shop   [String] Int               -- ^ generates the shopping list for given recipes
+             | Find   String                     -- ^ find all matching strings within recipe book (supports extended regex)
              | DataDir                           -- ^ prints the directories of recipe file and config.hs
 
-listP, addP, viewP, editP, importP, exportP, removeP, shopP, dataDirP :: Translator -> Parser Command
+listP, addP, viewP, editP, importP, exportP, removeP, shopP, dataDirP, findP :: Translator -> Parser Command
 listP    t = List   <$> (words <$> tagsP t) <*> groupByTagsP t <*> nameOnlyP t
 addP     _ = pure Add
 editP    t = Edit   <$> recipeNameP t <*> conversionP t
@@ -403,7 +413,12 @@ exportP  t = Export <$> severalRecipesP t <*> formatP t
 removeP  t = Remove <$> severalRecipesP t
 viewP    t = View   <$> severalRecipesP t <*> servingP t <*> stepP t <*> conversionP t
 shopP    t = Shop   <$> severalRecipesP t <*> servingP t
+findP    t = Find   <$> findRegexP t
 dataDirP _ = pure DataDir
+
+-- | @findRegexP@ returns a parser for a regex string
+findRegexP :: Translator -> Parser String
+findRegexP _ = argument str (metavar "regular expression")
 
 -- | @groupByTagsP is flag for grouping recipes by tags
 groupByTagsP :: Translator -> Parser Bool
@@ -504,11 +519,14 @@ optP t = subparser
                 (info  (helper <*> removeP t)
                        (progDesc (t Str.removeDesc)))
      <> command (t Str.shopping)
-                (info (helper <*> shopP t)
-                      (progDesc (t Str.shoppingDesc)))
+                 (info (helper <*> shopP t)
+                       (progDesc (t Str.shoppingDesc)))
      <> command (t Str.datadir)
-                (info (helper <*> dataDirP t)
-                      (progDesc (t Str.datadirDesc)))
+                 (info (helper <*> dataDirP t)
+                       (progDesc (t Str.datadirDesc)))
+     <> command (t Str.find)
+                 (info (helper <*> findP t)
+                       (progDesc (t Str.findDesc)))
 
 versionOption :: Parser (a -> a)
 versionOption = infoOption versionStr
