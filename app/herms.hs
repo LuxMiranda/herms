@@ -38,7 +38,7 @@ import qualified Lang.Strings as Str
 
 -- Global constants
 versionStr :: String
-versionStr = "2.0.0"
+versionStr = "2.0.1"
 
 type HermsReader = ReaderT (Config, RecipeBook)
 
