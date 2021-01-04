@@ -59,6 +59,7 @@ library
                      , ReadConfig
                      , Types
                      , Find
+                     , Html
                      , UnitConversions
                      , Paths_herms
                      , Lang.Strings
