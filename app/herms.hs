@@ -34,6 +34,7 @@ import Types
 import UnitConversions
 import ReadConfig
 import Find
+import Html (htmlDoc, toHtml)
 import qualified Lang.Strings as Str
 
 -- Global constants
@@ -148,6 +149,7 @@ importFile target format = do
           \case
             Right book -> pure (book :: [Recipe])
             Left  err  -> putStrLn (show err) >> exitFailure
+      HTML -> putStrLn "Only JSON/YAML supported" >> exitFailure
 
   -- Combine the new recipes with the old
   let recipeEq = (==) `on` recipeName
@@ -167,6 +169,7 @@ importFile target format = do
 readFormat :: Translator -> String -> IO Format
 readFormat _ "json" = pure JSON
 readFormat _ "yaml" = pure YAML
+readFormat _ "html" = pure HTML
 readFormat t other  =
   putStrLn (t Str.unsupportedFormat ++ other) >>
   putStrLn (t Str.supportedFormats) >>
@@ -177,14 +180,19 @@ export targets format = do
   (config, recipeBook) <- ask
   let t = translator config
   fmt <- liftIO $ readFormat t format
+  let realTargets =
+        if targets == []
+        then Just recipeBook
+        else traverse (flip readRecipeRef recipeBook) targets
   -- TODO: error message should say /which/ recipe doesn't exist
   liftIO . putText $
-    case traverse (flip readRecipeRef recipeBook) targets of
+    case realTargets of
         Nothing      -> t Str.doesNotExist
         Just recipes -> fromString $
           case fmt of
             JSON -> BSL.unpack $ Json.encode recipes
             YAML -> BS.unpack  $ Yaml.encode recipes
+            HTML -> htmlDoc (Just "/style.css") $ concatMap toHtml recipes
 
 getServingsAndConv :: Int -> String -> Config -> (Maybe Int, Conversion)
 getServingsAndConv serv convName config = (servings, conv)
@@ -199,11 +207,11 @@ getServingsAndConv serv convName config = (servings, conv)
           | otherwise = defaultUnit' config
 
 findRecipes :: String -> HermsReader IO ()
-findRecipes rgx = do 
+findRecipes rgx = do
     (_, recipeBook) <- ask
     let matches = findMatches rgx recipeBook
     liftIO $ mapM_ putStrLn matches
-        
+
 
 view :: [String] -> Int -> String -> HermsReader IO ()
 view targets serv convName = do
