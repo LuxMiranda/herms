@@ -1,27 +1,25 @@
 { pkgs ? import ./pinned-pkgs.nix { } }:
 
 with pkgs;
-let haskellPackages = haskell.packages.ghc881;
-    herms = with haskellPackages; callPackage ./default.nix { };
+let herms = with haskellPackages; callPackage ./default.nix { };
 in stdenv.mkDerivation {
   name = "herms-dev";
   version = "0.1";
 
   # Ensure Cabal doesn't pick up on the user's already-built libraries
-  shellHook = ''
-    export HOME=$(mktemp -d)
-  '';
+  # shellHook = ''
+  #   export HOME=$(mktemp -d)
+  # '';
 
   src = lib.sourceFilesBySuffices ../. [ ".cabal" ".hs" ];
   buildInputs =  [
-
-    (haskellPackages.ghcWithHoogle (hpkgs: with hpkgs; [
-      # Add extra library dependencies here
+    (haskell.packages.ghc884.ghcWithPackages (hpkgs: with hpkgs; [
+      # Put extras here
+      ghcid
     ] ++ herms.buildInputs ++ herms.propagatedBuildInputs))
-    hlint
     cabal-install
-
-    # General development
+    hlint
+    ormolu
     git
   ];
 }
