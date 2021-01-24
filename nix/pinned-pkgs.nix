@@ -8,6 +8,6 @@
 import (pkgs.fetchFromGitHub {
   owner  = "NixOS";
   repo   = "nixpkgs";
-  rev    = "1c15955340811db41e8d37da18254c7510a07ea2";
-  sha256 = "1m4x40i7sgwiv5w3zfcigjx39rs7adnnrabhi653x504y29hfglk";
+  rev    = "cd63096d6d887d689543a0b97743d28995bc9bc3";
+  sha256 = "1wg61h4gndm3vcprdcg7rc4s1v3jkm5xd7lw8r2f67w502y94gcy";
 }) { }
