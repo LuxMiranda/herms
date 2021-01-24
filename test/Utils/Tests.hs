@@ -21,7 +21,7 @@ tests = testGroup "Utils"
     , testProperty "combineIngredientsLess" $
         \l -> length (combineIngredients l) <= length l
     , testProperty "combineIngredientsSingleton" $
-        \i -> ([i] == combineIngredients [i])
+        \i -> [i] == combineIngredients [i]
     , testProperty "combineIngredientsUniform" $
-        \i n -> (n >= 1) ==> (1 == length (combineIngredients (take n (repeat i))))
+        \i n -> (n >= 1) ==> (1 == length (combineIngredients (replicate n i)))
     ]

@@ -42,7 +42,7 @@ toHtml recipe =
         (concatMap
           (li . showIngredient 1)
           (ingredients recipe))
-    , h2 $ "Directions"
+    , h2 "Directions"
     , ol (concatMap li (directions recipe))
     ]
 

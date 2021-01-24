@@ -1,6 +1,7 @@
-{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Main where
 
@@ -62,7 +63,7 @@ getRecipeBookWith config = do
              pure (Right recipes)
 
 getRecipe :: String -> [Recipe] -> Maybe Recipe
-getRecipe target = listToMaybe . filter ((target ==) . recipeName)
+getRecipe target = find ((target ==) . recipeName)
 
 saveOrDiscard :: [[String]]   -- input for the new recipe
               -> Maybe Recipe -- maybe an original recipe prior to any editing
@@ -140,7 +141,7 @@ importFile target format = do
   otherRecipeBook <- (liftIO :: IO [Recipe] -> HermsReader IO [Recipe]) $
     case fmt of
       JSON ->
-        ((Json.eitherDecodeStrict' <$> (BS.readFile target)) :: IO (Either String [Recipe])) >>=
+        ((Json.eitherDecodeStrict' <$> BS.readFile target) :: IO (Either String [Recipe])) >>=
           \case
             Right book -> pure (book :: [Recipe])
             Left  err  -> putStrLn err >> exitFailure
@@ -148,7 +149,7 @@ importFile target format = do
         (Yaml.decodeFileEither target :: IO (Either Yaml.ParseException [Recipe])) >>=
           \case
             Right book -> pure (book :: [Recipe])
-            Left  err  -> putStrLn (show err) >> exitFailure
+            Left  err  -> print err >> exitFailure
       HTML -> putStrLn "Only JSON/YAML supported" >> exitFailure
 
   -- Combine the new recipes with the old
@@ -181,7 +182,7 @@ export targets format = do
   let t = translator config
   fmt <- liftIO $ readFormat t format
   let realTargets =
-        if targets == []
+        if null targets
         then Just recipeBook
         else traverse (flip readRecipeRef recipeBook) targets
   -- TODO: error message should say /which/ recipe doesn't exist
@@ -276,7 +277,7 @@ listByTags nameOnly inputTags recipesWithIdx = do
       tagsRecipes =
         groupBy ((==) `on` fst) $ sortBy (compare `on` fst) $
           concat $ flip map recipesWithIdx $ \recipeWithIdx ->
-            map (flip (,) recipeWithIdx) $ tags $ snd recipeWithIdx
+            map (,recipeWithIdx) $ tags $ snd recipeWithIdx
   liftIO $ forM_ tagsRecipes $ \tagRecipes -> do
     putTextLn $ bold $ fontColor Magenta $ fst $ head tagRecipes -- Tag name
     forM_ (map snd tagRecipes) $ \(i, recipe) ->
@@ -376,7 +377,7 @@ main = do
   recipeBook <- getRecipeBookWith config
   command    <- execParser (commandPI (translator config))
   case recipeBook of
-    Left e -> putStrLn $ "Couldn't read recipes: " ++ (show e)
+    Left e -> putStrLn $ "Couldn't read recipes: " ++ show e
     Right recipeBook' ->
       runReaderT (runWithOpts command) (config, recipeBook')
 

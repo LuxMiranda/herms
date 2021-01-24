@@ -1,3 +1,5 @@
 ---
 - ignore: {name: "Reduce duplication"}
+- ignore: {name: "Avoid lambda"}  # Can be more clear with explicit binding
+- ignore: {name: "Use section"}  # Too opinionated
 - ignore: {name: "Parse error"}  # we trust the compiler over HLint

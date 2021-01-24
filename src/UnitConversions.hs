@@ -68,7 +68,8 @@ convertTemperatureToMetric = convertTemperature C
 convertTemperatureToImperial = convertTemperature F
 
 convertTemperature :: TempUnit -> String -> String
-convertTemperature u s = unpack $ foldl replaceTemperature (pack s) (fmap packText $ fmap convertReplacement (findReplacements s))
+convertTemperature u s =
+  unpack $ foldl replaceTemperature (pack s) (packText . convertReplacement <$> findReplacements s)
   where packText (s1, s2) = (pack s1, pack s2)
         replaceTemperature text (old, new) = replace old new text
         convertReplacement = fmap $ show . toTempUnit u

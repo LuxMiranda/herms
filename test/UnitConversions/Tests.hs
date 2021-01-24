@@ -38,10 +38,10 @@ ingredientTests = testGroup "IngredientConversions"
 temperatureUnitTests :: TestTree
 temperatureUnitTests = testGroup "TemperatureConversions"
     [ testCase "Converting °F to °C in a text" $
-        (convertTemperatureToMetric "preheat to 110°F") @?= "preheat to 43°C"
+        convertTemperatureToMetric "preheat to 110°F" @?= "preheat to 43°C"
     , testCase "Converting °C to °F in a text" $
         -- because of rounding we get 109°F when converting 110° F -> °C -> °F
-        (convertTemperatureToImperial "preheat to 43°C") @?= "preheat to 109°F"
+        convertTemperatureToImperial "preheat to 43°C" @?= "preheat to 109°F"
     ]
 
 findingTemperaturesUnitTests :: TestTree
