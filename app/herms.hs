@@ -251,7 +251,7 @@ list inputTags groupByTags nameOnly = do
   let recipesWithIndex = zip [1..] recipes
   let targetRecipes    = filterByTags inputTags recipesWithIndex
   if groupByTags
-  then listByTags nameOnly inputTags targetRecipes
+  then listByTags nameOnly targetRecipes
   else listDefault nameOnly targetRecipes
 
 filterByTags :: [String] -> [(Int, Recipe)] -> [(Int, Recipe)]
@@ -270,8 +270,8 @@ listDefault nameOnly (unzip -> (indices, recipes)) = do
   then mapM_ (putStrLn . recipeName) recipes
   else mapM_ putTextLn $ zipWith (\ i -> ((i ~~ ". ") ~~)) strIndices recipeList
 
-listByTags :: Bool -> [String] -> [(Int, Recipe)] -> HermsReader IO ()
-listByTags nameOnly inputTags recipesWithIdx = do
+listByTags :: Bool -> [(Int, Recipe)] -> HermsReader IO ()
+listByTags nameOnly recipesWithIdx = do
   (config, _) <- ask
   let tagsRecipes :: [[(String, (Int, Recipe))]]
       tagsRecipes =
