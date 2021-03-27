@@ -66,7 +66,8 @@ htmlDoc cssUrl bodyHtml =
         mconcat
           [ head $
               mconcat
-                [ case cssUrl of
+                [ "<meta charset=\"UTF-8\">"
+                , case cssUrl of
                     Just url ->  "<link rel=\"stylesheet\" href=\"" ++ url ++ "\">"
                     Nothing -> ""
                 , title "Recipes"
