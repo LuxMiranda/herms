@@ -2,9 +2,8 @@
 
 module Html (toHtml, htmlDoc) where
 
-import           Prelude hiding (head)
-
-import           Types (showIngredient, Recipe(..))
+import Types (Recipe (..), showIngredient)
+import Prelude hiding (head)
 
 tag :: String -> String -> String
 tag t str = "<" ++ t ++ ">" ++ str ++ "</" ++ t ++ ">\n"
@@ -33,17 +32,18 @@ li = tag "li"
 toHtml :: Recipe -> String
 toHtml recipe =
   mconcat
-    [ h1 $ recipeName recipe
-    , p $ description recipe
-    , p (em "Serving size:" ++ show (servingSize recipe))
-    , h2 "Ingredients"
-    , p $
+    [ h1 $ recipeName recipe,
+      p $ description recipe,
+      p (em "Serving size:" ++ show (servingSize recipe)),
+      h2 "Ingredients",
+      p $
         ul
-        (concatMap
-          (li . showIngredient 1)
-          (ingredients recipe))
-    , h2 "Directions"
-    , ol (concatMap li (directions recipe))
+          ( concatMap
+              (li . showIngredient 1)
+              (ingredients recipe)
+          ),
+      h2 "Directions",
+      ol (concatMap li (directions recipe))
     ]
 
 html :: String -> String
@@ -61,18 +61,17 @@ body = tag "body"
 htmlDoc :: Maybe String -> String -> String
 htmlDoc cssUrl bodyHtml =
   mconcat
-    [ "<!DOCTYPE html>"
-    , html $
+    [ "<!DOCTYPE html>",
+      html $
         mconcat
           [ head $
               mconcat
-                [ "<meta charset=\"UTF-8\">"
-                , case cssUrl of
-                    Just url ->  "<link rel=\"stylesheet\" href=\"" ++ url ++ "\">"
-                    Nothing -> ""
-                , title "Recipes"
-                ]
-
-          , body bodyHtml
+                [ "<meta charset=\"UTF-8\">",
+                  case cssUrl of
+                    Just url -> "<link rel=\"stylesheet\" href=\"" ++ url ++ "\">"
+                    Nothing -> "",
+                  title "Recipes"
+                ],
+            body bodyHtml
           ]
     ]
