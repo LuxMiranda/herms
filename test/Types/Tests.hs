@@ -6,6 +6,7 @@ import           Test.Tasty              (TestTree, testGroup)
 import           Test.Tasty.HUnit        (assertFailure, testCase, (@=?), (@?=))
 import           Test.Tasty.QuickCheck   (NonNegative(..), property, testProperty, (===))
 
+import           Data.List               (sort)
 import           Data.Yaml               (decodeEither', encode)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Ratio              ((%))
@@ -62,11 +63,11 @@ yaml = testGroup "YAML"
                 Right decoded -> (i :: Ingredient) === decoded
   , testCase "testEncodeCup" $ BS.pack "cup\n" @=? encode Cup
   , testCase "testEncodeIngredient" $
-    encode (Ingredient (1 % 2) Quart "sugar" "brown") @?=
-    "attribute: brown\nquantity: 1/2\nname: sugar\nunit: quart\n"
+    sort (BS.lines (encode (Ingredient (1 % 2) Quart "sugar" "brown"))) @?=
+    ["attribute: brown", "name: sugar", "quantity: 1/2", "unit: quart"]
   , testCase "testEncodeIngredient (integer)" $
-    encode (Ingredient (2 % 2) Quart "sugar" "brown") @?=
-    "attribute: brown\nquantity: 1\nname: sugar\nunit: quart\n"
+    sort (BS.lines (encode (Ingredient (2 % 2) Quart "sugar" "brown"))) @?=
+    ["attribute: brown", "name: sugar", "quantity: 1", "unit: quart"]
   , testCase "testDecodeIngredient (integer)" $
     case decodeEither' "attribute: brown\nquantity: 1\nname: sugar\nunit: quart\n" of
          Left _ -> assertFailure "parse error"
