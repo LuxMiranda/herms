@@ -1,8 +1,19 @@
-{-# LANGUAGE ExistentialQuantification, FlexibleInstances #-}
-module RichText (
-  Color(..), Text, RichText,
-  (~~), bgColor, bold, fontColor, putText, putTextLn, toStr
-) where
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleInstances #-}
+
+module RichText
+  ( Color (..),
+    Text,
+    RichText,
+    (~~),
+    bgColor,
+    bold,
+    fontColor,
+    putText,
+    putTextLn,
+    toStr,
+  )
+where
 
 import Data.String
 import System.Console.ANSI
@@ -14,11 +25,12 @@ class Text t where
 instance Text [Char] where
   toStr _ t = t
 
-data RichText = forall t1 t2. (Text t1, Text t2) => Append t1 t2
-              | forall t. Text t                 => BgColor Color t
-              | forall t. Text t                 => Bold t
-              | forall t. Text t                 => FontColor Color t
-              | forall t. Text t                 => Plain t
+data RichText
+  = forall t1 t2. (Text t1, Text t2) => Append t1 t2
+  | forall t. Text t => BgColor Color t
+  | forall t. Text t => Bold t
+  | forall t. Text t => FontColor Color t
+  | forall t. Text t => Plain t
 
 instance IsString RichText where
   fromString = Plain
@@ -34,7 +46,8 @@ instance Text RichText where
       wrap code t
         | formatted = setSGRCode [code] ++ s ++ setSGRCode [Reset]
         | otherwise = s
-        where s = toStr formatted t
+        where
+          s = toStr formatted t
 
 (~~) :: forall t1 t2. (Text t1, Text t2) => t1 -> t2 -> RichText
 (~~) = Append
