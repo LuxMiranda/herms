@@ -24,11 +24,6 @@ import qualified Text.ParserCombinators.ReadP as ReadP
 import qualified Text.ParserCombinators.ReadPrec as ReadPrec
 import Text.Read (Read (..), readMaybe)
 
-data Format
-  = JSON
-  | YAML
-  | HTML
-
 data Unit
   = -- Imperial
     Tsp

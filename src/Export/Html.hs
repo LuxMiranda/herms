@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Html (toHtml, htmlDoc) where
+module Export.Html (toHtml, htmlDoc) where
 
 import Types (Recipe (..), showIngredient)
 import Prelude hiding (head)

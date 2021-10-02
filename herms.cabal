@@ -58,15 +58,18 @@ library
                      , ReadConfig
                      , Types
                      , Find
-                     , Html
                      , UnitConversions
                      , Paths_herms
+                     , Export.Format
+                     , Export.Html
+                     , Export.Org
                      , Lang.Strings
                      , Lang.Pirate
                      , Lang.Portuguese
                      , Lang.Spanish
                      , Lang.French
                      , Lang.German
+                     , Import.Format
 
   default-language:    Haskell2010
   Ghc-Options:         -W -Wcompat
