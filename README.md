@@ -81,7 +81,7 @@ stack install herms
 ##### Manually cloning and installing from source with Stack
 
 ```
-git clone https://github.com/JackKiefer/herms
+git clone https://github.com/LuxMiranda/herms
 cd herms
 stack update
 stack install
