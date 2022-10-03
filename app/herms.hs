@@ -23,10 +23,13 @@ import Data.Monoid ()
 import Data.Ratio
 import Data.String (IsString (..))
 import qualified Data.Yaml as Yaml
+import qualified Export.Format as EF
+import Export.Html (htmlDoc, toHtml)
+import Export.Org (toOrg)
 import Find
 import Foreign.C.Error
 import GHC.IO.Exception
-import Html (htmlDoc, toHtml)
+import qualified Import.Format as IF
 import qualified Lang.Strings as Str
 import Options.Applicative
 import ReadConfig
@@ -140,20 +143,25 @@ importFile target format = do
   let t = translator config
 
   -- Read the new recipe book from the filesystem
-  fmt <- liftIO $ readFormat t format
+  fmt <- liftIO $
+    case IF.readImportFormat format of
+      Just f -> return f
+      Nothing ->
+        putStrLn (t Str.unsupportedFormat ++ format)
+          >> putStrLn (t Str.supportedFormats)
+          >> exitFailure
   otherRecipeBook <- (liftIO :: IO [Recipe] -> HermsReader IO [Recipe]) $
     case fmt of
-      JSON ->
+      IF.JSON ->
         ((Json.eitherDecodeStrict' <$> BS.readFile target) :: IO (Either String [Recipe]))
           >>= \case
             Right book -> pure (book :: [Recipe])
             Left err -> putStrLn err >> exitFailure
-      YAML ->
+      IF.YAML ->
         (Yaml.decodeFileEither target :: IO (Either Yaml.ParseException [Recipe]))
           >>= \case
             Right book -> pure (book :: [Recipe])
             Left err -> print err >> exitFailure
-      HTML -> putStrLn "Only JSON/YAML supported" >> exitFailure
 
   -- Combine the new recipes with the old
   let recipeEq = (==) `on` recipeName
@@ -170,21 +178,17 @@ importFile target format = do
         forM_ otherRecipeBook $ \recipe ->
           putStrLn $ "  " ++ recipeName recipe
 
--- | @readFormat attempts to parse the user-provided import or export format.
-readFormat :: Translator -> String -> IO Format
-readFormat _ "json" = pure JSON
-readFormat _ "yaml" = pure YAML
-readFormat _ "html" = pure HTML
-readFormat t other =
-  putStrLn (t Str.unsupportedFormat ++ other)
-    >> putStrLn (t Str.supportedFormats)
-    >> exitFailure
-
 export :: [String] -> String -> HermsReader IO ()
 export targets format = do
   (config, recipeBook) <- ask
   let t = translator config
-  fmt <- liftIO $ readFormat t format
+  fmt <- liftIO $
+    case EF.readExportFormat format of
+      Just f -> return f
+      Nothing ->
+        putStrLn (t Str.unsupportedFormat ++ format)
+          >> putStrLn (t Str.supportedFormats)
+          >> exitFailure
   let realTargets =
         if null targets
           then Just recipeBook
@@ -195,9 +199,10 @@ export targets format = do
       Nothing -> t Str.doesNotExist
       Just recipes -> fromString $
         case fmt of
-          JSON -> BSL.unpack $ Json.encode recipes
-          YAML -> BS.unpack $ Yaml.encode recipes
-          HTML -> htmlDoc (Just "/style.css") $ concatMap toHtml recipes
+          EF.JSON -> BSL.unpack $ Json.encode recipes
+          EF.YAML -> BS.unpack $ Yaml.encode recipes
+          EF.HTML -> htmlDoc (Just "/style.css") $ concatMap toHtml recipes
+          EF.Org -> toOrg recipes
 
 getServingsAndConv :: Int -> String -> Config -> (Maybe Int, Conversion)
 getServingsAndConv serv convName config = (servings, conv)

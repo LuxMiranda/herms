@@ -7,8 +7,8 @@ name:               herms
 -- The package description
 description:        HeRM's: a Haskell-based Recipe Manager for delicious kitchen recipes
 tested-with:        GHC == 8.6.5
-                    GHC == 8.8.1
-                    GHC == 8.8.4
+                    GHC == 8.8.3
+                    GHC == 8.10.4
 
 version:            2.0.0
 
@@ -58,15 +58,18 @@ library
                      , ReadConfig
                      , Types
                      , Find
-                     , Html
                      , UnitConversions
                      , Paths_herms
+                     , Export.Format
+                     , Export.Html
+                     , Export.Org
                      , Lang.Strings
                      , Lang.Pirate
                      , Lang.Portuguese
                      , Lang.Spanish
                      , Lang.French
                      , Lang.German
+                     , Import.Format
 
   default-language:    Haskell2010
   Ghc-Options:         -W -Wcompat
