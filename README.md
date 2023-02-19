@@ -48,11 +48,12 @@ See [the changelog](./CHANGELOG.md) for more details.
 
 #### Supported languages
 
+- català
 - English
-- Español (Spanish)
-- Français (French)
-- Pirate
-- Portuguese
+- Español
+- français
+- Pirate (English)
+- português
 
 ### Contributing
 
@@ -60,6 +61,7 @@ Herms is very actively maintained and welcomes new contributions, whether in
 code, issues, documentation, translations, or feature suggestions!
 
 Please see [Contributing.md](./Contributing.md) for more information.
+
 
 ### Installation
 
@@ -70,6 +72,7 @@ works!
 
 If you're interested developing/hacking Herm's instead of just using it, see
 [Contributing.md](./Contributing.md) instead.
+
 
 ##### Via Stack
 
@@ -86,6 +89,7 @@ cd herms
 stack update
 stack install
 ```
+
 
 ##### Via Hackage and Cabal
 
@@ -109,7 +113,9 @@ cabal install
 
 See [./nix/README.md](./nix/README.md).
 
+
 ### Usage
+
 
 #### Command-line interface
 
@@ -139,6 +145,7 @@ Usage: herms [-v|--version] COMMAND
                                (supports extended regex)
 ```
 
+
 #### Configuring Herm's and managing recipe files
 
 Herm's stores files in the following locations:
@@ -166,8 +173,7 @@ options:
   `~/herms/data`, for example, and you want a recipe file in your home directory
   called `~/GrandmasHugeCookbook.yaml`, set this option to
   `"../../GrandmasHugeCookbook.yaml"`.
-- `language` : Human language to use. Currently supported: ``"Français"``,
-  ``"English"``, ``"Pirate"``
+- `language` : Human language to use. See above supported languages.
 
 
 ---
