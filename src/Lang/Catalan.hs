@@ -5,7 +5,7 @@ import Lang.Strings
 catalan :: String -> String
 catalan str
   | is tuiTitle = "                             Herm's - Afegir/Editar una recepta"
-  | is tuiName = "        Nom: "
+  | is tuiName = "        Nom:   "
   | is tuiDesc = "   Descripció: "
   | is tuiServingSize = "     Porcions: "
   | is tuiHeaders = "                quant. unitat         nom                       atribut"
@@ -13,7 +13,7 @@ catalan str
   | is tuiDirs = " Instruccions: \n(una per línia)  "
   | is tuiTags = "     Etiquetes: "
   | is tuiHelp1 = "                      Tab / Shift+Tab           - Següent / Camp anterior"
-  | is tuiHelp2 = "                      Ctrl + <cursor>          - Navegar camps"
+  | is tuiHelp2 = "                      Ctrl + <cursor>           - Navegar camps"
   | is tuiHelp3 = "                      [Meta o Alt] + <h-j-k-l>  - Navegar camps"
   | is tuiHelp4 = "                      Esc                       - Desar o Cancel·lar"
   | is headerServs = "\nRacions: "
