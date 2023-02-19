@@ -1,8 +1,12 @@
 # Changelog
 
+
+
 ### Unreleased
 
 * HTML export
+* Catalan language translation
+
 
 ### v2.0.1 - 2020-10-17
 
