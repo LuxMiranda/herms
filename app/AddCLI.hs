@@ -234,8 +234,8 @@ theMap :: A.AttrMap
 theMap =
   A.attrMap
     V.defAttr
-    [ (E.editAttr, V.white `on` V.black),
-      (E.editFocusedAttr, V.black `on` V.white)
+    [ (E.editAttr, V.brightWhite `on` V.black),
+      (E.editFocusedAttr, V.black `on` V.brightWhite)
     ]
 
 appCursor :: St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
