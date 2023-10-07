@@ -6,8 +6,10 @@ name:               herms
 
 -- The package description
 description:        HeRM's: a Haskell-based Recipe Manager for delicious kitchen recipes
-tested-with:        GHC == 9.6.2
-		    GHC == 8.6.5
+tested-with:        GHC == 8.6.5
+                    GHC == 8.8.1
+                    GHC == 8.8.4
+		    GHC == 9.6.2
 
 version:            2.0.0
 
